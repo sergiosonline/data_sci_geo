@@ -107,7 +107,9 @@ scrape_weather <- function(start_date = NULL, end_date = start_date,
   # Returns:
   #   A dataframe of weather statistics for specified station and frequency and for dates specified
   
-  if(date_type == "hourly"){
+  if(as.Date(start_date) > as.Date(end_date)){stop("End date must be after start date")}
+  
+  else if(date_type == "hourly"){
     min_date <- str_match(suffix_url, "dlyRange=(.*?)%7C")[2]
     max_date <- str_match(suffix_url, "%7C(.*?)&dlyRange=")[2]
     
