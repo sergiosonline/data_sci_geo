@@ -15,6 +15,8 @@ url_df <- data.frame(location = c("Toronto City", "Billy Bishop Airport", "North
                      station_id = c("31688", "48549", "26953", "51459", "54239"),
                      latitude = c("43.666667","43.627500", "43.780020", "43.676667", "43.860833"),
                      longitude = c("-79.400000","-79.396111", "-79.467788", "-79.630556", "-79.368611"),
+                     hourly_start = c("2002-06-04", "2009-12-10", NA, "2013-06-11", "2016-01-13"),
+                     daily_start = c("2002-06-04", "2010-02-02", "1994-11-01", "2013-06-13", "2018-10-29"),
                      url = c("?hlyRange=2002-06-04%7C2019-02-09&dlyRange=2002-06-04%7C2019-02-09&mlyRange=2003-07-01%7C2006-12-01&StationID=31688&Prov=ON&urlExtension=_e.html&searchType=stnProx&optLimit=specDate&StartYear=1840&EndYear=2019&selRowPerPage=25&Line=0&txtRadius=50&optProxType=city&selCity=43%7C39%7C79%7C23%7CToronto&selPark=&txtCentralLatDeg=&txtCentralLatMin=0&txtCentralLatSec=0&txtCentralLongDeg=&txtCentralLongMin=0&txtCentralLongSec=0",
                              "?hlyRange=2009-12-10%7C2019-02-09&dlyRange=2010-02-02%7C2019-02-09&mlyRange=%7C&StationID=48549&Prov=ON&urlExtension=_e.html&searchType=stnProx&optLimit=specDate&StartYear=1840&EndYear=2019&selRowPerPage=25&Line=1&txtRadius=50&optProxType=city&selCity=43%7C39%7C79%7C23%7CToronto&selPark=&txtCentralLatDeg=&txtCentralLatMin=0&txtCentralLatSec=0&txtCentralLongDeg=&txtCentralLongMin=0&txtCentralLongSec=0",
                              "?hlyRange=%7C&dlyRange=1994-11-01%7C2019-02-03&mlyRange=1994-01-01%7C2006-12-01&StationID=26953&Prov=ON&urlExtension=_e.html&searchType=stnProx&optLimit=specDate&StartYear=1840&EndYear=2019&selRowPerPage=25&Line=2&txtRadius=50&optProxType=city&selCity=43%7C39%7C79%7C23%7CToronto&selPark=&txtCentralLatDeg=&txtCentralLatMin=0&txtCentralLatSec=0&txtCentralLongDeg=&txtCentralLongMin=0&txtCentralLongSec=0",
@@ -94,7 +96,7 @@ scrape_weather_daily <- function(date = NULL, base_url = NULL, suffix_url = NULL
                   Tot_Rain, Tot_Snow, Tot_Precip, Ground_Snow, Dir_Max_Gust, Spd_Max_Gust)
 }
 
-scrape_weather <- function(start_date = NULL, end_date = start_date,
+scrape_weather <- function(start_date = NULL, end_date = NULL,
                            base_url = base_url, suffix_url = NULL, date_type = "hourly"){
   # Generates weather statistics found in Government of Canada's website
   #
