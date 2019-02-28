@@ -1,0 +1,487 @@
+#by ward ID
+
+```{r}
+#merge with date
+library(sqldf)
+library(geohash)
+library(dplyr)
+library(DMwR)
+library(stringr)
+
+trt_police_data <- read.csv(file="C:/Users/EDDY/Documents/UNIVERSITY/STA2453/Proj2/Automobile.csv", header=TRUE, sep=",")
+hda <- read.csv(file="C:/Users/EDDY/Documents/UNIVERSITY/STA2453/Proj2/HDA.csv", header=TRUE, sep=",")
+ri <- read.csv(file="C:/Users/EDDY/Documents/UNIVERSITY/STA2453/Proj2/RI.csv", header=TRUE, sep=",")
+
+#define toronto  (lat, long)
+#dufferin station (43.8478259891378, -79.63415642366903)
+#south of St.joseph's health center (43.58456275071165, -79.63415642366903)
+
+#south of st james cemetery (43.8478259891378, -79.1176977805394)
+#south of st lawrance market (43.58456275071165, -79.1176977805394)
+
+tl=c(43.8478259891378, -79.63415642366903)
+bl=c(43.58456275071165, -79.63415642366903)
+tr=c(43.8478259891378, -79.1176977805394)
+br=c(43.58456275071165, -79.1176977805394)
+
+
+trt_police_data2 = trt_police_data #subset(trt_police_data, trt_police_data$YEAR==2017)
+trt_police_data2$Geohash = gh_encode(trt_police_data2$LATITUDE, trt_police_data2$LONGITUDE, precision=7)
+
+trt_police_data3 = subset(trt_police_data2, 43.58456275071165 < trt_police_data2$LATITUDE & trt_police_data2$LATITUDE <43.8478259891378 &  -79.1176977805394>trt_police_data2$LONGITUDE & trt_police_data2$LONGITUDE>-79.63415642366903)
+
+trt_police_data3$count= 1
+trt_police_data3$month= substr(trt_police_data3$DATE,6,7)
+trt_police_data3$year= trt_police_data3$YEAR
+
+
+
+
+
+###########weather
+weather <- read.csv(file="C:/Users/EDDY/Documents/UNIVERSITY/STA2453/Proj2/toronto.csv", header=TRUE, sep=",")
+
+weather=subset(weather, weather$Year >= 2007)
+weather$Geohash = gh_encode(weather$Latitude, weather$Longitude,precision=7)
+
+
+weather$temp_chg = weather$Max.Temp - weather$Min.Temp
+weather$year = weather$Year
+weather$month = NA
+weather$month = str_pad(weather$Month, width=2, pad="0")
+
+
+names(weather)[22]<-paste("rain")
+names(weather)[24]<-paste("snow")
+weather$snow = ifelse(is.na(weather$snow), 0,weather$snow)
+weather$rain = ifelse(is.na(weather$rain), 0,weather$rain)
+
+
+weather_chg = weather %>% 
+    select( year, month, temp_chg) %>% 
+    group_by( year, month) %>%
+    arrange(temp_chg) %>% 
+    slice(n())
+
+
+weather_snow = weather %>% 
+    select( year, month, snow)  %>% 
+    group_by( year, month) %>%
+    arrange(snow) %>% 
+    slice(n())
+
+weather_rain = weather %>% 
+    select( year, month, rain)  %>% 
+    group_by( year, month) %>%
+    arrange(rain) %>% 
+    slice(n())
+
+
+weather_all1 <-  merge(weather_chg, weather_snow, by=c( "year", "month"), all=TRUE)
+weather_all <-  merge(weather_all1, weather_rain, by=c( "year", "month"), all=TRUE)
+
+
+###########
+hda2 = subset(hda, 43.58456275071165 < hda$Latitude & hda$Latitude <43.8478259891378 &  -79.1176977805394>hda$Longitude & hda$Longitude>-79.63415642366903)
+hda2$Geohash = gh_encode(hda2$Latitude, hda2$Longitude,precision=7)
+
+
+hda3 = hda2 %>% 
+    select(Geohash, SeverityScore, IncidentsTotal) %>% 
+    group_by(Geohash) %>%
+    arrange(SeverityScore) %>% 
+    slice(n())
+
+
+###########
+ri2 = subset(ri, 43.58456275071165 < ri$Latitude & ri$Latitude <43.8478259891378 &  -79.1176977805394>ri$Longitude & ri$Longitude>-79.63415642366903)
+ri2$Geohash = gh_encode(ri2$Latitude, ri2$Longitude,precision=7)
+
+
+ri3 = ri2 %>% group_by(Geohash) %>%
+                        summarize(
+                        AvgAcceleration = mean(AvgAcceleration, na.rm=TRUE), AvgMonthlyVolume = mean(AvgMonthlyVolume, na.rm=TRUE), 
+                        PercentOfVehicles = mean(PercentOfVehicles, na.rm=TRUE),PercentCar = mean(PercentCar, na.rm=TRUE),
+                        PercentMPV = mean(PercentMPV, na.rm=TRUE), PercentLDT = mean(PercentLDT, na.rm=TRUE),
+                        PercentMDT = mean(PercentMDT, na.rm=TRUE), PercentOther = mean(PercentOther, na.rm=TRUE)
+                        )
+                       
+# ri3 = ri2 %>% 
+#     select(Geohash,  AvgAcceleration, PercentOfVehicles, AvgMonthlyVolume, PercentCar, PercentMPV, PercentLDT,PercentMDT, PercentHDT, PercentOther) %>% 
+#     group_by(Geohash) %>%
+#     arrange(AvgAcceleration) %>% 
+#     slice(n())
+
+
+##########
+#create dataframe
+geohas_all= as.matrix(ri3$Geohash, hda3$Geohash, trt_police_data3$Geohash, ncol=1)
+geohas_all = as.data.frame(geohas_all)
+colnames(geohas_all) = "Geohash"
+
+
+
+geohas_all2 = geohas_all %>% 
+    select(Geohash) %>% 
+    group_by(Geohash) %>%
+    slice(n())
+
+# geohas_all3 = data.frame(Geohash = rep(geohas_all2$Geohash, each = 10*12), year = seq.Date(as.Date("2007-01-01"), as.Date("2017-12-01"), by = "month")  )
+
+
+
+test_new1 <-  merge(trt_police_data3, ri3,  by=c("Geohash"), all.x=TRUE)
+
+test_new2 <- merge(test_new1, hda3, by=c("Geohash"), all.x =TRUE)
+
+#summing over accident count Bby ward, year, month
+geotab_wid = test_new2 %>% group_by(Ward_ID) %>%
+                        summarize(
+                                  AvgAcceleration = mean(AvgAcceleration, na.rm = TRUE),
+                                  AvgMonthlyVolume = mean(AvgMonthlyVolume, na.rm = TRUE),
+                                  PercentOfVehicles = mean(PercentOfVehicles, na.rm = TRUE),
+                                  PercentCar = mean(PercentCar, na.rm = TRUE),
+                                  PercentMPV = mean(PercentMPV, na.rm = TRUE),
+                                  PercentLDT = mean(PercentLDT, na.rm = TRUE),
+                                  PercentMDT = mean(PercentMDT, na.rm = TRUE),
+                                  PercentOther = mean(PercentOther, na.rm = TRUE),
+                                  SeverityScore = mean(SeverityScore, na.rm = TRUE)
+                                  )
+
+
+accident_sum = test_new2 %>% group_by(Ward_ID,year, month) %>%
+                        summarize(sum_acc_count = sum(count, na.rm=TRUE))
+
+
+final_data_temp <- merge(accident_sum, geotab_wid, by=c("Ward_ID"), all.x =TRUE)
+
+final_data <- merge(final_data_temp, weather_all, by=c("year", "month"), all.x =TRUE) 
+
+
+write.csv(final_data, file = "C:/Users/EDDY/Documents/UNIVERSITY/STA2453/Proj2/data_by_wardID_v2019-02-28.csv")
+
+```
+
+
+
+```{r}
+#################################old 
+```
+
+
+```{r}
+#this part is to merge data by geohas
+#bottom part is to merge data by geohash and year month
+library(sqldf)
+library(geohash)
+library(dplyr)
+library(DMwR)
+
+trt_police_data <- read.csv(file="C:/Users/EDDY/Documents/UNIVERSITY/STA2453/Proj2/Automobile.csv", header=TRUE, sep=",")
+hda <- read.csv(file="C:/Users/EDDY/Documents/UNIVERSITY/STA2453/Proj2/HDA.csv", header=TRUE, sep=",")
+ri <- read.csv(file="C:/Users/EDDY/Documents/UNIVERSITY/STA2453/Proj2/RI.csv", header=TRUE, sep=",")
+
+#define toronto  (lat, long)
+#dufferin station (43.8478259891378, -79.63415642366903)
+#south of St.joseph's health center (43.58456275071165, -79.63415642366903)
+
+#south of st james cemetery (43.8478259891378, -79.1176977805394)
+#south of st lawrance market (43.58456275071165, -79.1176977805394)
+
+#actual
+tl=c(43.76998717701133, -79.63415642366903)
+bl=c(43.58456275071165, -79.54197555369086)
+tr=c(43.8478259891378, -79.19953783028689)
+br=c(43.79396419181506, -79.1176977805394)
+
+#simplified to box (max of edges)
+tl=c(43.8478259891378, -79.63415642366903)
+bl=c(43.58456275071165, -79.63415642366903)
+tr=c(43.8478259891378, -79.1176977805394)
+br=c(43.58456275071165, -79.1176977805394)
+
+
+
+trt_police_data2 = trt_police_data #subset(trt_police_data, trt_police_data$YEAR==2017)
+trt_police_data2$Geohash = gh_encode(trt_police_data2$LATITUDE, trt_police_data2$LONGITUDE, precision=7)
+
+trt_police_data3 = subset(trt_police_data2, 43.58456275071165 < trt_police_data2$LATITUDE & trt_police_data2$LATITUDE <43.8478259891378 &  -79.1176977805394>trt_police_data2$LONGITUDE & trt_police_data2$LONGITUDE>-79.63415642366903)
+
+trt_police_data3$count= 1
+
+#summing over accident count in 2017
+accident_sum = trt_police_data3 %>% group_by(Geohash) %>%
+                        summarize(sum_acc_count = sum(count, na.rm=TRUE))
+
+
+
+###########
+hda2 = subset(hda, 43.58456275071165 < hda$Latitude & hda$Latitude <43.8478259891378 &  -79.1176977805394>hda$Longitude & hda$Longitude>-79.63415642366903)
+hda2$Geohash = gh_encode(hda2$Latitude, hda2$Longitude,precision=7)
+
+#hda3 <- sqldf('SELECT geohash, SeverityScore, IncidentsTotal, UpdateDate as UpdateDate_hda FROM hda2')
+
+hda3 = hda2 %>% 
+    select(Geohash, SeverityScore, IncidentsTotal) %>% 
+    group_by(Geohash) %>%
+    arrange(SeverityScore) %>% 
+    slice(n())
+
+# Latitude_SW as LatitudeSW_hda, Longitude_SW as LongitudeSW_hda, Latitude_NE as LatitudeNE_hda, Longitude_NE as LongitudeNE_hda
+
+###########
+ri2 = subset(ri, 43.58456275071165 < ri$Latitude & ri$Latitude <43.8478259891378 &  -79.1176977805394>ri$Longitude & ri$Longitude>-79.63415642366903)
+ri2$Geohash = gh_encode(ri2$Latitude, ri2$Longitude,precision=7)
+
+#ri3 <- sqldf('SELECT geohash, AvgAcceleration, PercentOfVehicles, AvgMonthlyVolume, PercentCar, PercentMPV, PercentLDT,PercentMDT, PercentHDT, PercentOther FROM ri2')
+
+
+ri3 = ri2 %>% 
+    select(Geohash,  AvgAcceleration, PercentOfVehicles, AvgMonthlyVolume, PercentCar, PercentMPV, PercentLDT,PercentMDT, PercentHDT, PercentOther) %>% 
+    group_by(Geohash) %>%
+    arrange(AvgAcceleration) %>% 
+    slice(n())
+
+#,  Latitude_SW as LatitudeSW_ri, Longitude_SW as LongitudeSW_ri, Latitude_NE as LatitudeNE_ri, Longitude_NE as LongitudeNE_ri
+
+###########
+pedestrain <- read.csv(file="C:/Users/EDDY/Documents/UNIVERSITY/STA2453/Proj2/8hrVeh&PedVolume_6-Mar-2018.csv", header=TRUE, sep=",")
+
+pedestrain$Geohash = gh_encode(pedestrain$Latitude, pedestrain$Longitude, precision=7)
+pedestrain2 = subset(pedestrain, 43.58456275071165 < pedestrain$Latitude & pedestrain$Latitude <43.8478259891378 &  -79.1176977805394>pedestrain$Longitude & pedestrain$Longitude>-79.63415642366903)
+
+#picking the most updated one
+pedestrain3 = pedestrain2 %>% 
+    select(Count.Date, Geohash, X8.Peak.Hr.Vehicle.Volume, X8.Peak.Hr.Pedestrian.Volume) %>% 
+    group_by(Geohash) %>% 
+    mutate(Count.Date=as.Date(Count.Date, format = "%m/%d/%Y"))
+
+pedestrain3 = pedestrain3 %>% 
+    arrange(Count.Date) %>% 
+    slice(n())
+
+###########
+ontario_pop <- read.csv(file="C:/Users/EDDY/Documents/UNIVERSITY/STA2453/Proj2/Ontario population count.csv", header=TRUE, sep=",")
+ontario_pop2 = subset(ontario_pop, GEO == "Ontario")
+
+
+
+##########
+test <-  merge(hda3, ri3, by=c("Geohash"), all=TRUE)
+
+test2 <-  merge(test, accident_sum, by=c("Geohash"), all=TRUE)
+
+test3 <-  merge(test2, pedestrain3, by=c("Geohash"), all=TRUE)
+
+
+test4 = test3  %>% select(Geohash, AvgAcceleration, PercentOfVehicles, AvgMonthlyVolume, PercentCar, PercentMPV, PercentLDT,PercentMDT, PercentHDT, PercentOther, Count.Date, SeverityScore, IncidentsTotal, sum_acc_count, X8.Peak.Hr.Vehicle.Volume, X8.Peak.Hr.Pedestrian.Volume)
+              
+write.csv(test4, file = "C:/Users/EDDY/Documents/UNIVERSITY/STA2453/Proj2/original_data.csv")
+
+#########knn
+
+test5 = data.frame(cbind(test4$Geohash, test4$AvgAcceleration, test4$PercentOfVehicles, test4$AvgMonthlyVolume, test4$SeverityScore, test4$X8.Peak.Hr.Vehicle.Volume, test4$X8.Peak.Hr.Pedestrian.Volume))
+test6 = knnImputation(test5)
+
+colnames(test6) <- c("Geohash", "AvgAcceleration", "PercentOfVehicles", "AvgMonthlyVolume", "SeverityScore", "X8.Peak.Hr.Vehicle.Volume", "X8.Peak.Hr.Pedestrian.Volume")  
+
+write.csv(test6, file = "C:/Users/EDDY/Documents/UNIVERSITY/STA2453/Proj2/knn_data.csv")
+
+#########regression
+
+
+#missing = subset(test4, is.na(X8.Peak.Hr.Pedestrian.Volume))
+
+impute = test4 %>% 
+    select( AvgAcceleration, PercentOfVehicles, AvgMonthlyVolume, PercentCar, PercentMPV, PercentLDT,PercentMDT, PercentHDT, PercentOther, X8.Peak.Hr.Pedestrian.Volume)
+
+hat_pedetrain = lm(impute$X8.Peak.Hr.Pedestrian.Volume~ impute$AvgAcceleration+ impute$PercentOfVehicles+ impute$AvgMonthlyVolume)
+
+impute_pedetrian = predict.lm(hat_pedetrain,newdata=impute)
+
+test7 = cbind(test4, impute_pedetrian)
+
+```
+
+
+
+
+
+
+
+```{r}
+#merge with date
+library(sqldf)
+library(geohash)
+library(dplyr)
+library(DMwR)
+library(stringr)
+
+trt_police_data <- read.csv(file="C:/Users/EDDY/Documents/UNIVERSITY/STA2453/Proj2/Automobile.csv", header=TRUE, sep=",")
+hda <- read.csv(file="C:/Users/EDDY/Documents/UNIVERSITY/STA2453/Proj2/HDA.csv", header=TRUE, sep=",")
+ri <- read.csv(file="C:/Users/EDDY/Documents/UNIVERSITY/STA2453/Proj2/RI.csv", header=TRUE, sep=",")
+
+#define toronto  (lat, long)
+#dufferin station (43.8478259891378, -79.63415642366903)
+#south of St.joseph's health center (43.58456275071165, -79.63415642366903)
+
+#south of st james cemetery (43.8478259891378, -79.1176977805394)
+#south of st lawrance market (43.58456275071165, -79.1176977805394)
+
+tl=c(43.8478259891378, -79.63415642366903)
+bl=c(43.58456275071165, -79.63415642366903)
+tr=c(43.8478259891378, -79.1176977805394)
+br=c(43.58456275071165, -79.1176977805394)
+
+
+trt_police_data2 = trt_police_data #subset(trt_police_data, trt_police_data$YEAR==2017)
+trt_police_data2$Geohash = gh_encode(trt_police_data2$LATITUDE, trt_police_data2$LONGITUDE, precision=7)
+
+trt_police_data3 = subset(trt_police_data2, 43.58456275071165 < trt_police_data2$LATITUDE & trt_police_data2$LATITUDE <43.8478259891378 &  -79.1176977805394>trt_police_data2$LONGITUDE & trt_police_data2$LONGITUDE>-79.63415642366903)
+
+trt_police_data3$count= 1
+trt_police_data3$month= substr(trt_police_data3$DATE,6,7)
+trt_police_data3$year= trt_police_data3$YEAR
+
+
+
+#summing over accident count in 2017
+accident_sum = trt_police_data3 %>% group_by(Geohash,year, month) %>%
+                        summarize(sum_acc_count = sum(count, na.rm=TRUE))
+
+
+###########
+pedestrain <- read.csv(file="C:/Users/EDDY/Documents/UNIVERSITY/STA2453/Proj2/8hrVeh&PedVolume_6-Mar-2018.csv", header=TRUE, sep=",")
+
+pedestrain$Geohash = gh_encode(pedestrain$Latitude, pedestrain$Longitude, precision=7)
+pedestrain2 = subset(pedestrain, 43.58456275071165 < pedestrain$Latitude & pedestrain$Latitude <43.8478259891378 &  -79.1176977805394>pedestrain$Longitude & pedestrain$Longitude>-79.63415642366903)
+
+#picking the most updated one
+pedestrain3 = pedestrain2 %>% 
+    select(Count.Date, Geohash, X8.Peak.Hr.Vehicle.Volume, X8.Peak.Hr.Pedestrian.Volume) %>% 
+    group_by(Geohash) %>% 
+    mutate(Count.Date=as.Date(Count.Date, format = "%m/%d/%Y"))
+
+pedestrain3 = pedestrain3 %>% 
+    arrange(Count.Date) %>% 
+    slice(n())
+
+###########weather
+weather <- read.csv(file="C:/Users/EDDY/Documents/UNIVERSITY/STA2453/Proj2/toronto.csv", header=TRUE, sep=",")
+
+weather=subset(weather, weather$Year >= 2007)
+weather$Geohash = gh_encode(weather$Latitude, weather$Longitude,precision=7)
+
+
+weather$temp_chg = weather$Max.Temp - weather$Min.Temp
+weather$year = weather$Year
+weather$month = NA
+weather$month = str_pad(weather$Month, width=2, pad="0")
+
+
+names(weather)[22]<-paste("rain")
+names(weather)[24]<-paste("snow")
+weather$snow = ifelse(is.na(weather$snow), 0,weather$snow)
+weather$rain = ifelse(is.na(weather$rain), 0,weather$rain)
+
+
+weather_chg = weather %>% 
+    select( year, month, temp_chg) %>% 
+    group_by( year, month) %>%
+    arrange(temp_chg) %>% 
+    slice(n())
+
+
+weather_snow = weather %>% 
+    select( year, month, snow)  %>% 
+    group_by( year, month) %>%
+    arrange(snow) %>% 
+    slice(n())
+
+weather_rain = weather %>% 
+    select( year, month, rain)  %>% 
+    group_by( year, month) %>%
+    arrange(rain) %>% 
+    slice(n())
+
+
+weather_all1 <-  merge(weather_chg, weather_snow, by=c( "year", "month"), all=TRUE)
+weather_all <-  merge(weather_all1, weather_rain, by=c( "year", "month"), all=TRUE)
+
+
+###########
+hda2 = subset(hda, 43.58456275071165 < hda$Latitude & hda$Latitude <43.8478259891378 &  -79.1176977805394>hda$Longitude & hda$Longitude>-79.63415642366903)
+hda2$Geohash = gh_encode(hda2$Latitude, hda2$Longitude,precision=7)
+
+
+hda3 = hda2 %>% 
+    select(Geohash, SeverityScore, IncidentsTotal) %>% 
+    group_by(Geohash) %>%
+    arrange(SeverityScore) %>% 
+    slice(n())
+
+
+###########
+ri2 = subset(ri, 43.58456275071165 < ri$Latitude & ri$Latitude <43.8478259891378 &  -79.1176977805394>ri$Longitude & ri$Longitude>-79.63415642366903)
+ri2$Geohash = gh_encode(ri2$Latitude, ri2$Longitude,precision=7)
+
+
+ri3 = ri2 %>% group_by(Geohash) %>%
+                        summarize(
+                        AvgAcceleration = mean(AvgAcceleration, na.rm=TRUE), AvgMonthlyVolume = mean(AvgMonthlyVolume, na.rm=TRUE), 
+                        PercentOfVehicles = mean(PercentOfVehicles, na.rm=TRUE),PercentCar = mean(PercentCar, na.rm=TRUE),
+                        PercentMPV = mean(PercentMPV, na.rm=TRUE), PercentLDT = mean(PercentLDT, na.rm=TRUE),
+                        PercentMDT = mean(PercentMDT, na.rm=TRUE), PercentOther = mean(PercentOther, na.rm=TRUE)
+                        )
+                       
+# ri3 = ri2 %>% 
+#     select(Geohash,  AvgAcceleration, PercentOfVehicles, AvgMonthlyVolume, PercentCar, PercentMPV, PercentLDT,PercentMDT, PercentHDT, PercentOther) %>% 
+#     group_by(Geohash) %>%
+#     arrange(AvgAcceleration) %>% 
+#     slice(n())
+
+
+##########
+#create dataframe
+geohas_all= as.matrix(ri3$Geohash, hda3$Geohash, trt_police_data3$Geohash, ncol=1)
+geohas_all = as.data.frame(geohas_all)
+colnames(geohas_all) = "Geohash"
+
+
+
+geohas_all2 = geohas_all %>% 
+    select(Geohash) %>% 
+    group_by(Geohash) %>%
+    slice(n())
+
+# geohas_all3 = data.frame(Geohash = rep(geohas_all2$Geohash, each = 10*12), year = seq.Date(as.Date("2007-01-01"), as.Date("2017-12-01"), by = "month")  )
+
+
+
+test_new1 <-  merge(pedestrain3, accident_sum,  by=c("Geohash"), all.x=TRUE)
+
+test_new2 <- merge(test_new1, ri3, by=c("Geohash"), all=TRUE)
+
+test_new3 <- merge(test_new2, hda3, by=c("Geohash"), all=TRUE)
+
+test_new4 <- merge(test_new3, weather_all,by=c("year", "month"), all.x=TRUE)
+
+
+write.csv(test_new4, file = "C:/Users/EDDY/Documents/UNIVERSITY/STA2453/Proj2/data_by_month_7.csv")
+
+
+test_new4_ll = cbind(test_new4, gh_decode(test_new4$Geohash))
+write.csv(test_new4_ll, file = "C:/Users/EDDY/Documents/UNIVERSITY/STA2453/Proj2/data_by_month_v2019-02-25.csv")
+
+##########knn
+test5 = data.frame(cbind(test_new4$Geohash, test_new4$AvgAcceleration, test_new4$PercentOfVehicles, test_new4$AvgMonthlyVolume, test_new4$SeverityScore, test_new4$X8.Peak.Hr.Vehicle.Volume, test_new4$X8.Peak.Hr.Pedestrian.Volume))
+test6 = knnImputation(test5)
+
+colnames(test6) <- c("Geohash", "AvgAcceleration", "PercentOfVehicles", "AvgMonthlyVolume", "SeverityScore", "X8.Peak.Hr.Vehicle.Volume", "X8.Peak.Hr.Pedestrian.Volume")  
+
+write.csv(test6, file = "C:/Users/EDDY/Documents/UNIVERSITY/STA2453/Proj2/knn_data.csv")
+
+```
+
+
+
