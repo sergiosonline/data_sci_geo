@@ -1,0 +1,87 @@
+---
+title: "Don't Break a Leg! Road Safety in the City of Toronto"
+subtitle: "STA2453 - Project II Draft"
+author: "Sunwoo (Angela) Kang, Sergio E. Betancourt, Jing Li, and Jiahui (Eddy) Du"
+date: '2019-03-08'
+output:
+  pdf_document: default
+header-includes:
+- \usepackage{titling}
+- \usepackage{setspace}\singlespacing
+- \usepackage{subfig}
+geometry: margin=1.5cm
+
+---
+
+```{r setup, include=FALSE}
+library(MASS); library(lmtest); library(knitr); library(kableExtra); library(nleqslv);
+library(Pmisc); library(extrafont); library(VGAM); library(INLA); library(MEMSS);
+library(nlme); library(ciTools)
+knitr::opts_chunk$set(fig.pos = 'H');
+```
+
+# Introduction
+
+Road traffic safety is a crucial component of urban planning and development. Nowadays governments (and sometimes the private sector) dedicate significant resources to providing ample and sufficient infrastructure to accommodate diverse modes of transportation, thereby increasing the productivity of any given urban area. In this project we examine road safety in the City of Toronto in the year 2018 and explore the areas with highest risk of a traffic incident, controlling for different factors.
+
+```{r echo=FALSE, fig.pos='H', fig.align='center', out.width='80%', fig.cap="\\label{fig:figs}Population of the City of Toronto by neighborhood in the census year 2016"}
+url0 <- "https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/reports/draft/STA2453-Toronto-2016.png"
+download.file(url = url0,
+          destfile = "Toronto-2016.png",
+          mode = 'wb')
+knitr::include_graphics(path="Toronto-2016.png")
+```
+
+
+|Conv Layer|Filter Size|No. of Filters|
+|:---------|:----------|:-------------|
+| 1st      | kernel    | num_filters  |
+| 2nd      | kernel    | $2 \times$num_filters |
+| 3rd      | kernel    | $2 \times$num_filters |
+| 4th      | kernel    | num_filters |
+| 5th      | kernel    | 3 |
+| 6th      | kernel    | 3 |
+
+
+
+# Methods
+
+For our analysis we employed data from Geotab (https://www.data.geotab.com), the City of Toronto (https://www.toronto.ca/city-government/data-research-maps), and the Toronto Police Service (http://data.torontopolice.on.ca). Each of these datasets contains different levels of granularity and information, so we combined them to obtain the following variables of interest:
+
+*
+
+*
+
+*
+
+*
+
+### Data Preparation
+
+We first merge the Road Impediment and Hazardous Driving Areas (Geotab) with the Toronto Police Service dataset by geohash. After merging, we calculate the aggregate incidents counts by ward and month. And we take the mean of acceleration, vehicle volumes and severity scores information per ward. We then append the monthly weather information of toronto area by month.
+
+Ultimately we 
+
+
+### Modeling
+
+We model our outcome of interest using a temporal model (to be expanded to spatial in the following iteration).
+
+
+
+
+# Results
+
+
+
+
+# Conclusions and Discussion
+
+One of the biggest limitations in our project was data quality and granularity. We opted for focusing on external data procured from the City of Toronto due to its higher granularity, time frame, and lower number of missing values.
+
+
+#Appendix: Code
+
+```{r ref.label=knitr::all_labels(), echo = T, eval = F}
+```
+
