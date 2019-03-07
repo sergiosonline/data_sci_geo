@@ -16,7 +16,7 @@ geometry: margin=1.5cm
 ```{r setup, include=FALSE}
 library(MASS); library(lmtest); library(knitr); library(kableExtra); library(nleqslv);
 library(Pmisc); library(extrafont); library(VGAM); library(INLA); library(MEMSS);
-library(nlme); library(ciTools)
+library(nlme); library(ciTools); library(tibble); library(sp); library(dplyr);
 knitr::opts_chunk$set(fig.pos = 'H');
 ```
 
@@ -24,16 +24,82 @@ knitr::opts_chunk$set(fig.pos = 'H');
 
 Road traffic safety is a crucial component of urban planning and development. Nowadays governments (and sometimes the private sector) dedicate significant resources to providing ample and sufficient infrastructure to accommodate diverse modes of transportation, thereby increasing the productivity of any given urban area. In this project we examine road safety in the City of Toronto in the year 2018 and explore the areas with highest risk of a traffic incident, controlling for different factors.
 
-```{r echo=FALSE, fig.pos='H', fig.align='center', out.width='80%', fig.cap="\\label{fig:figs}Population of the City of Toronto by neighborhood in the census year 2016"}
-url0 <- "https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/reports/draft/STA2453-Toronto-2016.png"
-download.file(url = url0,
-          destfile = "Toronto-2016.png",
-          mode = 'wb')
-knitr::include_graphics(path="Toronto-2016.png")
+
+# Methods
+
+We define the City of Toronto as per the these guidelines (https://www.toronto.ca/city-government/data-research-maps/neighbourhoods-communities/neighbourhood-profiles/). Below are the neighborhood limits and the 2016 population estimates:
+```{r echo=FALSE, eval=F}
+# Loading polygon and population data from the City of Toronto
+population <- read.csv("https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/data/neighbourhoods_planning_areas_wgs84_SEB/Wellbeing_TO_2016%20Census_Total%20Pop_Total%20Change_Age%20Groups.csv",stringsAsFactors = FALSE,header=T)
+
+require(sf)
+shape <- read_sf(dsn = "https://github.com/sergiosonline/data_sci_geo/blob/master/data/neighbourhoods_planning_areas_wgs84_SEB/NEIGHBORHOODS_WGS84.shp?raw=true", layer = "NEIGHBORHOODS_WGS84")
+
+neighborhoods <- shape
+
+# Adding populaation info to neighborhood polygon
+neighborhoods <- add_column(neighborhoods, '2016pop'=NA, 'x_coords' = NA, 'y_coords' = NA)
+
+# Separating X and Y coordinates from polygon
+for (hood in neighborhoods$AREA_NAME) {
+  ## Adding population
+  pop = as.numeric(neighborhoods[neighborhoods$AREA_NAME == hood,][["AREA_S_CD"]])
+  neighborhoods[neighborhoods$AREA_NAME == hood,]$'2016pop' = 
+    population[population$HoodID == pop,]$Pop2016
+  ## Adding x-y
+  temp = unlist(subset(neighborhoods,AREA_NAME == hood)$geometry[[1]])
+  ll = length(temp)
+  x_coord = list(temp[1:(ll/2)])
+  y_coord = list(temp[((ll/2)+1):ll])
+  neighborhoods[neighborhoods$AREA_NAME == hood,]$x_coords = x_coord
+  neighborhoods[neighborhoods$AREA_NAME == hood,]$y_coords = y_coord
+}
+
+st_write(neighborhoods,"~/Desktop/Grad_School/COURSEWORK/Spring 2019/Data Science/rough work/neighbourhoods_planning_areas_wgs84_SEB/NEIGHBORHOODS_WGS84.shp",
+         , delete_layer = TRUE)
+
+require(sf)
+neighborhoods <- read_sf(dsn = "~/Desktop/Grad_School/COURSEWORK/Spring 2019/Data Science/rough work/neighbourhoods_planning_areas_wgs84_SEB/", layer = "NEIGHBORHOODS_WGS84")
+
+plot(neighborhoods)
 ```
 
 
-|Conv Layer|Filter Size|No. of Filters|
+```{r echo=F, fig.pos='H', fig.align='center', out.width=c('80%','80%'),fig.subcap=c('Population by neighborhood in the census year 2016', 'Fata collisions 2010-2016'),  fig.cap="\\label{fig:figs}EDA with regards to the City of Toronto"}
+
+## Visualizing above polygon, after customization
+url0 <- "https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/reports/draft/STA2453-Toronto-2016.png"
+download.file(url = url0,
+          destfile = "toronto-population.png",
+          mode = 'wb')
+
+# Visualization of fatal vehicular incidents in the City of Toronto 2010-2016
+collisiondat <- read.csv("https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/data/Fatal_Collisions.csv", header=T, stringsAsFactors = FALSE)
+
+coordinates(collisiondat) <- ~LONGITUDE+LATITUDE
+#4326 - WGS84 std
+proj4string(collisiondat) <- "+init=epsg:3034" #"+init=epsg:4326" 
+data_L93 <- spTransform(collisiondat, CRS("+proj=lcc +lat_1=44 +lat_2=49 +lat_0=46.5 +lon_0=3 +x_0=490000 +y_0=4620000 +ellps=GRS80 +units=m +no_defs"))
+#x_0/y_0 = 0.1060606
+
+data_L93 <- spTransform(collisiondat, CRS("+proj=longlat +lat_1=44 +lat_2=49 +lat_0=46.5 +lon_0=3 +x_0=490000 +y_0=4620000 +ellps=GRS80 +units=m +no_defs"))
+
+url1 <- "https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/reports/draft/STA2453-Toronto-2016.png"
+download.file(url = url0,
+          destfile = "toronto_incidents.png",
+          mode = 'wb')
+
+knitr::include_graphics(path="Toronto-2016.png")
+
+#spTransform() #Transform polygon or raster into Euclidian object - 3026 is Google std
+```
+
+
+
+For our analysis we employed data from Geotab (https://www.data.geotab.com), the City of Toronto (https://www.toronto.ca/city-government/data-research-maps), the Weather Network ((http://theweathernetwork.com), and the Toronto Police Service (http://data.torontopolice.on.ca). Each of these datasets contains different levels of granularity and information, so we combined them to obtain the following variables of interest:
+
+
+|City of Toronto|Toronto Police|Geotab|
 |:---------|:----------|:-------------|
 | 1st      | kernel    | num_filters  |
 | 2nd      | kernel    | $2 \times$num_filters |
@@ -41,20 +107,6 @@ knitr::include_graphics(path="Toronto-2016.png")
 | 4th      | kernel    | num_filters |
 | 5th      | kernel    | 3 |
 | 6th      | kernel    | 3 |
-
-
-
-# Methods
-
-For our analysis we employed data from Geotab (https://www.data.geotab.com), the City of Toronto (https://www.toronto.ca/city-government/data-research-maps), and the Toronto Police Service (http://data.torontopolice.on.ca). Each of these datasets contains different levels of granularity and information, so we combined them to obtain the following variables of interest:
-
-*
-
-*
-
-*
-
-*
 
 ### Data Preparation
 
@@ -68,7 +120,11 @@ Ultimately we
 We model our outcome of interest using a temporal model (to be expanded to spatial in the following iteration).
 
 
+```{r echo=F}
+# Loading final monthly incident data, by neighborhood
+incidentdat <- read.csv("https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/data/incident_by_year_month_ward_2Mar.csv", header=T, stringsAsFactors = F)
 
+```
 
 # Results
 
@@ -77,8 +133,19 @@ We model our outcome of interest using a temporal model (to be expanded to spati
 
 # Conclusions and Discussion
 
-One of the biggest limitations in our project was data quality and granularity. We opted for focusing on external data procured from the City of Toronto due to its higher granularity, time frame, and lower number of missing values.
+One of the biggest limitations in our project has been data quality and granularity.
 
+
+#Appendix: Dataset Variables and Definitions
+```{r echo=F}
+var_def <- read.csv("https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/reports/draft/variable_def.csv",header=T, stringsAsFactors = F, sep=",")
+
+knitr::kable(var_def, format="latex", booktab=T, linesep = "") #escape=F, 
+```
+
+\pagebreak
+
+\newpage
 
 #Appendix: Code
 
