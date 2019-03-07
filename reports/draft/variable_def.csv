@@ -1,0 +1,36 @@
+Feature,Description,Source
+YEAR,Year in range (2007-2017) inclusive,Automobile (Toronto Police)
+MONTH,Month in range 1-12 inclusive,Automobile (Toronto Police)
+Ward_ID,Ward in range (1-44) inclusive,Automobile (Toronto Police)
+IncidentsTotal_TP,Total number of incidents ,Automobile (Toronto Police)
+Dark,Count accidents ocurred on dark conditions,Automobile (Toronto Police)
+Dawn,Count accidents ocurred on dawn conditions,Automobile (Toronto Police)
+Daylight,Count accidents ocurred on daylight conditions,Automobile (Toronto Police)
+Dusk,Count accidents ocurred on dusk conditions,Automobile (Toronto Police)
+Inv_PED,Count accidents involved pedstrains,Automobile (Toronto Police)
+Inv_CYC,Count accidents involved cyclists,Automobile (Toronto Police)
+Inv_AM,Count accidents involved automobiles,Automobile (Toronto Police)
+Inv_MC,Count accidents involved motorcycles,Automobile (Toronto Police)
+Inv_TC,Count accidents involved trucks,Automobile (Toronto Police)
+Speeding,Count accidents ocurred on speeding condition,Automobile (Toronto Police)
+Ag_Driv,Count accidents ocurred on angry driving condition,Automobile (Toronto Police)
+Redlight,Count accidents ocurred with redlight ,Automobile (Toronto Police)
+Alcohol,Count accidents ocurred with driver with alcohol ,Automobile (Toronto Police)
+Disability,Count accidents ocurred with driver with disability,Automobile (Toronto Police)
+SeverityScore,Average Score of Severitylevel (harsh brake),HDA(Geotab)
+IncidentsTotal_Geotab,Monthly average of total number of incidents ,HDA(Geotab)
+AvgAcceleration,Monthly average acceleration ,RI(Geotab)
+PercentOfVehicles,Monthly average on percentage of vehicles ,RI(Geotab)
+AvgMonthlyVolume,Monthly average on vehicle volumes,RI(Geotab)
+PercentCar,Monthly average on car percentage,RI(Geotab)
+PercentMPV,Monthly average on MPV percentage,RI(Geotab)
+PercentLDT,Monthly average on LDT percentage,RI(Geotab)
+PercentMDT,Monthly average on MDT percentage,RI(Geotab)
+PercentHDT,Monthly average on HDT percentage,RI(Geotab)
+PercentOther,Monthly average on other vehicle percentage,RI(Geotab)
+Daily_dif,Monthly average on daily Weather change (in celsus),Weather
+Max_Temp,Monthly max on highest daily Weather degree (celsus),Weather
+Min_Temp,Monthly min on lowest daily Weather degree (celsus),Weather
+Ave_Temp,Monthly average on daily average Weather (in celsus),Weather
+Rain_vol,Monthly average on daily rain volumn,Weather
+Snow_vol,Monthly average on daily snow volumn,Weather
