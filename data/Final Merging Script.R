@@ -5,7 +5,8 @@ accident_raw <- read.csv("https://raw.githubusercontent.com/sergiosonline/data_s
                          check.names = F) %>%
   mutate(DATE = as.Date(substr(DATE, 1, nchar(as.character(DATE)) - 13), format = "%Y-%m-%d")) %>%
   rename(longitude = `ï»¿X`, latitude = Y) %>%
-  select(-Hood_Name)
+  select(-Hood_Name) %>%
+  mutate(Days_since_start = difftime(DATE, as.Date("2007-01-01"), units = "days") %>% as.numeric())
 
 weather_raw <- read.csv("https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/data/weather.csv", 
                         check.names = F) %>%
@@ -29,8 +30,7 @@ weather_raw <- read.csv("https://raw.githubusercontent.com/sergiosonline/data_sc
             `Max_ground_snow` = max(`Snow on Grnd (cm)`, na.rm = T))
 
 pop_raw <- read.csv("https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/data/toronto_hood_population_projections_2007-2017.csv",
-                    check.names = F)
-pop_raw <- pop_raw[-1] %>%
+                    check.names = F) %>%
   select(-PopChg11t16, -YearlyGrowthRate) %>%
   gather(Year, Population, -HoodID, -Neighbourhood) %>%
   filter(Year != "Neighbourhood") %>%

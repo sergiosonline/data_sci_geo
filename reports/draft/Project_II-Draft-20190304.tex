@@ -1,0 +1,364 @@
+\documentclass[]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+\else % if luatex or xelatex
+  \ifxetex
+    \usepackage{mathspec}
+  \else
+    \usepackage{fontspec}
+  \fi
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\usepackage[margin=1.5cm]{geometry}
+\usepackage{hyperref}
+\hypersetup{unicode=true,
+            pdftitle={Don't Break a Leg! Road Safety in the City of Toronto},
+            pdfauthor={Sunwoo (Angela) Kang, Sergio E. Betancourt, Jing Li, and Jiahui (Eddy) Du},
+            pdfborder={0 0 0},
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\usepackage{longtable,booktabs}
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\IfFileExists{parskip.sty}{%
+\usepackage{parskip}
+}{% else
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{0}
+% Redefines (sub)paragraphs to behave more like sections
+\ifx\paragraph\undefined\else
+\let\oldparagraph\paragraph
+\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+\let\oldsubparagraph\subparagraph
+\renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+
+%%% Use protect on footnotes to avoid problems with footnotes in titles
+\let\rmarkdownfootnote\footnote%
+\def\footnote{\protect\rmarkdownfootnote}
+
+%%% Change title format to be more compact
+\usepackage{titling}
+
+% Create subtitle command for use in maketitle
+\newcommand{\subtitle}[1]{
+  \posttitle{
+    \begin{center}\large#1\end{center}
+    }
+}
+
+\setlength{\droptitle}{-2em}
+
+  \title{Don't Break a Leg! Road Safety in the City of Toronto}
+    \pretitle{\vspace{\droptitle}\centering\huge}
+  \posttitle{\par}
+  \subtitle{STA2453 - Project II Draft}
+  \author{Sunwoo (Angela) Kang, Sergio E. Betancourt, Jing Li, and Jiahui (Eddy)
+Du}
+    \preauthor{\centering\large\emph}
+  \postauthor{\par}
+      \predate{\centering\large\emph}
+  \postdate{\par}
+    \date{2019-03-08}
+
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage[table]{xcolor}
+\usepackage{wrapfig}
+\usepackage{float}
+\usepackage{colortbl}
+\usepackage{pdflscape}
+\usepackage{tabu}
+\usepackage{threeparttable}
+\usepackage{threeparttablex}
+\usepackage[normalem]{ulem}
+\usepackage{makecell}
+
+\usepackage{titling}
+\usepackage{setspace}\singlespacing
+\usepackage{subfig}
+
+\begin{document}
+\maketitle
+
+\section{Introduction}\label{introduction}
+
+Road traffic safety is a crucial component of urban planning and
+development. Nowadays governments (and sometimes the private sector)
+dedicate significant resources to providing ample and sufficient
+infrastructure to accommodate diverse modes of transportation, thereby
+increasing the productivity of any given urban area. In this project we
+examine road safety in the City of Toronto from 2007 to 2017 and explore
+the areas with highest risk of a traffic incident, controlling for
+different factors.
+
+\section{Methods}\label{methods}
+
+We define the City of Toronto as per the these guidelines
+(\url{https://www.toronto.ca/city-government/data-research-maps/neighbourhoods-communities/neighbourhood-profiles/}).
+Below are the neighborhood limits and the 2016 population estimates:
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.8\linewidth]{Toronto-2016} 
+
+}
+
+\caption{\label{fig:figs}EDA with regards to the City of Toronto}\label{fig:unnamed-chunk-2}
+\end{figure}
+
+\subsubsection{Primary Questions}\label{primary-questions}
+
+The analysis focuses on answering two main questions:
+
+\begin{enumerate}
+  \item Which areas in Toronto are the most unsafe controlling for other factors?
+  \item Which factors are related to the safety of areas?
+\end{enumerate}
+
+\subsubsection{Data Collection}\label{data-collection}
+
+For our analysis we employed data from
+\href{https://www.data.geotab.com}{Geotab}, the
+\href{https://www.toronto.ca/city-government/data-research-maps}{City of
+Toronto},
+\href{http://climate.weather.gc.ca/historical_data/search_historic_data_e.html}{Environment
+Canada}, and the \href{http://data.torontopolice.on.ca}{Toronto Police
+Service}. Each of these datasets contains different levels of
+granularity and information, and were therefore combined to obtain the
+following variables of interest:
+
+\begin{longtable}[]{@{}lll@{}}
+\toprule
+City of Toronto & Toronto Police & Geotab\tabularnewline
+\midrule
+\endhead
+1st & kernel & num\_filters\tabularnewline
+2nd & kernel & \(2 \times\)num\_filters\tabularnewline
+3rd & kernel & \(2 \times\)num\_filters\tabularnewline
+4th & kernel & num\_filters\tabularnewline
+5th & kernel & 3\tabularnewline
+6th & kernel & 3\tabularnewline
+\bottomrule
+\end{longtable}
+
+\subsubsection{Data Preparation}\label{data-preparation}
+
+The following diagram provides an overview of the merged data.
+
+We first merge the Road Impediment and Hazardous Driving Areas (Geotab)
+with the Toronto Police Service dataset by geohash. After merging, we
+calculate the aggregate incidents counts by ward and month. And we take
+the mean of acceleration, vehicle volumes and severity scores
+information per ward. We then append the monthly weather information of
+toronto area by month.
+
+Ultimately we
+
+\subsubsection{Modeling}\label{modeling}
+
+We model our outcome of interest using a temporal model (to be expanded
+to spatial in the following iteration).
+
+\section{Results}\label{results}
+
+\section{Conclusions and Discussion}\label{conclusions-and-discussion}
+
+One of the biggest limitations in our project has been data quality and
+granularity.
+
+\section{Appendix: Dataset Variables and
+Definitions}\label{appendix-dataset-variables-and-definitions}
+
+\begin{tabular}{lll}
+\toprule
+Feature & Description & Source\\
+\midrule
+YEAR & Year in range (2007-2017) inclusive & Automobile (Toronto Police)\\
+MONTH & Month in range 1-12 inclusive & Automobile (Toronto Police)\\
+Ward\_ID & Ward in range (1-44) inclusive & Automobile (Toronto Police)\\
+IncidentsTotal\_TP & Total number of incidents & Automobile (Toronto Police)\\
+Dark & Count accidents ocurred on dark conditions & Automobile (Toronto Police)\\
+Dawn & Count accidents ocurred on dawn conditions & Automobile (Toronto Police)\\
+Daylight & Count accidents ocurred on daylight conditions & Automobile (Toronto Police)\\
+Dusk & Count accidents ocurred on dusk conditions & Automobile (Toronto Police)\\
+Inv\_PED & Count accidents involved pedstrains & Automobile (Toronto Police)\\
+Inv\_CYC & Count accidents involved cyclists & Automobile (Toronto Police)\\
+Inv\_AM & Count accidents involved automobiles & Automobile (Toronto Police)\\
+Inv\_MC & Count accidents involved motorcycles & Automobile (Toronto Police)\\
+Inv\_TC & Count accidents involved trucks & Automobile (Toronto Police)\\
+Speeding & Count accidents ocurred on speeding condition & Automobile (Toronto Police)\\
+Ag\_Driv & Count accidents ocurred on angry driving condition & Automobile (Toronto Police)\\
+Redlight & Count accidents ocurred with redlight & Automobile (Toronto Police)\\
+Alcohol & Count accidents ocurred with driver with alcohol & Automobile (Toronto Police)\\
+Disability & Count accidents ocurred with driver with disability & Automobile (Toronto Police)\\
+SeverityScore & Average Score of Severitylevel (harsh brake) & HDA(Geotab)\\
+IncidentsTotal\_Geotab & Monthly average of total number of incidents & HDA(Geotab)\\
+AvgAcceleration & Monthly average acceleration & RI(Geotab)\\
+PercentOfVehicles & Monthly average on percentage of vehicles & RI(Geotab)\\
+AvgMonthlyVolume & Monthly average on vehicle volumes & RI(Geotab)\\
+PercentCar & Monthly average on car percentage & RI(Geotab)\\
+PercentMPV & Monthly average on MPV percentage & RI(Geotab)\\
+PercentLDT & Monthly average on LDT percentage & RI(Geotab)\\
+PercentMDT & Monthly average on MDT percentage & RI(Geotab)\\
+PercentHDT & Monthly average on HDT percentage & RI(Geotab)\\
+PercentOther & Monthly average on other vehicle percentage & RI(Geotab)\\
+Daily\_dif & Monthly average on daily Weather change (in celsus) & Weather\\
+Max\_Temp & Monthly max on highest daily Weather degree (celsus) & Weather\\
+Min\_Temp & Monthly min on lowest daily Weather degree (celsus) & Weather\\
+Ave\_Temp & Monthly average on daily average Weather (in celsus) & Weather\\
+Rain\_vol & Monthly average on daily rain volumn & Weather\\
+Snow\_vol & Monthly average on daily snow volumn & Weather\\
+\bottomrule
+\end{tabular}
+
+\pagebreak
+
+\newpage
+
+\section{Appendix: Code}\label{appendix-code}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(MASS); }\KeywordTok{library}\NormalTok{(lmtest); }\KeywordTok{library}\NormalTok{(knitr); }\KeywordTok{library}\NormalTok{(kableExtra); }\KeywordTok{library}\NormalTok{(nleqslv);}
+\KeywordTok{library}\NormalTok{(Pmisc); }\KeywordTok{library}\NormalTok{(extrafont); }\KeywordTok{library}\NormalTok{(VGAM); }\KeywordTok{library}\NormalTok{(INLA); }\KeywordTok{library}\NormalTok{(MEMSS);}
+\KeywordTok{library}\NormalTok{(nlme); }\KeywordTok{library}\NormalTok{(ciTools); }\KeywordTok{library}\NormalTok{(tibble); }\KeywordTok{library}\NormalTok{(sp); }\KeywordTok{library}\NormalTok{(dplyr);}
+\NormalTok{knitr}\OperatorTok{::}\NormalTok{opts_chunk}\OperatorTok{$}\KeywordTok{set}\NormalTok{(}\DataTypeTok{fig.pos =} \StringTok{'H'}\NormalTok{);}
+\CommentTok{# Loading polygon and population data from the City of Toronto}
+\NormalTok{population <-}\StringTok{ }\KeywordTok{read.csv}\NormalTok{(}\StringTok{"https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/data/neighbourhoods_planning_areas_wgs84_SEB/Wellbeing_TO_2016%20Census_Total%20Pop_Total%20Change_Age%20Groups.csv"}\NormalTok{,}\DataTypeTok{stringsAsFactors =} \OtherTok{FALSE}\NormalTok{,}\DataTypeTok{header=}\NormalTok{T)}
+
+\KeywordTok{require}\NormalTok{(sf)}
+\NormalTok{shape <-}\StringTok{ }\KeywordTok{read_sf}\NormalTok{(}\DataTypeTok{dsn =} \StringTok{"https://github.com/sergiosonline/data_sci_geo/blob/master/data/neighbourhoods_planning_areas_wgs84_SEB/NEIGHBORHOODS_WGS84.shp?raw=true"}\NormalTok{, }\DataTypeTok{layer =} \StringTok{"NEIGHBORHOODS_WGS84"}\NormalTok{)}
+
+\NormalTok{neighborhoods <-}\StringTok{ }\NormalTok{shape}
+
+\CommentTok{# Adding populaation info to neighborhood polygon}
+\NormalTok{neighborhoods <-}\StringTok{ }\KeywordTok{add_column}\NormalTok{(neighborhoods, }\StringTok{'2016pop'}\NormalTok{=}\OtherTok{NA}\NormalTok{, }\StringTok{'x_coords'}\NormalTok{ =}\StringTok{ }\OtherTok{NA}\NormalTok{, }\StringTok{'y_coords'}\NormalTok{ =}\StringTok{ }\OtherTok{NA}\NormalTok{)}
+
+\CommentTok{# Separating X and Y coordinates from polygon}
+\ControlFlowTok{for}\NormalTok{ (hood }\ControlFlowTok{in}\NormalTok{ neighborhoods}\OperatorTok{$}\NormalTok{AREA_NAME) \{}
+\NormalTok{  ## Adding population}
+\NormalTok{  pop =}\StringTok{ }\KeywordTok{as.numeric}\NormalTok{(neighborhoods[neighborhoods}\OperatorTok{$}\NormalTok{AREA_NAME }\OperatorTok{==}\StringTok{ }\NormalTok{hood,][[}\StringTok{"AREA_S_CD"}\NormalTok{]])}
+\NormalTok{  neighborhoods[neighborhoods}\OperatorTok{$}\NormalTok{AREA_NAME }\OperatorTok{==}\StringTok{ }\NormalTok{hood,]}\OperatorTok{$}\StringTok{'2016pop'}\NormalTok{ =}\StringTok{ }
+\StringTok{    }\NormalTok{population[population}\OperatorTok{$}\NormalTok{HoodID }\OperatorTok{==}\StringTok{ }\NormalTok{pop,]}\OperatorTok{$}\NormalTok{Pop2016}
+\NormalTok{  ## Adding x-y}
+\NormalTok{  temp =}\StringTok{ }\KeywordTok{unlist}\NormalTok{(}\KeywordTok{subset}\NormalTok{(neighborhoods,AREA_NAME }\OperatorTok{==}\StringTok{ }\NormalTok{hood)}\OperatorTok{$}\NormalTok{geometry[[}\DecValTok{1}\NormalTok{]])}
+\NormalTok{  ll =}\StringTok{ }\KeywordTok{length}\NormalTok{(temp)}
+\NormalTok{  x_coord =}\StringTok{ }\KeywordTok{list}\NormalTok{(temp[}\DecValTok{1}\OperatorTok{:}\NormalTok{(ll}\OperatorTok{/}\DecValTok{2}\NormalTok{)])}
+\NormalTok{  y_coord =}\StringTok{ }\KeywordTok{list}\NormalTok{(temp[((ll}\OperatorTok{/}\DecValTok{2}\NormalTok{)}\OperatorTok{+}\DecValTok{1}\NormalTok{)}\OperatorTok{:}\NormalTok{ll])}
+\NormalTok{  neighborhoods[neighborhoods}\OperatorTok{$}\NormalTok{AREA_NAME }\OperatorTok{==}\StringTok{ }\NormalTok{hood,]}\OperatorTok{$}\NormalTok{x_coords =}\StringTok{ }\NormalTok{x_coord}
+\NormalTok{  neighborhoods[neighborhoods}\OperatorTok{$}\NormalTok{AREA_NAME }\OperatorTok{==}\StringTok{ }\NormalTok{hood,]}\OperatorTok{$}\NormalTok{y_coords =}\StringTok{ }\NormalTok{y_coord}
+\NormalTok{\}}
+
+\KeywordTok{st_write}\NormalTok{(neighborhoods,}\StringTok{"~/Desktop/Grad_School/COURSEWORK/Spring 2019/Data Science/rough work/neighbourhoods_planning_areas_wgs84_SEB/NEIGHBORHOODS_WGS84.shp"}\NormalTok{,}
+\NormalTok{         , }\DataTypeTok{delete_layer =} \OtherTok{TRUE}\NormalTok{)}
+
+\KeywordTok{require}\NormalTok{(sf)}
+\NormalTok{neighborhoods <-}\StringTok{ }\KeywordTok{read_sf}\NormalTok{(}\DataTypeTok{dsn =} \StringTok{"~/Desktop/Grad_School/COURSEWORK/Spring 2019/Data Science/rough work/neighbourhoods_planning_areas_wgs84_SEB/"}\NormalTok{, }\DataTypeTok{layer =} \StringTok{"NEIGHBORHOODS_WGS84"}\NormalTok{)}
+
+\KeywordTok{plot}\NormalTok{(neighborhoods)}
+
+\NormalTok{## Visualizing above polygon, after customization}
+\NormalTok{url0 <-}\StringTok{ "https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/reports/draft/STA2453-Toronto-2016.png"}
+\KeywordTok{download.file}\NormalTok{(}\DataTypeTok{url =}\NormalTok{ url0,}
+          \DataTypeTok{destfile =} \StringTok{"toronto-population.png"}\NormalTok{,}
+          \DataTypeTok{mode =} \StringTok{'wb'}\NormalTok{)}
+
+\CommentTok{# Visualization of fatal vehicular incidents in the City of Toronto 2010-2016}
+\NormalTok{collisiondat <-}\StringTok{ }\KeywordTok{read.csv}\NormalTok{(}\StringTok{"https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/data/Fatal_Collisions.csv"}\NormalTok{, }\DataTypeTok{header=}\NormalTok{T, }\DataTypeTok{stringsAsFactors =} \OtherTok{FALSE}\NormalTok{)}
+
+\KeywordTok{coordinates}\NormalTok{(collisiondat) <-}\StringTok{ }\ErrorTok{~}\NormalTok{LONGITUDE}\OperatorTok{+}\NormalTok{LATITUDE}
+\CommentTok{#4326 - WGS84 std}
+\KeywordTok{proj4string}\NormalTok{(collisiondat) <-}\StringTok{ "+init=epsg:3034"} \CommentTok{#"+init=epsg:4326" }
+\NormalTok{data_L93 <-}\StringTok{ }\KeywordTok{spTransform}\NormalTok{(collisiondat, }\KeywordTok{CRS}\NormalTok{(}\StringTok{"+proj=lcc +lat_1=44 +lat_2=49 +lat_0=46.5 +lon_0=3 +x_0=490000 +y_0=4620000 +ellps=GRS80 +units=m +no_defs"}\NormalTok{))}
+\CommentTok{#x_0/y_0 = 0.1060606}
+
+\NormalTok{data_L93 <-}\StringTok{ }\KeywordTok{spTransform}\NormalTok{(collisiondat, }\KeywordTok{CRS}\NormalTok{(}\StringTok{"+proj=longlat +lat_1=44 +lat_2=49 +lat_0=46.5 +lon_0=3 +x_0=490000 +y_0=4620000 +ellps=GRS80 +units=m +no_defs"}\NormalTok{))}
+
+\NormalTok{url1 <-}\StringTok{ "https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/reports/draft/STA2453-Toronto-2016.png"}
+\KeywordTok{download.file}\NormalTok{(}\DataTypeTok{url =}\NormalTok{ url0,}
+          \DataTypeTok{destfile =} \StringTok{"toronto_incidents.png"}\NormalTok{,}
+          \DataTypeTok{mode =} \StringTok{'wb'}\NormalTok{)}
+
+\NormalTok{knitr}\OperatorTok{::}\KeywordTok{include_graphics}\NormalTok{(}\DataTypeTok{path=}\StringTok{"Toronto-2016.png"}\NormalTok{)}
+
+\CommentTok{#spTransform() #Transform polygon or raster into Euclidian object - 3026 is Google std}
+\CommentTok{# Loading final monthly incident data, by neighborhood}
+\NormalTok{incidentdat <-}\StringTok{ }\KeywordTok{read.csv}\NormalTok{(}\StringTok{"https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/data/incident_by_year_month_ward_2Mar.csv"}\NormalTok{, }\DataTypeTok{header=}\NormalTok{T, }\DataTypeTok{stringsAsFactors =}\NormalTok{ F)}
+
+\NormalTok{var_def <-}\StringTok{ }\KeywordTok{read.csv}\NormalTok{(}\StringTok{"https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/reports/draft/variable_def.csv"}\NormalTok{,}\DataTypeTok{header=}\NormalTok{T, }\DataTypeTok{stringsAsFactors =}\NormalTok{ F, }\DataTypeTok{sep=}\StringTok{","}\NormalTok{)}
+
+\NormalTok{knitr}\OperatorTok{::}\KeywordTok{kable}\NormalTok{(var_def, }\DataTypeTok{format=}\StringTok{"latex"}\NormalTok{, }\DataTypeTok{booktab=}\NormalTok{T, }\DataTypeTok{linesep =} \StringTok{""}\NormalTok{) }\CommentTok{#escape=F, }
+\end{Highlighting}
+\end{Shaded}
+
+
+\end{document}
