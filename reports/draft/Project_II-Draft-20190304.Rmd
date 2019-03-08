@@ -102,21 +102,12 @@ The analysis focuses on answering two main questions:
 
 ### Data Collection
 
-For our analysis we employed data from [Geotab](https://www.data.geotab.com), the [City of Toronto](https://www.toronto.ca/city-government/data-research-maps), [Environment Canada](http://climate.weather.gc.ca/historical_data/search_historic_data_e.html), and the [Toronto Police Service](http://data.torontopolice.on.ca). Each of these datasets contains different levels of granularity and information, and were therefore combined to obtain the following variables of interest:
+For our analysis we employed data from [Geotab](https://www.data.geotab.com), the [City of Toronto](https://www.toronto.ca/city-government/data-research-maps), [Environment Canada](http://climate.weather.gc.ca/historical_data/search_historic_data_e.html), and the [Toronto Police Service](http://data.torontopolice.on.ca). Each of these datasets contains different levels of granularity and information, and were therefore combined to obtain the following variables of interest outlined in **Appendix: Dataset Variables and Definitions**.
 
-
-|City of Toronto|Toronto Police|Geotab|
-|:---------|:----------|:-------------|
-| 1st      | kernel    | num_filters  |
-| 2nd      | kernel    | $2 \times$num_filters |
-| 3rd      | kernel    | $2 \times$num_filters |
-| 4th      | kernel    | num_filters |
-| 5th      | kernel    | 3 |
-| 6th      | kernel    | 3 |
 
 ### Data Preparation
 
-The following diagram provides an overview of the merged data.
+The following diagram provides an overview of the merged data:
 
 
 
@@ -144,8 +135,7 @@ We model our outcome of interest using a temporal model (to be expanded to spati
 
 # Conclusions and Discussion
 
-One of the biggest limitations in our project has been data quality and granularity.
-
+One of the biggest limitations in our project has been data quality and granularity. The data made available by Geotab does not include large areas of the City of Toronto. Moreover, there are plenty missing observations. We also acknowledge the fact that the fatal incident information we procured from the Toronto Police Service may not describe perfectly the actual number of incidents, as there are many of these that are non-fatal or go unreported.
 
 
 
