@@ -16,7 +16,7 @@ geometry: margin=1.5cm
 ```{r setup, include=FALSE}
 library(MASS); library(lmtest); library(knitr); library(kableExtra); library(nleqslv);
 library(Pmisc); library(extrafont); library(VGAM); library(INLA); library(MEMSS);
-library(nlme); library(ciTools); library(tibble); library(sp); library(dplyr);
+library(nlme); library(ciTools); library(sf); library(tibble); library(sp); library(dplyr);
 knitr::opts_chunk$set(fig.pos = 'H');
 ```
 
@@ -58,10 +58,9 @@ for (hood in neighborhoods$AREA_NAME) {
 st_write(neighborhoods,"~/Desktop/Grad_School/COURSEWORK/Spring 2019/Data Science/rough work/neighbourhoods_planning_areas_wgs84_SEB/NEIGHBORHOODS_WGS84.shp",
          , delete_layer = TRUE)
 
-require(sf)
 neighborhoods <- read_sf(dsn = "~/Desktop/Grad_School/COURSEWORK/Spring 2019/Data Science/rough work/neighbourhoods_planning_areas_wgs84_SEB/", layer = "NEIGHBORHOODS_WGS84")
 
-plot(neighborhoods)
+plot(neighborhoods[3])
 ```
 
 
@@ -74,7 +73,7 @@ download.file(url = url0,
           mode = 'wb')
 
 # Visualization of fatal vehicular incidents in the City of Toronto 2010-2016
-collisiondat <- read.csv("https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/data/Fatal_Collisions.csv", header=T, stringsAsFactors = FALSE)
+collisiondat <- read.csv("https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/data/drafts/Fatal_Collisions.csv", header=T, stringsAsFactors = FALSE)
 
 coordinates(collisiondat) <- ~LONGITUDE+LATITUDE
 #4326 - WGS84 std
@@ -82,7 +81,6 @@ proj4string(collisiondat) <- "+init=epsg:3034" #"+init=epsg:4326"
 data_L93 <- spTransform(collisiondat, CRS("+proj=lcc +lat_1=44 +lat_2=49 +lat_0=46.5 +lon_0=3 +x_0=490000 +y_0=4620000 +ellps=GRS80 +units=m +no_defs"))
 #x_0/y_0 = 0.1060606
 
-data_L93 <- spTransform(collisiondat, CRS("+proj=longlat +lat_1=44 +lat_2=49 +lat_0=46.5 +lon_0=3 +x_0=490000 +y_0=4620000 +ellps=GRS80 +units=m +no_defs"))
 
 url1 <- "https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/reports/draft/STA2453-Toronto-2016.png"
 download.file(url = url0,
@@ -104,21 +102,12 @@ The analysis focuses on answering two main questions:
 
 ### Data Collection
 
-For our analysis we employed data from [Geotab](https://www.data.geotab.com), the [City of Toronto](https://www.toronto.ca/city-government/data-research-maps), [Environment Canada](http://climate.weather.gc.ca/historical_data/search_historic_data_e.html), and the [Toronto Police Service](http://data.torontopolice.on.ca). Each of these datasets contains different levels of granularity and information, and were therefore combined to obtain the following variables of interest:
+For our analysis we employed data from [Geotab](https://www.data.geotab.com), the [City of Toronto](https://www.toronto.ca/city-government/data-research-maps), [Environment Canada](http://climate.weather.gc.ca/historical_data/search_historic_data_e.html), and the [Toronto Police Service](http://data.torontopolice.on.ca). Each of these datasets contains different levels of granularity and information, and were therefore combined to obtain the following variables of interest outlined in **Appendix: Dataset Variables and Definitions**.
 
-
-|City of Toronto|Toronto Police|Geotab|
-|:---------|:----------|:-------------|
-| 1st      | kernel    | num_filters  |
-| 2nd      | kernel    | $2 \times$num_filters |
-| 3rd      | kernel    | $2 \times$num_filters |
-| 4th      | kernel    | num_filters |
-| 5th      | kernel    | 3 |
-| 6th      | kernel    | 3 |
 
 ### Data Preparation
 
-The following diagram provides an overview of the merged data.
+The following diagram provides an overview of the merged data:
 
 
 
@@ -135,7 +124,7 @@ We model our outcome of interest using a temporal model (to be expanded to spati
 
 ```{r echo=F}
 # Loading final monthly incident data, by neighborhood
-incidentdat <- read.csv("https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/data/incident_by_year_month_ward_2Mar.csv", header=T, stringsAsFactors = F)
+#incidentdat <- read.csv("https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/data/incident_by_year_month_ward_2Mar.csv", header=T, stringsAsFactors = F)
 
 ```
 
@@ -146,7 +135,8 @@ incidentdat <- read.csv("https://raw.githubusercontent.com/sergiosonline/data_sc
 
 # Conclusions and Discussion
 
-One of the biggest limitations in our project has been data quality and granularity.
+One of the biggest limitations in our project has been data quality and granularity. The data made available by Geotab does not include large areas of the City of Toronto. Moreover, there are plenty missing observations. We also acknowledge the fact that the fatal incident information we procured from the Toronto Police Service may not describe perfectly the actual number of incidents, as there are many of these that are non-fatal or go unreported.
+
 
 
 #Appendix: Dataset Variables and Definitions
@@ -155,6 +145,23 @@ var_def <- read.csv("https://raw.githubusercontent.com/sergiosonline/data_sci_ge
 
 knitr::kable(var_def, format="latex", booktab=T, linesep = "") #escape=F, 
 ```
+
+\pagebreak
+
+\newpage
+
+#Appendix: Neighborhoods of Toronto
+```{r echo=F, fig.pos='H', fig.align='center', out.width='95%',fig.subcap=c('Population by neighborhood in the census year 2016', 'Fata collisions 2010-2016'),  fig.cap="\\label{fig:figs}Official City of Toronto Neighborhoods"}
+## Visualizing neighborhoods of Toronto for reference
+url7 <- "https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/reports/draft/toronto_hood_map.png"
+download.file(url = url7,
+          destfile = "toronto-hoods.png",
+          mode = 'wb')
+
+knitr::include_graphics(path="toronto-hoods.png")
+```
+
+Refer to the **[City of Toronto](https://www.toronto.ca/city-government/data-research-maps/neighbourhoods-communities/neighbourhood-profiles/)** for the neighborhood names matching the indeces above.
 
 \pagebreak
 
