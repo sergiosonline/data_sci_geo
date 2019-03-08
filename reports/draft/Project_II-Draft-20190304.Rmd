@@ -22,7 +22,7 @@ knitr::opts_chunk$set(fig.pos = 'H');
 
 # Introduction
 
-Road traffic safety is a crucial component of urban planning and development. Nowadays governments (and sometimes the private sector) dedicate significant resources to providing ample and sufficient infrastructure to accommodate diverse modes of transportation, thereby increasing the productivity of any given urban area. In this project we examine road safety in the City of Toronto in the year 2018 and explore the areas with highest risk of a traffic incident, controlling for different factors.
+Road traffic safety is a crucial component of urban planning and development. Nowadays governments (and sometimes the private sector) dedicate significant resources to providing ample and sufficient infrastructure to accommodate diverse modes of transportation, thereby increasing the productivity of any given urban area. In this project we examine road safety in the City of Toronto from 2007 to 2017 and explore the areas with highest risk of a traffic incident, controlling for different factors.
 
 
 # Methods
@@ -94,9 +94,17 @@ knitr::include_graphics(path="Toronto-2016.png")
 #spTransform() #Transform polygon or raster into Euclidian object - 3026 is Google std
 ```
 
+### Primary Questions
 
+The analysis focuses on answering two main questions:
+\begin{enumerate}
+  \item Which areas in Toronto are the most unsafe controlling for other factors?
+  \item Which factors are related to the safety of areas?
+\end{enumerate}
 
-For our analysis we employed data from Geotab (https://www.data.geotab.com), the City of Toronto (https://www.toronto.ca/city-government/data-research-maps), the Weather Network ((http://theweathernetwork.com), and the Toronto Police Service (http://data.torontopolice.on.ca). Each of these datasets contains different levels of granularity and information, so we combined them to obtain the following variables of interest:
+### Data Collection
+
+For our analysis we employed data from [Geotab](https://www.data.geotab.com), the [City of Toronto](https://www.toronto.ca/city-government/data-research-maps), [Environment Canada](http://climate.weather.gc.ca/historical_data/search_historic_data_e.html), and the [Toronto Police Service](http://data.torontopolice.on.ca). Each of these datasets contains different levels of granularity and information, and were therefore combined to obtain the following variables of interest:
 
 
 |City of Toronto|Toronto Police|Geotab|
@@ -110,10 +118,15 @@ For our analysis we employed data from Geotab (https://www.data.geotab.com), the
 
 ### Data Preparation
 
-We first merge the Road Impediment and Hazardous Driving Areas (Geotab) with the Toronto Police Service dataset by geohash. After merging, we calculate the aggregate incidents counts by ward and month. And we take the mean of acceleration, vehicle volumes and severity scores information per ward. We then append the monthly weather information of toronto area by month.
+The following diagram provides an overview of the merged data.
 
-Ultimately we 
 
+
+Traffic incident information provided by Toronto Police served as a base for the data used for this analysis. Each entry represents the total number of traffic collision events where a person was either killed or seriously injured per month and neighborhood. Other features such as the condition of roads (visibility, road precipitation), driver action (e.g. speeding, alcohol consumption), and types of vehicles involved were also included.
+
+Geotab tracks the number as well as the proportion of harsh braking incidents. The proportion, referred to as the "severity score", is defined as the number of harsh braking incidents and accident-level incidents for every 100 units of traffic flow. Traffic flow is defined as total hourly vehicle volume in the geohash at the 7 character level (153m $\times$ 153m). It is provided as a yearly average score for each geohash. This was merged to the incident data by location based on latitude and longitude. Traffic volumes and average acceleration were also included.
+
+Historical weather data collected from the station in [University of Toronto](https://goo.gl/maps/g8KZF6SWUw82) was also merged based on the month the accident occurred.
 
 ### Modeling
 
