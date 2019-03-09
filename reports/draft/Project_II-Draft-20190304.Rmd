@@ -129,6 +129,8 @@ Historical weather data collected from the station in [University of Toronto](ht
 
 ### Exploratory Analysis
 
+By summing up counts from 2007 to 2017, West Humber-Clairville appears to be the deadliest intersection followed by South Parkdale, then Wexford/Maryvale. Thankfully, the fatalities appear to be quite low compared to the total number of collisions reported by the Toronto Police.
+
 ```{r echo = F}
 accidents <- read.csv("https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/data/accidents.csv",
                       check.names = F)
@@ -139,6 +141,8 @@ accidents %>% group_by(Neighbourhood) %>%
   arrange(desc(`Total Fatalities`)) %>%
   head()
 ```
+
+West Humber-Clairville, and Wexford/Maryvale appear again as a dangerous neighborhood even when focussing on pedestrian or cyclist fatalities.
 
 ```{r echo = F}
 accidents %>% mutate(Pedestrian = INVTYPE == "Pedestrian",
