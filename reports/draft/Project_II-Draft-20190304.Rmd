@@ -121,7 +121,7 @@ data.frame(Accident_ID = c(5002235651, 5000995174, 5000995174, 1249781),
   column_spec(6, background = "lavenderblush")
 ```
 
-Traffic incident information provided by Toronto Police served as a base for the data used for this analysis. Each entry represents a traffic collision event where a person was either killed or seriously injured. Other features such as the location of the collision (intersection, neighborhood, ward), road condition (visibility, road precipitation), driver action (e.g. speeding, involved alcohol), and type of vehicles involved are also available. This is represented in the above figure as the white columns.
+Traffic incident information provided by Toronto Police served as a base for the data used for this analysis. Each of the 12,557 entries represent a party involved in a traffic collision event where a person was either killed or seriously injured. Other features such as the location of the collision (intersection, neighborhood, ward), road condition (visibility, road precipitation), driver action (e.g. speeding, involved alcohol), and type of vehicles (e.g. automobile, pedestrian, cyclist) involved were also used. This is represented in the above figure as the white columns.
 
 Population counts for 2011 and 2016 are available through the national census for each neighborhood. The populations for the dates not provided by the census were extrapolated using a linear growth model. This is represented in the above figure as the blue column.
 
@@ -129,10 +129,48 @@ Historical weather data collected from the station in [University of Toronto](ht
 
 ### Exploratory Analysis
 
+By summing up counts from 2007 to 2017, West Humber-Clairville appears to be the deadliest intersection followed by South Parkdale, then Wexford/Maryvale. Thankfully, the fatalities appear to be quite low compared to the total number of collisions reported by the Toronto Police.
+
 ```{r echo = F}
 accidents <- read.csv("https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/data/accidents.csv",
                       check.names = F)
 
+accidents %>% group_by(Neighbourhood) %>%
+  summarize(`Total Fatalities` = sum(INJURY == "Fatal", na.rm = T),
+            `Total Collisions` = n()) %>%
+  arrange(desc(`Total Fatalities`)) %>%
+  head()
+```
+
+West Humber-Clairville, and Wexford/Maryvale appear again as a dangerous neighborhood even when focussing on pedestrian or cyclist fatalities.
+
+```{r echo = F}
+accidents %>% mutate(Pedestrian = INVTYPE == "Pedestrian",
+                     Cyclist = INVTYPE == "Cyclist",
+                     Other = INVTYPE != "Pedestrian" & INVTYPE != "Cyclist") %>%
+  group_by(Neighbourhood) %>%
+  summarize(`Total Pedestrian Fatalities` = sum(INJURY == "Fatal" & Pedestrian == 1, na.rm = T),
+            `Total Pedestrian Collisions` = sum(Pedestrian == 1, na.rm = T)) %>%
+  arrange(desc(`Total Pedestrian Fatalities`)) %>%
+  head()
+
+accidents %>% mutate(Pedestrian = INVTYPE == "Pedestrian",
+                     Cyclist = INVTYPE == "Cyclist",
+                     Other = INVTYPE != "Pedestrian" & INVTYPE != "Cyclist") %>%
+  group_by(Neighbourhood) %>%
+  summarize(`Total Cyclist Fatalities` = sum(INJURY == "Fatal" & Cyclist == 1, na.rm = T),
+            `Total Cyclist Collisions` = sum(Cyclist == 1, na.rm = T)) %>%
+  arrange(desc(`Total Cyclist Fatalities`)) %>%
+  head()
+
+accidents %>% mutate(Pedestrian = INVTYPE == "Pedestrian",
+                     Cyclist = INVTYPE == "Cyclist",
+                     Other = INVTYPE != "Pedestrian" & INVTYPE != "Cyclist") %>%
+  group_by(Neighbourhood) %>%
+  summarize(`Total Other Fatalities` = sum(INJURY == "Fatal" & Other == 1, na.rm = T),
+            `Total Other Collisions` = sum(Other == 1, na.rm =T)) %>%
+  arrange(desc(`Total Other Fatalities`)) %>%
+  head()
 ```
 
 ### Modeling
