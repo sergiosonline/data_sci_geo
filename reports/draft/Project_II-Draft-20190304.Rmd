@@ -63,7 +63,7 @@ plot(neighborhoods[3])
 ```
 
 
-```{r echo=F, fig.pos='H', fig.align='center', out.width=c('80%','80%'),fig.subcap=c('Population by neighborhood in the census year 2016', 'Fata collisions 2010-2016'),  fig.cap="\\label{fig:figs}EDA with regards to the City of Toronto"}
+```{r echo=F, fig.pos='H', fig.align='center', out.width=c('80%','80%'),fig.subcap=c('Population by neighborhood in the census year 2016', 'Fata collisions 2010-2016'),  fig.cap="\\label{fig:figs}EDA with regards to the City of Toronto", cache=T}
 
 ## Visualizing above polygon, after customization
 url0 <- "https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/reports/draft/STA2453-Toronto-2016.png"
@@ -116,16 +116,14 @@ data.frame(Accident_ID = c(5002235651, 5000995174, 5000995174, 1249781),
            Population = c(7072, 26703, 26703, 19348),
            `Max_Temp` = c(4.7, 22.3, 22.3, 26.4)) %>%
   kable() %>%
-  kable_styling(bootstrap_options = c("striped")) %>%
-  column_spec(5, background = "aliceblue") %>%
-  column_spec(6, background = "lavenderblush")
+  kable_styling(bootstrap_options = c("striped"))
 ```
 
-Traffic incident information provided by Toronto Police served as a base for the data used for this analysis. Each of the 12,557 entries represent a party involved in a traffic collision event where a person was either killed or seriously injured. Other features such as the location of the collision (intersection, neighborhood, ward), road condition (visibility, road precipitation), driver action (e.g. speeding, involved alcohol), and type of vehicles (e.g. automobile, pedestrian, cyclist) involved were also used. This is represented in the above figure as the white columns.
+Traffic incident information provided by Toronto Police served as a base for the data used for this analysis. Each of the 12,557 entries represent a party involved in a traffic collision event where a person was either killed or seriously injured. Other features such as the location of the collision (intersection, neighborhood, ward), road condition (visibility, road precipitation), driver action (e.g. speeding, involved alcohol), and type of vehicles (e.g. automobile, pedestrian, cyclist) involved were also used.
 
-Population counts for 2011 and 2016 are available through the national census for each neighborhood. The populations for the dates not provided by the census were extrapolated using a linear growth model. This is represented in the above figure as the blue column.
+Population counts for 2011 and 2016 are available through the national census for each neighborhood. The populations for the dates not provided by the census were extrapolated using a linear growth model. 
 
-Historical weather data collected from the station in [University of Toronto](https://goo.gl/maps/g8KZF6SWUw82) was also merged based on the day the accident occurred. This is represented in the above figure as the pink columns.
+Historical weather data collected from the station in [University of Toronto](https://goo.gl/maps/g8KZF6SWUw82) was also merged based on the day the accident occurred.
 
 ### Exploratory Analysis
 
@@ -139,7 +137,11 @@ accidents %>% group_by(Neighbourhood) %>%
   summarize(`Total Fatalities` = sum(INJURY == "Fatal", na.rm = T),
             `Total Collisions` = n()) %>%
   arrange(desc(`Total Fatalities`)) %>%
-  head()
+  head() %>%
+  kable()%>%
+  kable_styling(bootstrap_options = c("striped"))
+
+
 ```
 
 West Humber-Clairville, and Wexford/Maryvale appear again as a dangerous neighborhood even when focussing on pedestrian or cyclist fatalities.
@@ -152,7 +154,9 @@ accidents %>% mutate(Pedestrian = INVTYPE == "Pedestrian",
   summarize(`Total Pedestrian Fatalities` = sum(INJURY == "Fatal" & Pedestrian == 1, na.rm = T),
             `Total Pedestrian Collisions` = sum(Pedestrian == 1, na.rm = T)) %>%
   arrange(desc(`Total Pedestrian Fatalities`)) %>%
-  head()
+  head() %>%
+  kable()%>%
+  kable_styling(bootstrap_options = c("striped"))
 
 accidents %>% mutate(Pedestrian = INVTYPE == "Pedestrian",
                      Cyclist = INVTYPE == "Cyclist",
@@ -161,7 +165,9 @@ accidents %>% mutate(Pedestrian = INVTYPE == "Pedestrian",
   summarize(`Total Cyclist Fatalities` = sum(INJURY == "Fatal" & Cyclist == 1, na.rm = T),
             `Total Cyclist Collisions` = sum(Cyclist == 1, na.rm = T)) %>%
   arrange(desc(`Total Cyclist Fatalities`)) %>%
-  head()
+  head()%>%
+  kable()%>%
+  kable_styling(bootstrap_options = c("striped"))
 
 accidents %>% mutate(Pedestrian = INVTYPE == "Pedestrian",
                      Cyclist = INVTYPE == "Cyclist",
@@ -170,7 +176,9 @@ accidents %>% mutate(Pedestrian = INVTYPE == "Pedestrian",
   summarize(`Total Other Fatalities` = sum(INJURY == "Fatal" & Other == 1, na.rm = T),
             `Total Other Collisions` = sum(Other == 1, na.rm =T)) %>%
   arrange(desc(`Total Other Fatalities`)) %>%
-  head()
+  head()%>%
+  kable()%>%
+  kable_styling(bootstrap_options = c("striped"))
 ```
 
 ### Modeling
@@ -221,7 +229,7 @@ knitr::kable(var_def, format="latex", booktab=T, linesep = "") #escape=F,
 #Appendix: Neighborhoods of Toronto
 ```{r echo=F, fig.pos='H', fig.align='center', out.width='95%',fig.subcap=c('Population by neighborhood in the census year 2016', 'Fata collisions 2010-2016'),  fig.cap="\\label{fig:figs}Official City of Toronto Neighborhoods"}
 ## Visualizing neighborhoods of Toronto for reference
-url7 <- "https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/reports/draft/toronto_hood_map.png"
+url7 <- "https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/reports/draft/toronto-hoods.png"
 download.file(url = url7,
           destfile = "toronto-hoods.png",
           mode = 'wb')
