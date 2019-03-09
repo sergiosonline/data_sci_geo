@@ -72,7 +72,7 @@ download.file(url = url0,
           mode = 'wb')
 
 # Visualization of fatal vehicular incidents in the City of Toronto 2010-2016
-collisiondat <- read.csv("https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/data/drafts/Fatal_Collisions.csv", header=T, stringsAsFactors = FALSE)
+collisiondat <- read.csv("https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/data/Fatal_Collisions.csv", header=T, stringsAsFactors = FALSE)
 
 coordinates(collisiondat) <- ~LONGITUDE+LATITUDE
 #4326 - WGS84 std
@@ -105,7 +105,7 @@ For our analysis we employed data from the [Toronto Police Service](http://data.
 
 ### Data Preparation
 
-The following diagram provides an overview of the merged data.
+The following table provides an overview of the merged data.
 
 ```{r echo = F}
 library(kableExtra)
@@ -137,17 +137,32 @@ accidents <- read.csv("https://raw.githubusercontent.com/sergiosonline/data_sci_
 
 ### Modeling
 
-We model our outcome of interest using a temporal model (to be expanded to spatial in the following iteration).
+We model our outcome of interest (fatal collision) using a generalized mixed effects model (to be expanded to spatial in the following iteration), clustered by neighborhood. We estimate the odds of experiencing a fatal accident with respect to experiencing a non-fatal one, accross neighborhoods in Toronto, controlling for each day's total precipitation and minimum temperature. We will continue exploring model complexity and structure for the next iteration.
 
 ```{r echo=F}
 # Loading final monthly incident data, by neighborhood
-#incidentdat <- read.csv("https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/data/incident_by_year_month_ward_2Mar.csv", header=T, stringsAsFactors = F)
+incidentdata <- read.csv("https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/data/accidents.csv", header=T, stringsAsFactors = F,check.names = F)
 
+#incidentdata$Population2 <- incidentdata$Population/1000
+#incidentdata$Days_since_start2 <- incidentdata$Days_since_start/100
+#incidentdata <- filter(incidentdata, ACCLASS != "Property Damage Only")
+
+#population <- read.csv("https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/data/toronto_hood_projections_2007-2017.csv",stringsAsFactors = FALSE,header=T)
+
+#Adding neighborhood area
+#incidentdata_test <- incidentdata %>% 
+#  left_join(dplyr::select(population, HoodID, area_sqkm), by = c("Hood_ID" = "HoodID")) #%>% mutate(density = Population/(1000*area_sqkm))
+
+#write.csv(incidentdata_test, "~/Desktop/Grad_School/COURSEWORK/Spring 2019/Data Science/rough work/accidents.csv", row.names = F)
+
+freqmod1 <- glmer(as.factor(ACCLASS) ~ Days_since_start2 + Tot_precip + Min_temp + (1 + Days_since_start2 |Neighbourhood), family=binomial(link="logit"), nAGQ=0, data=incidentdata,
+                  control=glmerControl(optimizer= "Nelder_Mead"))
 ```
+
 
 # Results
 
-
+Our model indicates that a one milimeter increment of total precipitation for any neighborhood in the timeframe in question leads to an increment of 1.2% in the odds of suffering a fatal accident.
 
 
 # Conclusions and Discussion
