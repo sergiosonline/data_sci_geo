@@ -24,7 +24,6 @@ knitr::opts_chunk$set(fig.pos = 'H');
 
 Road traffic safety is a crucial component of urban planning and development. Nowadays governments (and sometimes the private sector) dedicate significant resources to providing ample and sufficient infrastructure to accommodate diverse modes of transportation, thereby increasing the productivity of any given urban area. In this project we examine road safety in the City of Toronto from 2007 to 2017 and explore the areas with highest risk of a traffic incident, controlling for different factors.
 
-
 # Methods
 
 We define the City of Toronto as per the these guidelines (https://www.toronto.ca/city-government/data-research-maps/neighbourhoods-communities/neighbourhood-profiles/). Below are the neighborhood limits and the 2016 population estimates:
@@ -128,6 +127,14 @@ Population counts for 2011 and 2016 are available through the national census fo
 
 Historical weather data collected from the station in [University of Toronto](https://goo.gl/maps/g8KZF6SWUw82) was also merged based on the day the accident occurred. This is represented in the above figure as the pink columns.
 
+### Exploratory Analysis
+
+```{r echo = F}
+accidents <- read.csv("https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/data/accidents.csv",
+                      check.names = F)
+
+```
+
 ### Modeling
 
 We model our outcome of interest using a temporal model (to be expanded to spatial in the following iteration).
@@ -145,9 +152,7 @@ We model our outcome of interest using a temporal model (to be expanded to spati
 
 # Conclusions and Discussion
 
-One of the biggest limitations in our project has been data quality and granularity. The data made available by Geotab does not include large areas of the City of Toronto. Moreover, there are plenty missing observations. We also acknowledge the fact that the fatal incident information we procured from the Toronto Police Service may not describe perfectly the actual number of incidents, as there are many of these that are non-fatal or go unreported.
-
-
+One of the biggest limitations in our project has been data quality and granularity. The data made available by Geotab does not include large areas of the City of Toronto. Moreover, there are plenty missing observations. We also acknowledge the fact that the collision information we procured from the Toronto Police Service may not describe perfectly the actual number of incidents, as there are many of these that are non-fatal or go unreported.
 
 #Appendix: Dataset Variables and Definitions
 ```{r echo=F}
