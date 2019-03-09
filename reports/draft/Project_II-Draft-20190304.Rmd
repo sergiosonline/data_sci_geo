@@ -133,6 +133,40 @@ Historical weather data collected from the station in [University of Toronto](ht
 accidents <- read.csv("https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/data/accidents.csv",
                       check.names = F)
 
+accidents %>% group_by(Neighbourhood) %>%
+  summarize(`Total Fatalities` = sum(INJURY == "Fatal", na.rm = T),
+            `Total Collisions` = n()) %>%
+  arrange(desc(`Total Fatalities`)) %>%
+  head()
+```
+
+```{r echo = F}
+accidents %>% mutate(Pedestrian = INVTYPE == "Pedestrian",
+                     Cyclist = INVTYPE == "Cyclist",
+                     Other = INVTYPE != "Pedestrian" & INVTYPE != "Cyclist") %>%
+  group_by(Neighbourhood) %>%
+  summarize(`Total Pedestrian Fatalities` = sum(INJURY == "Fatal" & Pedestrian == 1, na.rm = T),
+            `Total Pedestrian Collisions` = sum(Pedestrian == 1, na.rm = T)) %>%
+  arrange(desc(`Total Pedestrian Fatalities`)) %>%
+  head()
+
+accidents %>% mutate(Pedestrian = INVTYPE == "Pedestrian",
+                     Cyclist = INVTYPE == "Cyclist",
+                     Other = INVTYPE != "Pedestrian" & INVTYPE != "Cyclist") %>%
+  group_by(Neighbourhood) %>%
+  summarize(`Total Cyclist Fatalities` = sum(INJURY == "Fatal" & Cyclist == 1, na.rm = T),
+            `Total Cyclist Collisions` = sum(Cyclist == 1, na.rm = T)) %>%
+  arrange(desc(`Total Cyclist Fatalities`)) %>%
+  head()
+
+accidents %>% mutate(Pedestrian = INVTYPE == "Pedestrian",
+                     Cyclist = INVTYPE == "Cyclist",
+                     Other = INVTYPE != "Pedestrian" & INVTYPE != "Cyclist") %>%
+  group_by(Neighbourhood) %>%
+  summarize(`Total Other Fatalities` = sum(INJURY == "Fatal" & Other == 1, na.rm = T),
+            `Total Other Collisions` = sum(Other == 1, na.rm =T)) %>%
+  arrange(desc(`Total Other Fatalities`)) %>%
+  head()
 ```
 
 ### Modeling
