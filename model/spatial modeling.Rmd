@@ -1,0 +1,74 @@
+```{r}
+#merge with date
+library(sqldf)
+# library(geohash)
+library(dplyr)
+# library(DMwR)
+# library(stringr)
+library(sp)
+library(geostatsp, quietly = TRUE)
+library(mapmisc, quietly = TRUE)
+
+
+
+accidents <- read.csv(file="C:/Users/EDDY/Documents/UNIVERSITY/STA2453/Proj2/accidents.csv", header=TRUE, sep=",")
+
+#add new features
+#day/night; logdensity
+accidents$day_night = as.factor(ifelse(accidents$Hour >21 & accidents$Hour <6, 0, 1)) #day time is 1
+accidents$logdensity = log(accidents$density) #day time is 1
+
+
+#subset to 2017 for now
+accidents = subset(accidents, accidents$YEAR==2017)
+#####
+
+accidents_lonlat = as.matrix(unlist(cbind(accidents$longitude, accidents$latitude)),nrow=nrow(accidents))
+
+accidents_spatial = SpatialPointsDataFrame(coords= accidents_lonlat, data = accidents, coords.nrs = numeric(0), CRS("+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0"),  bbox = NULL)
+
+
+
+```
+
+
+```{r}
+#testing
+library(raster)
+canada <- getData(name="GADM", country="CAN", level=2)
+trt_border = subset(canada, NAME_2=="Toronto")
+accidents_spatial_border = spTransform(trt_border, projection(accidents_spatial))
+# plot(accidents_spatial)
+```
+
+
+
+```{r}
+#test1 - Error in over(data, as(border, "SpatialPolygons"))
+accidents_fit = lgcp(formula = ~ Avg_rain + Avg_snow + day_night, data = accidents_spatial, grid = 125, shape = 2, buffer = 2000, priorCI = list(range = c(400, 10000), sd = c(0.02, 2)), border=trt_border)
+
+#test2 - Error: cannot allocate vector of size 6540.6 Gb
+accidents_fit = lgcp(formula = ~ Avg_rain + Avg_snow + day_night, data = accidents_spatial_border, grid = 125, shape = 2, buffer = 2000, prior = list(range = 10000, sd =0.25))
+
+#test3 - Error in over(data, as(border, "SpatialPolygons"))
+accidents_fit = lgcp(formula = ~ Avg_rain + Avg_snow + day_night, data = accidents_spatial_border, grid = 125, shape = 2, buffer = 2000, priorCI = list(range = c(400, 10000), sd = c(0.02, 2)), border=trt_border)
+
+#border = trt_border,
+# RDSFCOND + Avg_rain + Avg_snow + TRAFFCTL + VISIBILITY + logpop + logdensity + day_night
+#example
+murderFit <- lgcp(formula = ~loginc + logpop + loglight, data = murder,
+ grid = 150, covariates = covList, shape = 2, buffer = 4000, priorCI =
+ list(range = c(400, 10000), sd = c(0.02, 2)), border = torontoBorder)
+```
+
+
+```{r}
+neighborhoods = rgdal::readOGR(dsn = "C:/Users/EDDY/Documents/UNIVERSITY/STA2453/Proj2", layer = "NEIGHBORHOODS_WGS84")
+# accidents <- read.csv("https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/data/accidents.csv",header=T, stringsAsFactors = FALSE)
+
+
+# Set up df
+neighborhoods@data$id = rownames(neighborhoods@data)
+neighborhoods.points = fortify(neighborhoods, region="id")
+neighborhoods.df = join(neighborhoods.points, neighborhoods@data, by = "id")
+```
