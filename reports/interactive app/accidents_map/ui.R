@@ -1,18 +1,8 @@
-#
-# This is the user-interface definition of a Shiny web application. You can
-# run the application by clicking 'Run App' above.
-#
-# Find out more about building applications with Shiny here:
-# 
-#    http://shiny.rstudio.com/
-#
-
 library(shiny)
 
-# Define UI for application that draws a histogram
 shinyUI(fluidPage(
   
-  h2("Road Accidents in Toronto in 2007-2017"),
+  h2("Road Accidents in Toronto"),
   
   tabsetPanel(
     tabPanel("Interactive Map",
@@ -24,22 +14,32 @@ shinyUI(fluidPage(
                              timeFormat = "%b %Y"),
                  
                  checkboxGroupInput("fatal", label = "Accident Fatality",
-                                    choices = c("Fatal", "Non-fatal"),
-                                    selected = c("Fatal", "Non-fatal")),
+                                    choices = c("Fatal", "Non-Fatal Injury"),
+                                    selected = c("Fatal", "Non-Fatal Injury")),
                  
                  checkboxGroupInput("auto_type", label = "Vehicles Involved",
                                     choices = c("Automobile", "Bicycle", "Pedestrian"),
                                     selected = c("Automobile", "Bicycle", "Pedestrian")),
                  
-                 checkboxGroupInput("precip", label = "Weather Condition",
-                                    choices = c("Rain", "Snow", "All Conditions"),
-                                    selected = "All Conditions"),
+                 selectInput("precip", label = "Weather Condition",
+                             choices = c("Rain", "Snow"), multiple = T, 
+                             selected = c("Rain", "Snow")),
                  
-                 checkboxInput("pop_label", label = "Show 2016 Population",
+                 sliderInput("acc_time", label = "Hour of accident",
+                             min = 0, max = 24, step = 0.5,
+                             value = c(0, 24)),
+                 
+                 checkboxInput("pop_label", label = "Overlay 2016 Population",
                                value = T)),
-               mainPanel()
+               
+               mainPanel(leafletOutput("acc_map"))
              )),
-    tabPanel("Frequency Chart", "")
+    
+    tabPanel("Frequency Chart",
+             sidebarLayout(
+               sidebarPanel(),
+               mainPanel()
+             ))
   )
 )
 )
