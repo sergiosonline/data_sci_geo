@@ -1,57 +1,24 @@
 ###################################
 # ENTER LOCATION OF FILES
 # Accident level data
-accident_location <- "C:/Users/angel/Downloads/by_accident_7Mar.csv"
-weather_location <- "C:/Users/angel/Downloads/weather.csv"
+accident_location <- "https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/data/final/automobile.csv"
+weather_location <- "https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/data/final/weather.csv"
 ###################################
 
 library(tidyverse)
 library(data.table)
 
-accidents_raw1 <- read.csv(accident_location, check.names = F) %>%
-  select(-`Index_`) %>%
-  distinct() %>% 
-  group_by(YEAR, MONTH, Hood_ID) %>%
-  summarize_at(.vars = vars(-YEAR, -MONTH, -Hood_ID, -DAY, -ACCNUM, -LATITUDE, -LONGITUDE, -Ward_ID, -Max_Temp, 
-                            -Min_Temp, -Daily_dif, -Ave_Temp, -Rain_vol, -Snow_vol, -Geohash, 
-                            -starts_with("Percent"), -starts_with("Avg")),
-               .funs = funs(sum(., na.rm = T))) 
-accidents_raw2 <- read.csv(accident_location, check.names = F) %>%
-  select(-`Index_`) %>%
-  distinct() %>% 
-  group_by(YEAR, MONTH, Hood_ID) %>%
-  filter_at(vars(starts_with("Percent"), starts_with("Avg")),
-            any_vars(. != 0)) %>%
-  summarize_at(.vars = vars(starts_with("Percent"), starts_with("Avg")),
-               .funs = funs(mean(., na.rm = T)))
-
-accidents_raw <- left_join(accidents_raw1, accidents_raw2, by = c("YEAR", "MONTH", "Hood_ID"))
-
-weather_raw <- read.csv(weather_location, check.names = F) %>%
-  select(Year, Month, Station, `Max Temp (째C)`, `Min Temp (째C)`, `Total Rain (mm)`, `Total Snow (cm)`,
-          `Total Precip (mm)`, `Total Rain (mm)`, `Total Snow (cm)`, `Snow on Grnd (cm)`) %>%
+accidents_raw <- fread(accident_location) %>%
+  mutate(date = as.Date(date))
+weather_raw <- fread(weather_location) %>%
   filter(Station == "Toronto City") %>%
-  filter(Year >= 2007) %>%
-  group_by(Year, Month) %>%
-  summarize(`Max_temp` = max(`Max Temp (째C)`, na.rm = T),
-            `Min_temp` = min(`Min Temp (째C)`, na.rm = T),
-            `Tot_rain` = sum(`Total Rain (mm)`, na.rm = T),
-            `Tot_snow` = sum(`Total Snow (cm)`, na.rm = T),
-            `Tot_precip` = sum(`Total Precip (mm)`, na.rm = T),
-            `Avg_rain` = mean(`Total Rain (mm)`, na.rm = T),
-            `Avg_snow` = mean(`Total Snow (cm)`, na.rm = T),
-            `Avg_precip` = mean(`Total Precip (mm)`, na.rm = T),
-            `Max_rain` = max(`Total Rain (mm)`, na.rm = T),
-            `Max_snow` = max(`Total Snow (cm)`, na.rm = T),
-            `Max_precip` = max(`Total Precip (mm)`, na.rm = T),
-            `Max_ground_snow` = max(`Snow on Grnd (cm)`, na.rm = T))
+  rename(date = `Date/Time`, max_temp = `Max Temp (캜)`, min_temp = `Min Temp (캜)`, 
+         tot_rain_mm = `Total Rain (mm)`,  tot_snow_cm = `Total Snow (cm)`,
+         tot_precip_mm = `Total Precip (mm)`, ground_snow_cm = `Snow on Grnd (cm)`) %>%
+  select(date, max_temp, min_temp, tot_rain_mm, tot_snow_cm, tot_precip_mm, ground_snow_cm) %>%
+  mutate(date = as.Date(date))
 
-accidents <- data.frame(YEAR = rep(2007:2017, each = 140*12),
-                        MONTH = rep(1:12, each = 140*11),
-                        Hood_ID = rep(1:140, times = 11*12)) %>%
-  left_join(accidents_raw, by = c("YEAR", "MONTH", "Hood_ID")) %>%
-  left_join(weather_raw, by = c("YEAR" = "Year", "MONTH" = "Month"))
+accidents <- left_join(accidents_raw, weather_raw, by = c("date" = "date")) %>%
+  mutate_if(is.numeric, funs(ifelse(is.na(.), 0, .)))
 
-accidents[is.na(accidents)] <- 0
-accidents[accidents == -Inf] <- 0
-accidents[accidents == NaN] <- 0
+fwrite(accidents, "C:/Users/angel/accidents.csv")
