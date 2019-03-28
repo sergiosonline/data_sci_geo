@@ -21,4 +21,4 @@ weather_raw <- fread(weather_location) %>%
 accidents <- left_join(accidents_raw, weather_raw, by = c("date" = "date")) %>%
   mutate_if(is.numeric, funs(ifelse(is.na(.), 0, .)))
 
-fwrite(accidents, "C:/Users/angel/accidents.csv")
+# fwrite(accidents, file = "C:/Users/angel/Downloads/accidents.csv")
