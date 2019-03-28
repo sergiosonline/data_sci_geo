@@ -17,22 +17,23 @@ shinyUI(fluidPage(
                                     choices = c("Fatal", "Non-Fatal Injury"),
                                     selected = c("Fatal", "Non-Fatal Injury")),
                  
-                 checkboxGroupInput("auto_type", label = "Vehicles Involved",
-                                    choices = c("Automobile", "Bicycle", "Pedestrian"),
-                                    selected = c("Automobile", "Bicycle", "Pedestrian")),
+                 selectInput("auto_type", label = "Vehicles Involved", multiple = T,
+                             choices = c("Automobile", "Bicycle", "Motorcycle", "Pedestrian"),
+                             selected = c("Automobile")),
                  
                  selectInput("precip", label = "Weather Condition",
-                             choices = c("Rain", "Snow"), multiple = T, 
-                             selected = c("Rain", "Snow")),
+                             choices = c("Clear", "Rain", "Snow"), multiple = T, 
+                             selected = c("Clear")),
                  
                  sliderInput("acc_time", label = "Hour of accident",
-                             min = 0, max = 24, step = 0.5,
+                             min = 0, max = 24, step = 1,
                              value = c(0, 24)),
                  
                  checkboxInput("pop_label", label = "Overlay 2016 Population",
                                value = T)),
                
-               mainPanel(leafletOutput("acc_map"))
+               mainPanel(leafletOutput("acc_map"),
+                         dataTableOutput("acc_data"))
              )),
     
     tabPanel("Frequency Chart",
