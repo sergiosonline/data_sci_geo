@@ -1,0 +1,139 @@
+```{r}
+#merge with date
+# library(geohash)
+# library(dplyr)
+# library(DMwR)
+# library(stringr)
+library(sp)
+library(geostatsp, quietly = TRUE)
+library(mapmisc, quietly = TRUE)
+
+# neighborhoods = rgdal::readOGR(dsn = "C:/Users/ThinkPad/Desktop/Eddy/DS", layer = "NEIGHBORHOODS_WGS84")
+# neighborhoods = rgdal::readOGR("C:/Users/ThinkPad/Desktop/Eddy/DS/NEIGHBORHOODS_WGS84.shp",layer="NEIGHBORHOODS_WGS84")
+
+
+
+accidents <- read.csv(file="C:/Users/EDDY/Documents/UNIVERSITY/STA2453/Proj2/accidents.csv", header=TRUE, sep=",")
+
+#add new features
+#day/night; logdensity
+# accidents$day_night = as.factor(ifelse(accidents$Hour >21 | accidents$Hour <6, "Night", "Day")) #day time is 1
+# accidents$logdensity = log(accidents$density) #day time is 1
+accidents$YEAR = substr(as.character(accidents$date),1,4)
+accidents$longitude = accidents$long
+accidents$latitude = accidents$lat
+
+#subset to 2017 for now
+accidents = subset(accidents, accidents$YEAR==2017)
+#####
+
+accidents_lonlat = as.matrix(cbind(accidents$longitude, accidents$latitude),nrow=nrow(accidents))
+
+accidents_spatial = SpatialPointsDataFrame(coords= accidents_lonlat, data = accidents, coords.nrs = numeric(0), CRS("+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0"),  bbox = NULL)
+
+accidents2 = spTransform(accidents_spatial, mapmisc::omerc(accidents_spatial, angle=-17))
+theMap = mapmisc::openmap(accidents2, maxTiles=4, fact=3)
+mapmisc::map.new(accidents2)
+plot(theMap, add=TRUE, maxpixels=10^7)
+plot(accidents2, col=mapmisc::col2html("black", 0.4), cex=0.6, add=TRUE)
+```
+
+
+```{r}
+#testing
+library(raster)
+canada <- getData(name="GADM", country="CAN", level=2)
+trt_border = subset(canada, NAME_2=="Toronto")
+accidents_spatial_border = spTransform(trt_border, projection(accidents2))
+# plot(accidents_spatial)
+```
+
+
+
+```{r}
+accidents_fit = lgcp(formula = ~ 1, data = accidents2, grid = 55, shape = 1, buffer = 2000, 
+                     prior = list(range = 6000, sd =0.5), border=accidents_spatial_border, 
+                                  control.inla = list(strategy='gaussian'), verbose=FALSE, covariates = list(ROAD_CLASS = accidents2$ROAD_CLASS))
+
+ mapmisc::map.new(accidents_spatial_border)
+ plot(accidents_fit$raster[['predict.exp']]*10^6, add=TRUE)
+ plot(accidents_spatial_border, add=TRUE)
+
+```
+
+
+```{r}
+library(lme4)
+
+# levels(accidents3$road_class)
+# class(accidents3$tot_precip_mm)
+# table(accidents$Tot_rain)
+
+accidents <- read.csv(file="C:/Users/EDDY/Documents/UNIVERSITY/STA2453/Proj2/accidents.csv", header=TRUE, sep=",")
+accidents3 = accidents
+
+#group visibility
+accidents3$VISIBILITY_B = as.character(accidents3$visibility)
+accidents3$VISIBILITY_B = as.factor(ifelse(accidents3$VISIBILITY_B =="Clear", "Clear", "Not Clear"))
+
+#factorize hood_id
+accidents3$Hood_ID = as.factor(accidents3$hood_num)
+
+#group accident outcome
+accidents3$acc_class = as.character(accidents3$acc_class)
+accidents3$acc_class = as.factor(ifelse(accidents3$acc_class =="Fatal", "Fatal", "Non-Fatal"))
+
+#group road class
+accidents3$road_class = as.character(accidents3$road_class)
+accidents3$road_class = ifelse(accidents3$road_class %in% c("Major Arterial", "Major Arterial Ramp", "Minor Arterial"), "Arterial", ifelse(accidents3$road_class %in% c("Expressway", "Expressway Ramp"), "Expressway", accidents3$road_class))
+accidents3$road_class = as.factor(accidents3$road_class)                                                        
+accidents3$road_class = relevel(accidents3$road_class,ref='Local')
+
+#group invaded type - may be correlated to road class
+accidents3$person_type = as.character(accidents3$person_type)
+accidents3$person_type = as.factor(ifelse(accidents3$person_type %in% c("Pedestrian", "Pedestrian - Not Hit"), "Pedestrian involved", "Pedestrian not involved"))
+
+# accidents3$Ward_ID = as.factor(accidents3$Ward_ID)
+
+fatality_fit = glmer(acc_class ~ VISIBILITY_B + road_class + person_type + (1|Hood_ID), family = "binomial", data=accidents3)
+#person_type + tot_precip_mm 
+
+summary(fatality_fit)
+
+theCiMat = Pmisc::ciMat(0.95)
+parTable = summary(fatality_fit)$coef[,rownames(theCiMat)] %*% theCiMat
+
+# rownames(parTable) = c("Intercept", "VISIBILITY: Not Clear", "Expressway", "Expressway Ramp", "Laneway", "Local", "Major Arterial" , "Major Arterial Ramp" , "Minor Arterial", "Night Time")
+knitr::kable(exp(parTable), digits=3)
+
+
+
+library(dplyr)
+
+res <- accidents3 %>% group_by(acc_class,road_class) %>% summarise(Freq=n())
+res
+```
+
+
+
+
+```{r}
+test = accidents3[1:100,c("acc_class","VISIBILITY_B", "road_class", "person_type", "tot_precip_mm", "Hood_ID")]
+# test = subset(accidents3, as.character(accidents3$ACCLASS) == "Fatal")
+# test
+# levels(test$Ward_ID)
+# levels(accidents3$Ward_ID)
+# ROAD_CLASS + 
+```
+
+
+
+
+
+
+
+
+
+
+
+
