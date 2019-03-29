@@ -4,6 +4,7 @@ library(data.table, quietly = T, warn.conflicts = F, verbose = F)
 library(sp)
 library(htmltools)
 library(leaflet)
+library(zoo)
 
 # Load neighborhood polygons with 2016 population
 ## Download this file into local drive: 
@@ -29,11 +30,6 @@ per_accident <- accidents %>%
 accidents <- accidents %>%
   left_join(per_accident, by = c("accident_key" = "accident_key")) %>%
   select(-division, -ward_num, -hood_num)
-
-# Icons
-# vehicle_icon <- iconList(
-#   bicycle = makeIcon("bicycle icon.png", iconWidth = 25, iconHeight = 25)
-# )
 
 rm(per_accident)
 
@@ -85,7 +81,8 @@ shinyServer(function(input, output) {
            filtered_plot_accidents()[i, "street2"],'<br/>',
            "Parties involved: ", filtered_plot_accidents()[i, "parties_involved"])})
   })
-   
+  
+  # Leaflet map
   output$acc_map <- renderLeaflet({
     leaflet() %>% addTiles() %>%
       addCircles(
@@ -111,7 +108,7 @@ shinyServer(function(input, output) {
       addProviderTiles(providers$CartoDB.Positron)
   })
   
-  
+  # Allows the data to be filtered by accident clicked
   filtered_table_accidents <- reactive({
     if(is.null(input$acc_map_click))
       return(filtered_accidents())
@@ -121,5 +118,17 @@ shinyServer(function(input, output) {
   })
   
   output$acc_data <- renderDataTable(filtered_table_accidents())
+  
+  output$acc_plot <- renderPlot({
+    filtered_accidents() %>%
+      mutate(month = as.yearmon(date)) %>%
+      group_by(month, acc_class, accident_key) %>%
+      summarize(num_accidents = n()) %>%
+      ungroup() %>%
+      group_by(month, acc_class) %>%
+      summarize(num_accidents = sum(num_accidents, na.rm = T)) %>%
+      ggplot(., aes(x = month, y = num_accidents, col = acc_class, group = acc_class)) + 
+      geom_point() + geom_line()
+  })
   
 })

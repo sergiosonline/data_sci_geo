@@ -5,9 +5,7 @@ shinyUI(fluidPage(
   
   h2("Road Accidents in Toronto"),
   
-  tabsetPanel(
-    tabPanel("Interactive Map",
-             sidebarLayout(
+  sidebarLayout(
                sidebarPanel(
                  sliderInput("acc_date", label = "Date of accident",
                              min = as.Date("2007-01-01"), max = as.Date("2017-12-01"),
@@ -32,16 +30,17 @@ shinyUI(fluidPage(
                  
                  checkboxInput("pop_label", label = "Overlay 2016 Population",
                                value = F)),
-               
-               mainPanel(leafletOutput("acc_map"),
+
+  mainPanel(
+    tabsetPanel(type = "tabs",
+                tabPanel("Interactive Map", 
+                         leafletOutput("acc_map"), 
                          dataTableOutput("acc_data"))
-             )),
-    
-    tabPanel("Frequency Chart",
-             sidebarLayout(
-               sidebarPanel(),
-               mainPanel()
-             ))
+    ,
+    tabPanel("Frequency Table",
+             plotOutput("acc_plot"),
+             dataTableOutput("acc_data2"))
+  )
   )
 )
-)
+))
