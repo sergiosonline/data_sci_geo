@@ -6,33 +6,6 @@ library(htmltools)
 library(leaflet)
 library(zoo)
 
-# Load neighborhood polygons with 2016 population
-## Download this file into local drive: 
-## https://github.com/sergiosonline/data_sci_geo/tree/master/data/neighbourhoods_planning_areas_wgs84_SEB
-## And update fileloc variable
-
-fileloc <- "C:/Users/angel/OneDrive/Documents/GitHub/data_sci_geo/data/neighbourhoods_planning_areas_wgs84_SEB"
-# fileloc <- "NEIGHBORHOODS_WGS84.shp"
-neighborhoods <- rgdal::readOGR(dsn = fileloc, layer = "NEIGHBORHOODS_WGS84")
-# neighborhoods <- rgdal::readOGR(dsn = fileloc)
-
-# Load accidents data
-accidents <- fread("https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/data/final/accidents.csv") %>%
-  filter(acc_class != "Property Damage Only")
-
-# Number of parties involved in an accident as well as number of fatalities
-per_accident <- accidents %>%
-  group_by(accident_key) %>%
-  summarize(parties_involved = n(),
-            num_fatalities = sum(injury == "Fatal"))
-
-# Combine with per accident information
-accidents <- accidents %>%
-  left_join(per_accident, by = c("accident_key" = "accident_key")) %>%
-  select(-division, -ward_num, -hood_num)
-
-rm(per_accident)
-
 shinyServer(function(input, output) {
   # Filter accident data
   filtered_accidents <- reactive({
@@ -53,7 +26,9 @@ shinyServer(function(input, output) {
              -vehicles_involved_input) %>%
       filter(("Precipitated" %in% input$precip & tot_precip_mm > 0) | 
                ("Clear" %in% input$precip & tot_precip_mm == 0) | is.na(input$precip)) %>%
-      filter(hour >= input$acc_time[1] & hour <= input$acc_time[2])
+      filter(hour >= input$acc_time[1] & hour <= input$acc_time[2]) %>%
+      filter(hood_name %in% input$hood) %>%
+      filter(population >= input$population[1] & population <= input$population[2])
   })
   
   # Plotting data
@@ -73,14 +48,18 @@ shinyServer(function(input, output) {
   pal_pop <- colorFactor(palette = c('steel blue','indigo'), domain = neighborhoods$X2016pop)
   pal_pop2 <- colorNumeric(palette = hsv(1, seq(0,1,length.out = 12) , 1), neighborhoods$X2016pop, n = 5)
   
-  # Pop-up label
-  labs <- reactive({lapply(seq(nrow(filtered_plot_accidents())), function(i) {
+  # Pop-up label for accident
+  labs_acc <- reactive({lapply(seq(nrow(filtered_plot_accidents())), function(i) {
     paste0('<b>', filtered_plot_accidents()[i, "acc_class"], "</b><br/>",
            filtered_plot_accidents()[i, "date"], '<br/>',
            filtered_plot_accidents()[i, "street1"], ', ', 
            filtered_plot_accidents()[i, "street2"],'<br/>',
            "Parties involved: ", filtered_plot_accidents()[i, "parties_involved"])})
   })
+  
+  # Pop-up label for neighborhood
+  labs_hood <- paste0('<b>', gsub(" *\\(.*?\\) *", "", neighborhoods$AREA_NAME), '</b><br/>',
+                      'Population: ', neighborhoods$X2016pop)
   
   # Leaflet map
   output$acc_map <- renderLeaflet({
@@ -89,7 +68,7 @@ shinyServer(function(input, output) {
         data = filtered_plot_accidents(),
         lng = ~ long, lat = ~ lat,
         color = ~ pal2(acc_class),
-        label = lapply(labs(), HTML)
+        label = lapply(labs_acc(), HTML)
       )%>%
       addLegend(
         pal = pal_pop2,
@@ -103,9 +82,43 @@ shinyServer(function(input, output) {
         values = filtered_plot_accidents()$acc_class,
         opacity = 1,
         title = 'Accident Class'
-        
-      ) %>%
+      )%>%
       addProviderTiles(providers$CartoDB.Positron)
+  })
+  
+  # Overlays the population data on map
+  observe({
+    if(input$pop_label){
+      leafletProxy("acc_map") %>%
+        clearShapes() %>%
+        addPolygons(
+          data = neighborhoods[3],
+          color = ~pal_pop2(X2016pop),
+          fillOpacity = 0.5,
+          weight = 1,
+          highlight = highlightOptions(
+            weight = 2,
+            color = "#666"
+          ),
+          label = lapply(labs_hood, HTML)
+        )%>%
+        addCircles(
+          data = filtered_plot_accidents(),
+          lng = ~ long, lat = ~ lat,
+          color = ~ pal2(acc_class),
+          label = lapply(labs_acc(), HTML)
+        )
+    }
+    else if(!input$pop_label){
+      leafletProxy("acc_map") %>%
+        clearShapes() %>%
+        addCircles(
+          data = filtered_plot_accidents(),
+          lng = ~ long, lat = ~ lat,
+          color = ~ pal2(acc_class),
+          label = lapply(labs_acc(), HTML)
+        )
+    }
   })
   
   # Allows the data to be filtered by accident clicked

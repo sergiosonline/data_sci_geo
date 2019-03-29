@@ -16,7 +16,7 @@ shinyUI(fluidPage(
                                     choices = c("Fatal", "Non-Fatal Injury"),
                                     selected = c("Fatal", "Non-Fatal Injury")),
                  
-                 selectInput("auto_type", label = "Vehicles Involved", multiple = T,
+                 selectInput("auto_type", label = "Other Vehicles Involved", multiple = T,
                              choices = c("Pedestrian", "Bicycle", "Motorcycle", "Truck", "Emergency Vehicle"),
                              selected = c("Pedestrian")),
                  
@@ -27,6 +27,14 @@ shinyUI(fluidPage(
                  sliderInput("acc_time", label = "Hour of accident",
                              min = 0, max = 24, step = 1,
                              value = c(0, 24)),
+                 
+                 selectInput("hood", label = "Neighborhood",
+                             choices = unique(accidents$hood_name), multiple = T,
+                             selected = unique(accidents$hood_name)),
+
+                 sliderInput("population", label = "2016 Population of Neighborhood",
+                             min = 6000, max = 70000, step = 1000,
+                             value = c(6000, 70000)),
                  
                  checkboxInput("pop_label", label = "Overlay 2016 Population",
                                value = F)),
