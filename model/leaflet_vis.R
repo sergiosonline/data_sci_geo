@@ -18,10 +18,16 @@ labs <- lapply(seq(nrow(accidents)), function(i) {
 
 m <- leaflet() %>% addTiles() %>%
 
+  addPolygons(
+    data = neighborhoods[3],
+    color = ~pal_pop2(X2016pop),
+    fillOpacity = 0.5,
+    weight = 1
+  )%>%
   addCircles(
     data = accidents,
     lng = ~ longitude, lat = ~ latitude,
-    color = ~ pal2(ACCLASS),
+    color = ~pal2(ACCLASS),
     label = lapply(labs, HTML)
   )%>%
   addLegend(
@@ -36,6 +42,5 @@ m <- leaflet() %>% addTiles() %>%
     values = accidents$ACCLASS,
     opacity = 1,
     title = 'Accident Class'
-    
   )
 
