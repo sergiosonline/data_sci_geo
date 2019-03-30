@@ -27,7 +27,7 @@ per_accident <- accidents %>%
 
 # 2016 Population for each neighborhood
 population <- data.frame(neighborhood = as.numeric(neighborhoods$AREA_S_CD),
-                         population = as.numeric(neighborhoods$X2016pop))
+                         population_2016 = as.numeric(neighborhoods$X2016pop))
 
 # Combine with per accident information
 accidents <- accidents %>%

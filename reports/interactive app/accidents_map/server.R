@@ -11,18 +11,18 @@ shinyServer(function(input, output) {
              i_moto = if_else(inv_moto == 1, "Motorcycle", NA_character_),
              i_ped = if_else(inv_ped == 1, "Pedestrian", NA_character_),
              i_truck = if_else(inv_truck == 1, "Truck", NA_character_)) %>%
-      mutate(vehicles_involved = gsub("NA", "", gsub(", NA", "", 
-                                      gsub("NA, ", "", paste(i_bike, i_emerg, i_moto, i_ped, i_truck, 
+      mutate(vehicles_involved = gsub("NA", "", gsub(", NA", "",
+                                      gsub("NA, ", "", paste(i_bike, i_emerg, i_moto, i_ped, i_truck,
                                                              sep = ", ")))),
              vehicles_involved_input = as.character(paste(sort(input$auto_type), collapse = ", "))) %>%
       filter(vehicles_involved == vehicles_involved_input) %>%
       select(-i_bike, -i_emerg, -i_moto, -i_ped, -i_truck, -vehicles_involved,
              -vehicles_involved_input) %>%
-      filter(("Precipitated" %in% input$precip & tot_precip_mm > 0) | 
+      filter(("Precipitated" %in% input$precip & tot_precip_mm > 0) |
                ("Clear" %in% input$precip & tot_precip_mm == 0) | is.na(input$precip)) %>%
       filter(hour >= input$acc_time[1] & hour <= input$acc_time[2]) %>%
-      filter(hood_name %in% input$hood) %>%
-      filter(population >= input$population[1] & population <= input$population[2])
+      # filter(hood_name %in% eed) %>%
+      filter(population_2016 >= input$population[1] & population_2016 <= input$population[2])
   })
   
   # Plotting data
@@ -35,9 +35,6 @@ shinyServer(function(input, output) {
   })
   
   # Color scheme for map
-  # colorpal <- reactive({
-  #   colorFactor(palette = c('darkorchid', 'darkturquoise'), domain = filtered_accidents$ACCLASS)
-  # })
   pal2 <- colorFactor(palette = c('darkorchid', 'darkturquoise'), domain = accidents$acc_class)
   pal_pop <- colorFactor(palette = c('steel blue','indigo'), domain = neighborhoods$X2016pop)
   pal_pop2 <- colorNumeric(palette = hsv(1, seq(0,1,length.out = 12) , 1), neighborhoods$X2016pop, n = 5)
@@ -125,7 +122,7 @@ shinyServer(function(input, output) {
   })
   
   output$acc_data <- renderDataTable(filtered_table_accidents())
-  
+
   output$acc_plot <- renderPlot({
     filtered_accidents() %>%
       mutate(month = as.yearmon(date)) %>%
@@ -134,7 +131,7 @@ shinyServer(function(input, output) {
       ungroup() %>%
       group_by(month, acc_class) %>%
       summarize(num_accidents = sum(num_accidents, na.rm = T)) %>%
-      ggplot(., aes(x = month, y = num_accidents, col = acc_class, group = acc_class)) + 
+      ggplot(., aes(x = month, y = num_accidents, col = acc_class, group = acc_class)) +
       geom_point() + geom_line()
   })
   
