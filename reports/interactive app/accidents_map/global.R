@@ -1,3 +1,10 @@
+library(tidyverse, quietly = T, warn.conflicts = F, verbose = F)
+library(data.table, quietly = T, warn.conflicts = F, verbose = F)
+library(sp)
+library(htmltools)
+library(leaflet)
+library(zoo)
+
 # Load neighborhood polygons with 2016 population
 ## Download this file into local drive: 
 ## https://github.com/sergiosonline/data_sci_geo/tree/master/data/neighbourhoods_planning_areas_wgs84_SEB
