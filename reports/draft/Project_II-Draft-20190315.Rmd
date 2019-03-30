@@ -63,9 +63,9 @@ neighborhoods <- read_sf(dsn = "~/Desktop/Grad_School/COURSEWORK/Spring 2019/Dat
 ```
 
 
-```{r echo=F, fig.pos='H', fig.align='center', out.width=c('50%','50%'),fig.subcap=c('Population by neighborhood in the census year 2016', 'Fatal and Non-Fatal Collisions in 2016'),  fig.cap="\\label{fig:figs}EDA with regards to the City of Toronto", cache=T, warning=F}
+```{r echo=F, fig.pos='H', fig.align='center', out.width=c('50%','50%'),fig.subcap=c('Population by neighborhood in the census year 2016', 'Fatal and Non-Fatal Collisions in 2016'),  fig.cap="\\label{fig:figs}EDA with regards to the City of Toronto", cache=T, warning=F, message=F}
 ###ALTERNATIVE VISUALIZATION
-neighborhoods = rgdal::readOGR(dsn = "~/Desktop/Grad_School/COURSEWORK/Spring 2019/Data Science/rough work/neighbourhoods_planning_areas_wgs84_SEB/", layer = "NEIGHBORHOODS_WGS84")
+neighborhoods = rgdal::readOGR(dsn = "~/Desktop/Grad_School/COURSEWORK/Spring 2019/Data Science/rough work/neighbourhoods_planning_areas_wgs84_SEB/", layer = "NEIGHBORHOODS_WGS84",verbose=FALSE)
 accidents <- read.csv("https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/data/accidents.csv",header=T, stringsAsFactors = FALSE)
 
 
@@ -127,24 +127,8 @@ p1
 p2
 ```
 
-```{r echo=F, eval=F, fig.pos='H', fig.align='center', out.width=c('50%','50%'),fig.subcap=c('Population by neighborhood in the census year 2016', 'Fata and Non-Fatal Collisions in 2016'),  fig.cap="\\label{fig:figs}EDA with regards to the City of Toronto", cache=T}
 
-url1 <- "https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/reports/draft/STA2453-Toronto-2016.png"
-download.file(url = url1,
-          destfile = "toronto_incidents.png",
-          mode = 'wb')
-
-#knitr::include_graphics(c(path="Toronto-2016.png",p))
-
-```
-
-```{r echo=F, fig.pos='H', fig.align='center', out.width=c('80%','80%'),fig.subcap=c('Population by neighborhood in the census year 2016', 'Fata collisions 2010-2016'),  fig.cap="\\label{fig:figs}EDA with regards to the City of Toronto", cache=T}
-
-## Visualizing above polygon, after customization
-#url0 <- "https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/reports/draft/STA2453-Toronto-2016.png"
-#download.file(url = url0,
-#          destfile = "toronto-population.png",
-#          mode = 'wb')
+```{r echo=F, eval=F, fig.pos='H', fig.align='center', out.width=c('80%','80%'),fig.subcap=c('Population by neighborhood in the census year 2016', 'Fata collisions 2010-2016'),  fig.cap="\\label{fig:figs}EDA with regards to the City of Toronto", cache=T}
 
 # Visualization of fatal vehicular incidents in the City of Toronto 2010-2016
 collisiondat <- read.csv("https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/data/Fatal_Collisions.csv", header=T, stringsAsFactors = FALSE)
