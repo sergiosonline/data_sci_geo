@@ -1,10 +1,4 @@
 library(shiny)
-library(tidyverse, quietly = T, warn.conflicts = F, verbose = F)
-library(data.table, quietly = T, warn.conflicts = F, verbose = F)
-library(sp)
-library(htmltools)
-library(leaflet)
-library(zoo)
 
 shinyServer(function(input, output) {
   # Filter accident data
