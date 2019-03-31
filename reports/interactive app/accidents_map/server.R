@@ -21,7 +21,6 @@ shinyServer(function(input, output) {
       filter(("Precipitated" %in% input$precip & tot_precip_mm > 0) |
                ("Clear" %in% input$precip & tot_precip_mm == 0) | is.na(input$precip)) %>%
       filter(hour >= input$acc_time[1] & hour <= input$acc_time[2]) %>%
-      # filter(hood_name %in% eed) %>%
       filter(population_2016 >= input$population[1] & population_2016 <= input$population[2])
   })
   
