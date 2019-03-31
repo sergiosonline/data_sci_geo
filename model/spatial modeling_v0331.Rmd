@@ -1,0 +1,398 @@
+---
+title: "Data Sci - Geotab Analysis"
+author: "Eddy"
+date: '2019-03-29'
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+```{r}
+#LGCP
+# library(geohash)
+# library(dplyr)
+# library(DMwR)
+# library(stringr)
+library(sp)
+library(geostatsp, quietly = TRUE)
+library(mapmisc, quietly = TRUE)
+library(maptools)
+
+# neighborhoods = rgdal::readOGR(dsn = "C:/Users/ThinkPad/Desktop/Eddy/DS", layer = "NEIGHBORHOODS_WGS84")
+# neighborhoods = rgdal::readOGR("C:/Users/ThinkPad/Desktop/Eddy/DS/NEIGHBORHOODS_WGS84.shp",layer="NEIGHBORHOODS_WGS84")
+
+# zoning = rgdal::readOGR("C:/Users/EDDY/Documents/UNIVERSITY/STA2453/Proj2/zoning/ZONING_ZONE_CATAGORIES_WGS84.shp",layer="ZONING_ZONE_CATAGORIES_WGS84")
+# traffic_signals <- read.csv(file="C:/Users/EDDY/Documents/UNIVERSITY/STA2453/Proj2/traffic_signals.csv", header=TRUE,sep=',')
+ 
+accidents <- read.csv(file="https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/data/final/accidents.csv", header=TRUE)
+
+
+accidents$YEAR = substr(as.character(accidents$date),1,4)
+accidents$longitude = accidents$long
+accidents$latitude = accidents$lat
+
+
+#add new features
+#day/night; logdensity
+# accidents$day_night = as.factor(ifelse(accidents$Hour >21 | accidents$Hour <6, "Night", "Day")) #day time is 1
+# accidents$logdensity = log(accidents$density) #day time is 1
+
+#subset to 2017 for now
+accidents = subset(accidents, accidents$YEAR==2017)
+#####
+
+accidents_lonlat = as.matrix(cbind(accidents$longitude, accidents$latitude),nrow=nrow(accidents))
+
+accidents_spatial = SpatialPointsDataFrame(coords= accidents_lonlat, data = accidents, coords.nrs = numeric(0), CRS("+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0"),  bbox = NULL)
+
+# spRbind(accidents_spatial, zoning)
+
+accidents2 = spTransform(accidents_spatial, mapmisc::omerc(accidents_spatial, angle=-17))
+theMap = mapmisc::openmap(accidents2, maxTiles=4, fact=3)
+mapmisc::map.new(accidents2)
+plot(theMap, add=TRUE, maxpixels=10^7)
+plot(accidents2, col=mapmisc::col2html("black", 0.4), cex=0.6, add=TRUE)
+```
+
+
+```{r}
+#testing
+library(raster)
+canada <- getData(name="GADM", country="CAN", level=2)
+trt_border = subset(canada, NAME_2=="Toronto")
+accidents_spatial_border = spTransform(trt_border, projection(accidents2))
+# plot(accidents_spatial)
+```
+
+
+
+```{r}
+accidents_fit = lgcp(formula = ~ 1, data = accidents2, grid = 55, shape = 1, buffer = 2000, 
+                     prior = list(range = 6000, sd =0.5), border=accidents_spatial_border, 
+                                  control.inla = list(strategy='gaussian'), verbose=FALSE)
+
+ mapmisc::map.new(accidents_spatial_border)
+ plot(accidents_fit$raster[['predict.exp']]*10^6, add=TRUE)
+ plot(accidents_spatial_border, add=TRUE)
+ 
+ ######################
+ 
+# fitCol = colourScale(accidents_fit$raster[["predict.invlogit"]],style = "equal", breaks = 10, dec = -log10(0.02), col = "RdYlGn",rev = TRUE, opacity = 0.8)
+# 
+# map.new(accidents_fit$raster, legendRight = 0.9)
+# plot(accidents_fit$raster[["predict.invlogit"]], add = TRUE, col = fitCol$colOpacity,breaks = fitCol$breaks, legend = FALSE, main= "Expectation of Correlation")
+# plot(accidents_spatial_border, add = TRUE)
+# legendBreaks("right", fitCol, outer = TRUE, bty = "n", inset = 0)
+ 
+ 
+ #####################
+#  fitCol = colourScale(accidents_fit$raster[["random.mean"]],style = "equal", breaks = 6, dec = -log10(0.02), col = "Pastel1",rev = TRUE, opacity = 0.8)
+#  
+# mapmisc::map.new(accidents_spatial_border)
+# map.new(accidents_fit$raster, legendRight = 0.9)
+# plot(accidents_fit$raster[["random.mean"]], add = TRUE, col = fitCol$colOpacity,breaks = fitCol$breaks, legend = FALSE, main= "Expectation of spatial random effect")
+#  plot(accidents_spatial_border, add=TRUE)
+# legendBreaks("right", fitCol, outer = TRUE, bty = "n", inset = 0)
+
+
+```
+
+$$
+\begin{aligned}
+Y_{ij} \sim N(\lambda(s_{i}) , \tau^2)\\
+\lambda(s_{i}) = U(s)
+cov[U(s + h), U(s)] = \sigma^2\rho(h/\phi;v)
+\end{aligned}
+$$
+
+
+```{r}
+#GLM
+library(lme4)
+
+# levels(accidents3$road_class)
+# class(accidents3$tot_precip_mm)
+# table(accidents$Tot_rain)
+
+accidents <- read.csv(file="https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/data/final/accidents.csv", header=TRUE)
+accidents3 = accidents
+
+#group visibility
+accidents3$visibility_b = as.character(accidents3$visibility)
+accidents3$visibility_b = as.factor(ifelse(accidents3$visibility_b =="Clear", "Clear", "Not Clear"))
+
+#factorize hood_id
+accidents3$hood_id = as.factor(accidents3$hood_num)
+
+#group accident outcome
+accidents3$acc_class = as.character(accidents3$acc_class)
+accidents3$acc_class = as.factor(ifelse(accidents3$acc_class =="Fatal", "Fatal", "Non-Fatal"))
+
+#group road class
+accidents3$road_class = as.character(accidents3$road_class)
+accidents3$road_class = ifelse(accidents3$road_class %in% c("Major Arterial", "Major Arterial Ramp", "Minor Arterial"), "Arterial", ifelse(accidents3$road_class %in% c("Expressway", "Expressway Ramp"), "Expressway", ifelse(accidents3$road_class %in% c("Local", "Laneway"), "Local", accidents3$road_class)))
+
+accidents3$road_class = as.factor(accidents3$road_class)                                                        
+accidents3$road_class = relevel(accidents3$road_class,ref='Local')
+
+#traffic control class
+accidents3$traffic_ctrl = as.character(accidents3$traffic_ctrl)
+accidents3$traffic_ctrl = ifelse(accidents3$traffic_ctrl %in% c("", "No Control"), "No Control", ifelse(accidents3$traffic_ctrl %in% c("School Guard", "Police Control", "Traffic Controller"), "Human Control", ifelse(accidents3$traffic_ctrl %in% c("Stop Sign", "Yield Sign", "Traffic Gate"), "Traffic Sign", ifelse(accidents3$traffic_ctrl %in% c("Stop Sign", "Pedestrian Crossover", "Streetcar (Stop for)"), "Pedestrian Crossing", accidents3$traffic_ctrl))))
+
+accidents3 =  subset(accidents3, traffic_ctrl != "Human Control")
+
+accidents3$traffic_ctrl = as.factor(accidents3$traffic_ctrl)                                                        
+accidents3$traffic_ctrl = relevel(accidents3$traffic_ctrl,ref='No Control')
+
+accidents3$acc_class = relevel(accidents3$acc_class ,ref='Non-Fatal')
+
+#group invaded type - may be correlated to road class
+accidents3$person_type = as.character(accidents3$person_type)
+accidents3$person_type = as.factor(ifelse(accidents3$person_type %in% c("Pedestrian", "Pedestrian - Not Hit"), "Pedestrian involved", "Pedestrian not involved"))
+
+# accidents3$Ward_ID = as.factor(accidents3$Ward_ID)
+
+#create offset term
+
+fatality_fit = glmer(acc_class ~ visibility_b + road_class + traffic_ctrl + person_type + tot_precip_mm + (1|hood_id), family = "binomial", nAGQ=0, control=glmerControl(optimizer= "Nelder_Mead"), data=accidents3)
+#person_type + tot_precip_mm 
+
+# summary(fatality_fit)
+
+theCiMat = Pmisc::ciMat(0.95)
+parTable = summary(fatality_fit)$coef[,rownames(theCiMat)] %*% theCiMat
+
+
+rownames(parTable) = c("Intercept", "VISIBILITY: Not Clear", "Arterial", "Collect", "Express way", "Pedestrian Crossing", "Traffic Sign" , "Traffic Signal" , "Traffic Sign", "Total Precipitation")
+knitr::kable(exp(parTable), digits=3)
+
+
+
+# library(dplyr)
+# 
+# res <- accidents3 %>% group_by(acc_class,road_class) %>% summarise(Freq=n())
+# res
+```
+
+$$
+\begin{aligned}
+Y_{ij} \sim Bino(N_{i} , p_{i})\\
+log(p_{i}/1-p_{i}) = X_{i}\beta + \mu_{i}
+\end{aligned}
+$$
+
+```{r}
+#GAM
+library(dplyr)
+library(mgcv)
+library(data.table)
+library(Pmisc)
+# library(Hmisc)
+
+accidents <- read.csv(file="https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/data/final/accidents.csv", header=TRUE)
+accidents4 = accidents
+
+accidents4$year = substr(as.character(accidents4$date),1,4)
+accidents4$month = substr(as.character(accidents4$date),6,7)
+accidents4$day = substr(as.character(accidents4$date),9,10)
+accidents4$longitude = accidents4$long
+accidents4$latitude = accidents4$lat
+accidents4$hood_id = as.factor(accidents4$hood_num)
+
+
+accidents_time <- accidents4 %>% group_by(hood_id, year,month,day) %>% summarise(value_perd=n())
+accidents_time_weather <- accidents4 %>% group_by(hood_id, year,month,day) %>% summarise(avg_snow = mean(ground_snow_cm), avg_rain = mean(tot_precip_mm))
+
+
+accidents_ts <-  merge(accidents_time, accidents_time_weather, by=c("hood_id","year", "month", "day"), all.x=TRUE)
+accidents_ts$date = paste(accidents_ts$year, accidents_ts$month, accidents_ts$day, sep = "-")
+
+accidents_ts$month_f = as.factor(accidents_ts$month)
+
+timeOrigin = ISOdate(2007,1,1,0,0,0, tz='UTC')
+accidents_ts$day_num = as.numeric(difftime(accidents_ts$date, timeOrigin, units='days'))
+
+
+#offset pop
+  # pop = accidents4 %>% 
+  #   select(hood_id, year, Population) %>% 
+  #   group_by(hood_id, year) %>% 
+  #   arrange(hood_id, year) %>% 
+  #   slice(n())
+  # 
+  # pop2 = pop %>% 
+  #   select(year,Population)%>%
+  #   group_by(year) %>% 
+  #   summarise(Population_sum=sum(Population))
+  # 
+  # accidents_ts <-  merge(accidents_ts, pop2, by=c("year"), all.x=TRUE)
+  #estimate population
+  A = (2731571-2503281)/10; B = 2503281 - 2006*A
+  year = seq(2007, 2017, by=1)
+  
+  est_pop = as.data.frame(cbind(year, year*A + B))
+  names(est_pop)[2] = "population_est"
+  
+  accidents_ts <-  merge(accidents_ts, est_pop, by=c("year"), all.x=TRUE)
+  accidents_ts$log_pop = log(accidents_ts$population_est)
+
+# accidents_ts$value = cumsum(accidents_ts$value_perd)
+accidents_ts2 = c()
+for (i in 1:length(levels(accidents_ts$hood_id)))
+{ temp = accidents_ts
+  temp$hood_num = as.numeric(accidents_ts$hood_id)
+  
+  current = subset(temp,temp$hood_num == i)
+  current$value = cumsum(current$value_perd)
+  
+  accidents_ts2 = rbind(accidents_ts2, current) }
+
+
+
+
+accident_ts_gam = gam(value ~ month_f + offset(log_pop) + s(day_num) + s(hood_id,bs="re"), data=accidents_ts2, family='poisson')
+# accident_ts_gam = gam(value ~ month_f + s(day_num,bs="re", by = hood_id), data=accidents_ts2, family='poisson')
+ 
+# rownames(accident_ts_gam) = c("Intercept", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+
+# summary(accident_ts_gam)
+knitr::kable(summary(accident_ts_gam)$p.table[,1:2],digits=3)
+
+# check 1 hood
+plot_predict_hoodid = function(hood_id){
+  i = hood_id
+  newX = data.frame(date = seq(from = timeOrigin, by = "months", length.out = 12 * 18))
+  newX$day_num = as.numeric(difftime(newX$date, timeOrigin, units = "days"))
+  newX$month_f = as.factor(substr(as.character(newX$date),6,7))
+  newX$year = substr(as.character(newX$date),1,4)
+  newX$hood_id = i
+  newX_all = newX
+  
+  year = seq(min(newX$year), max(newX$year), by=1)
+  est_pop = as.data.frame(cbind(year, year*A + B))
+  names(est_pop)[2] = "population_est"
+
+  newX_all <-  merge(newX_all, est_pop, by=c("year"), all.x=TRUE)
+  newX_all$log_pop = log(newX_all$population_est)
+  
+  newX_all$hood_id = as.factor(newX_all$hood_id)
+  
+  accident_ts_gam_pred = predict(accident_ts_gam, newX_all, se.fit = TRUE)
+  accident_ts_gam_pred = cbind(newX, accident_ts_gam_pred)
+  
+  accident_ts_gam_pred$lower = accident_ts_gam_pred$fit - 2 * accident_ts_gam_pred$se.fit
+  accident_ts_gam_pred$upper = accident_ts_gam_pred$fit + 2 * accident_ts_gam_pred$se.fit
+  for (D in c("fit", "lower", "upper")) {
+  accident_ts_gam_pred[[paste(D, "exp", sep = "")]] = exp(accident_ts_gam_pred[[D]])
+  ####################plot rr################
+ # accident_ts_gam_pred_rr = as.matrix(as.data.frame(predict.gam(accident_ts_gam, newX_all, type = "terms", terms = "s(timeNumeric)", se.fit = TRUE)))
+ # accident_ts_gam_pred_rr = exp(accident_ts_gam_pred_rr[,c(1,4)] %*% Pmisc::ciMat())
+ # 
+ # matplot(newX_all$year, accident_ts_gam_pred_rr, log = "y", xaxt = "n", xlab = "date", type = "l", lty = c(1, 2, 2), col = "black", ylab = "rr")
+ # axis(1, at = difftime(newX_all$year, timeOrigin, units = "days"), labels = format(dSeq, "%Y"))
+
+}
+
+
+pred_hood = accident_ts_gam_pred
+plot(pred_hood$date, pred_hood[, "fitexp"], type = "n", xlab = "date", ylab = "deaths")
+matlines(pred_hood$date, pred_hood[, c("lowerexp", "upperexp", "fitexp")], lty = 1, col = c("grey","grey", "black"), lwd = c(2, 2, 1))
+}
+
+plot_predict_hoodid(5)
+plot_predict_hoodid(122)
+
+
+#plot rr by month
+accident_ts_gam_pred_rr = exp(summary(accident_ts_gam)$p.table[2:12,1:2] %*% Pmisc::ciMat())
+
+matplot( accident_ts_gam_pred_rr, log = "y", xaxt = "n", xlab = "Months", type = "l", lty = c(1, 2, 2), col = "black", ylab = "rr")
+axis(1, at = 1:11, labels = c("Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"))
+
+
+```
+
+$$
+\begin{aligned}
+Y_{i} \sim Poisson(O_{i}\lambda_{i})\\
+log(\lambda_{i}) = X_{i}\beta + f(day) + f(\mu_{i})
+\end{aligned}
+$$
+
+
+```{r}
+# # experiment
+# library(geohash)
+# library(raster)
+# library(dplyr)
+# hda <- read.csv(file="https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/data/HDA.csv", header=TRUE, sep=",")
+# ri <- read.csv(file="https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/data/RI.csv", header=TRUE, sep=",")
+# accidents <- read.csv(file="https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/data/final/accidents.csv", header=TRUE)
+# 
+# accidents$YEAR = substr(as.character(accidents$date),1,4)
+# accidents$Longitude = accidents$long
+# accidents$Latitude = accidents$lat
+# accidents = subset(accidents, accidents$YEAR==2017)
+# 
+# 
+# hda$gh = gh_encode(hda$Latitude, hda$Longitude,precision=7)
+# ri$gh = gh_encode(ri$Latitude, ri$Longitude,precision=7)
+# accidents$gh = gh_encode(accidents$Latitude, accidents$Longitude,precision=7)
+# 
+# # hda2 = hda[,c("gh", "SeverityScore")]
+# # ri2 = ri[,c("gh","AvgMonthlyVolume","AvgAcceleration")]
+# 
+# m1 <-  merge(ri, hda, by=c("gh"), all.x=TRUE)
+# accident_m = merge(m1, accidents, by=c("gh"), all.x=TRUE)
+# accident_m$Longitude = ifelse(accident_m$Longitude.x != "", accident_m$Longitude.x, accident_m$Longitude)
+# accident_m$Latitude = ifelse(accident_m$Latitude.x != "", accident_m$Latitude.x, accident_m$Latitude)
+# 
+# accident_m$accident_ind = ifelse(is.na(accident_m$acc_class), 0 ,1)
+# 
+# accident_m_raster = accident_m %>% select(Longitude, Latitude, AvgMonthlyVolume, SeverityScore)
+# coordinates(accident_m_raster) <- ~Longitude+Latitude
+# test_raster <- extent(accident_m_raster[,1:2])
+# r <- raster(test_raster)
+# x <- rasterize(accident_m[, c("Longitude", "Latitude")], r, accident_m[,"AvgMonthlyVolume"], fun=mean)
+# x2 <- rasterize(accident_m[, c("Longitude", "Latitude")], r, accident_m[,"SeverityScore"], fun=mean)
+# 
+# 
+# library(geostatsp, quietly = TRUE)
+# library(mapmisc, quietly = TRUE)
+# 
+# accidents_lonlat = as.matrix(cbind(accident_m$Longitude, accident_m$Latitude),nrow=nrow(accidents))
+# 
+# accidents_spatial = SpatialPointsDataFrame(coords= accidents_lonlat, data = accident_m, coords.nrs = numeric(0), CRS("+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0"),  bbox = NULL)
+# 
+# accident_m2 = spTransform(accidents_spatial, mapmisc::omerc(accidents_spatial, angle=-17))
+# # theMap = mapmisc::openmap(accident_m2, maxTiles=4, fact=3)
+# # mapmisc::map.new(accident_m2)
+# # plot(theMap, add=TRUE, maxpixels=10^7)
+# # plot(accident_m2, col=mapmisc::col2html("black", 0.4), cex=0.6, add=TRUE)
+# 
+# canada <- getData(name="GADM", country="CAN", level=2)
+# trt_border = subset(canada, NAME_2=="Toronto")
+# accidents_spatial_border = spTransform(trt_border, projection(accident_m2))
+# # plot(accidents_spatial)
+# 
+# 
+# accidents_fit = lgcp(formula = accident_ind ~ AvgMonthlyVolume + SeverityScore, data = accident_m2, grid = 55, shape = 1, buffer = 2000,prior = list(range = 6000, sd =0.5), border=accidents_spatial_border, control.inla = list(strategy='gaussian'), verbose=FALSE, covariates = list(SeverityScore = accident_m2$SeverityScore, AvgMonthlyVolume = accident_m2$AvgMonthlyVolume ))
+# 
+#  mapmisc::map.new(accidents_spatial_border)
+#  plot(accidents_fit$raster[['predict.exp']]*10^6, add=TRUE)
+#  plot(accidents_spatial_border, add=TRUE)
+# 
+
+```
+
+
+
+
+
+
+
+
