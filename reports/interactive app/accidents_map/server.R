@@ -50,7 +50,7 @@ shinyServer(function(input, output) {
   
   # Pop-up label for neighborhood
   labs_hood <- paste0('<b>', gsub(" *\\(.*?\\) *", "", neighborhoods$AREA_NAME), '</b><br/>',
-                      'Population: ', neighborhoods$X2016pop)
+                      '2016 Population: ', neighborhoods$X2016pop)
   
   # Leaflet map
   output$acc_map <- renderLeaflet({
@@ -82,7 +82,7 @@ shinyServer(function(input, output) {
     if(input$pop_label){
       leafletProxy("acc_map") %>%
         clearShapes() %>%
-        addPolygons(
+        addPolygons(layerId = gsub(" *\\(.*?\\) *", "", neighborhoods$AREA_NAME),
           data = neighborhoods[3],
           color = ~pal_pop2(X2016pop),
           fillOpacity = 0.5,
@@ -116,15 +116,29 @@ shinyServer(function(input, output) {
   filtered_table_accidents <- reactive({
     if(is.null(input$acc_map_click))
       return(filtered_accidents())
-    filtered_accidents() %>%
-      filter(lat == input$acc_map_click[1] &
-               long == input$acc_map_click[2])
+    else if(length(input$acc_map_shape_click) == 3){
+      return(filtered_accidents() %>%
+               filter(lat == input$acc_map_click[1] & long == input$acc_map_click[2]))
+    }
+    else if(length(input$acc_map_shape_click == 4)){
+      return(filtered_accidents() %>%
+             filter(hood_name == input$acc_map_shape_click[1]))
+    }
   })
   
-  output$acc_data <- renderDataTable(filtered_table_accidents())
+  output$acc_data <- renderDataTable(filtered_table_accidents() %>%
+                                       select(Accident = accident_key, `Accident Class` = acc_class,
+                                              Date = date, Time = time,
+                                              `Street 1` = street1, `Street 2` = street2,
+                                              Person = person_type, Age = person_age, Injury = injury,
+                                              Vehicle = veh_type,
+                                              Manoeuver = manoeuver, `Driver Action` = driver_act,
+                                              `Driver Condition` = driver_cond,
+                                              `Road Class` = road_class, Located = located,
+                                              Visibility = visibility, Light = light))
 
   output$acc_plot <- renderPlot({
-    filtered_accidents() %>%
+    filtered_table_accidents() %>%
       mutate(month = as.yearmon(date)) %>%
       group_by(month, acc_class, accident_key) %>%
       summarize(num_accidents = n()) %>%
@@ -132,7 +146,7 @@ shinyServer(function(input, output) {
       group_by(month, acc_class) %>%
       summarize(num_accidents = sum(num_accidents, na.rm = T)) %>%
       ggplot(., aes(x = month, y = num_accidents, col = acc_class, group = acc_class)) +
-      geom_point() + geom_line()
+      geom_point() + geom_line() + ylab("Number of Accidents") + xlab("Date") + theme_minimal()
   })
   
 })
