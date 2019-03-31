@@ -11,6 +11,7 @@ library(zoo)
 ## And update fileloc variable
 
 fileloc <- "C:/Users/angel/OneDrive/Documents/GitHub/data_sci_geo/data/neighbourhoods_planning_areas_wgs84_SEB"
+#fileloc <- "~/Documents/Github/data_sci_geo/data/neighbourhoods_planning_areas_wgs84_SEB/"
 # fileloc <- "NEIGHBORHOODS_WGS84.shp"
 neighborhoods <- rgdal::readOGR(dsn = fileloc, layer = "NEIGHBORHOODS_WGS84")
 # neighborhoods <- rgdal::readOGR(dsn = fileloc)
