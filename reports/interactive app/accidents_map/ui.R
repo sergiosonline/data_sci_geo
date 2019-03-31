@@ -26,17 +26,14 @@ shinyUI(fluidPage(
                  sliderInput("acc_time", label = "Hour of accident",
                              min = 0, max = 24, step = 1,
                              value = c(0, 24)),
-                 
-                 selectInput("hood", label = "Neighborhood",
-                             choices = unique(accidents$hood_name), multiple = T,
-                             selected = unique(accidents$hood_name)),
 
                  sliderInput("population", label = "2016 Population of Neighborhood",
                              min = 6000, max = 70000, step = 1000,
                              value = c(6000, 70000)),
                  
                  checkboxInput("pop_label", label = "Overlay 2016 Population",
-                               value = F)),
+                               value = F))
+               ,
 
   mainPanel(
     tabsetPanel(type = "tabs",

@@ -2,3 +2,6 @@
 .Rhistory
 .RData
 .Ruserdata
+reports/interactive app/accidents_map/global.R
+reports/interactive app/accidents_map/server.R
+reports/interactive app/accidents_map/ui.R
