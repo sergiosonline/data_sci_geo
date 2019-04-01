@@ -1,16 +1,27 @@
 ---
-title: "Untitled"
+title: "Bayesian Mixed-Effects Logit Model"
 author: "Sergio E. Betancourt"
 date: '2019-03-31'
-output: html_document
+output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-library(INLA)
+library(INLA); library(dplyr); library(kableExtra)
 ```
 
 
+$$
+Y_{ijt} \sim \text{bernoulli}(\pi_{ijt})
+$$
+$$
+\text{logit}(\pi_{ijt}) = X_{ijt}\beta + U_i + f(W_{ijt})
+$$
+$$
+U_i \sim N(0, \sigma^2_U)
+$$
+$$
+W_{ij(t+1)} - W_{ij(t)} \sim N(0, \sigma^2_W)\;\;\;\text{ (RW1)}
+$$
 
 ```{r echo=F}
 accidents <- read.csv(file="https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/data/final/accidents.csv", header=TRUE)
@@ -27,62 +38,62 @@ accidents4$hood_id = as.factor(accidents4$hood_num)
 accidents4$date = paste(accidents4$year, accidents4$month, accidents4$day, sep = "-")
 
 timeOrigin = ISOdate(2007,1,1,0,0,0, tz='UTC')
-accidents4$day_num = as.integer(as.numeric(difftime(accidents4$date, timeOrigin, units='days')))
-accidents4$week_num = as.integer(as.numeric(difftime(accidents4$date, timeOrigin, units='weeks')))
+accidents4$daynum = as.integer(as.numeric(difftime(accidents4$date, timeOrigin, units='days')))
+accidents4$weeknum = as.integer(as.numeric(difftime(accidents4$date, timeOrigin, units='weeks')))
 
 accidents4 <- filter(accidents4, acc_class!="Property Damage Only")
-accidents4$acc_class <- ifelse(accidents4$acc_class=="Fatal",1,0)
+accidents4$accclass <- ifelse(accidents4$acc_class=="Fatal",1,0)
 
 accidents3 = accidents4
-accidents3$visibility_b = as.character(accidents3$visibility)
-accidents3$visibility_b = as.factor(ifelse(accidents3$visibility_b =="Clear", "Clear", "Not Clear"))
+accidents3$visibilityb = as.character(accidents3$visibility)
+accidents3$visibilityb = as.factor(ifelse(accidents3$visibilityb =="Clear", "Clear", "Not Clear"))
 
 #factorize hood_id
-accidents3$hood_id = as.factor(accidents3$hood_num)
+accidents3$hoodid = as.factor(accidents3$hood_num)
 
 #group road class
-accidents3$road_class = as.character(accidents3$road_class)
-accidents3$road_class = ifelse(accidents3$road_class %in% c("Major Arterial", "Major Arterial Ramp", "Minor Arterial"), "Arterial", ifelse(accidents3$road_class %in% c("Expressway", "Expressway Ramp"), "Expressway", ifelse(accidents3$road_class %in% c("Local", "Laneway"), "Local", accidents3$road_class)))
+accidents3$roadclass = as.character(accidents3$road_class)
+accidents3$roadclass = ifelse(accidents3$road_class %in% c("Major Arterial", "Major Arterial Ramp", "Minor Arterial"), "Arterial", ifelse(accidents3$roadclass %in% c("Expressway", "Expressway Ramp"), "Expressway", ifelse(accidents3$roadclass %in% c("Local", "Laneway"), "Local", accidents3$roadclass)))
 
-accidents3$road_class = as.factor(accidents3$road_class)                                                        
-accidents3$road_class = relevel(accidents3$road_class,ref='Local')
+accidents3$roadclass = as.factor(accidents3$roadclass)                                                        
+accidents3$roadclass = relevel(accidents3$roadclass,ref='Local')
 
 #traffic control class
-accidents3$traffic_ctrl = as.character(accidents3$traffic_ctrl)
-accidents3$traffic_ctrl = ifelse(accidents3$traffic_ctrl %in% c("", "No Control"), "No Control", ifelse(accidents3$traffic_ctrl %in% c("School Guard", "Police Control", "Traffic Controller"), "Human Control", ifelse(accidents3$traffic_ctrl %in% c("Stop Sign", "Yield Sign", "Traffic Gate"), "Traffic Sign", ifelse(accidents3$traffic_ctrl %in% c("Stop Sign", "Pedestrian Crossover", "Streetcar (Stop for)"), "Pedestrian Crossing", accidents3$traffic_ctrl))))
+accidents3$trafficctrl = as.character(accidents3$traffic_ctrl)
+accidents3$trafficctrl = ifelse(accidents3$trafficctrl %in% c("", "No Control"), "No Control", ifelse(accidents3$trafficctrl %in% c("School Guard", "Police Control", "Traffic Controller"), "Human Control", ifelse(accidents3$trafficctrl %in% c("Stop Sign", "Yield Sign", "Traffic Gate"), "Traffic Sign", ifelse(accidents3$trafficctrl %in% c("Stop Sign", "Pedestrian Crossover", "Streetcar (Stop for)"), "Pedestrian Crossing", accidents3$trafficctrl))))
 
-accidents3 =  subset(accidents3, traffic_ctrl != "Human Control")
+accidents3 =  subset(accidents3, trafficctrl != "Human Control")
+accidents3$totprecipmm <- accidents3$tot_precip_mm
 
-accidents3$traffic_ctrl = as.factor(accidents3$traffic_ctrl)                                                        
-accidents3$traffic_ctrl = relevel(accidents3$traffic_ctrl,ref='No Control')
+accidents3$trafficctrl = as.factor(accidents3$trafficctrl)                                                        
+accidents3$trafficctrl = relevel(accidents3$trafficctrl,ref='No Control')
 
 
 #group invaded type - may be correlated to road class
-accidents3$person_type = as.character(accidents3$person_type)
-accidents3$person_type = as.factor(ifelse(accidents3$person_type %in% c("Pedestrian", "Pedestrian - Not Hit"), "Pedestrian involved", "Pedestrian not involved"))
+accidents3$persontype = as.character(accidents3$person_type)
+accidents3$persontype = as.factor(ifelse(accidents3$persontype %in% c("Pedestrian", "Pedestrian - Not Hit"), "Pedestrian involved", "Pedestrian not involved"))
 
-accidents3$week_iid = accidents3$week_num
+accidents3$weekiid = accidents3$weeknum
 
-fitS <- inla(acc_class ~ visibility_b + road_class + traffic_ctrl + person_type + tot_precip_mm +
-               f(week_num, model='rw1' , hyper = list(prec=list(prior='pc.prec', param=c(0.2, 0.05)))
-) + f(week_iid, model='iid' , hyper = list(prec=list(prior='pc.prec', param=c(0.2, 0.05)))
+fitS <- inla(accclass ~ visibilityb + roadclass + trafficctrl + persontype + totprecipmm +
+               f(weeknum, model='rw1' , hyper = list(prec=list(prior='pc.prec', param=c(0.2, 0.05)))
+) + f(weekiid, model='iid' , hyper = list(prec=list(prior='pc.prec', param=c(0.2, 0.05)))
 )
-  + f(hood_id, model='iid', hyper = list(prec=list(prior='pc.prec', param=c(0.25, 0.01)))
+  + f(hoodid, model='iid', hyper = list(prec=list(prior='pc.prec', param=c(0.25, 0.01)))
 ), data=accidents3, family='binomial',
 control.mode = list(theta = c(2.2, 7.2, 5), restart=TRUE)
 )
       
 fitS$priorPost = Pmisc::priorPost(fitS)
 
-knitr::kable(fitS$priorPost$summary, digits = 5)
+resTable1 <- exp(fitS$summary.fixed[, c("mean", "0.025quant",
+"0.975quant")]);
+resTable2 <- Pmisc::priorPostSd(fitS)$summary[,
+c("mean", "0.025quant", "0.975quant")]
+restable <- rbind(resTable1,resTable2)
 
-fitS$priorPost[[1]]$matplot$xlim = c(0, 0.001)
-for(Dparam in 1:2){
-  do.call(matplot,fitS$priorPost[[Dparam]]$matplot)
-  do.call(legend,fitS$priorPost$legend)
-  }
-
-
+knitr::kable(restable, digits=3, escape=F, format="latex", booktab=T,linesep = "", caption="Posterior mean and 2.5 and 97.5 percentiles for the odds ratio of deadly accident by model coefficients") %>% 
+  kable_styling(latex_options = "hold_position") 
 ```
 
 
@@ -90,28 +101,20 @@ for(Dparam in 1:2){
 ```{r echo=F}
 # plotting
 matplot(
-as.numeric(fitS$summary.random$week_num$ID),
-exp(fitS$summary.random$week_num[,
+as.numeric(fitS$summary.random$weeknum$ID),
+exp(fitS$summary.random$weeknum[,
 c('0.025quant','0.975quant', '0.5quant')]), xaxt='n', xlab='Date 2007-17', lty=1, col=c('grey','grey','black'), type='l', ylab='Odds of Fatal vs Non-Fatal')
-
 ```
 
-## R Markdown
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+```{r  eval=T, echo=F, fig.pos='H', fig.align='center', out.width=c('50%','50%','50%'),fig.cap="\\label{fig:figs}Plot of posteriors for distributions on random intercept (neighborhood) and random time components"}
+par(mar = c(4,4,4,2) + 0.1);
+#par(mgp=c(2,1,0));
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+for (Dparam in fitS$priorPost$parameters[2:4]) {
+  do.call(matplot, fitS$priorPost[[Dparam]]$matplot)
+}
+fitS$priorPost$legend$x = "topleft"
+#do.call(legend, fitS$priorPost$legend)
 
-```{r cars}
-summary(cars)
 ```
-
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
