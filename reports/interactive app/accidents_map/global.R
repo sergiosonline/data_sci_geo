@@ -4,6 +4,8 @@ library(sp)
 library(htmltools)
 library(leaflet)
 library(zoo)
+library(lubridate)
+library(plotly)
 
 # Load neighborhood polygons with 2016 population
 ## Download this file into local drive: 

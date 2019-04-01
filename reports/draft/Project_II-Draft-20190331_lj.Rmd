@@ -1,0 +1,620 @@
+---
+title: "Don't Break a Leg! Road Safety in the City of Toronto"
+subtitle: "STA2453 - Project II Draft"
+author: "Sunwoo (Angela) Kang, Sergio E. Betancourt, Jing Li, and Jiahui (Eddy) Du"
+date: '2019-03-08'
+output:
+  pdf_document: default
+header-includes:
+- \usepackage{titling}
+- \usepackage{setspace}\singlespacing
+- \usepackage{subfig}
+geometry: margin=1.5cm
+
+---
+
+```{r setup, include=FALSE}
+library(MASS); library(lmtest); library(knitr); library(kableExtra); library(nleqslv);
+library(Pmisc); library(extrafont); library(VGAM); library(INLA); library(MEMSS);
+library(nlme); library(ciTools); library(sf); library(tibble); library(sp); library(dplyr);
+ library(lme4);  library(mgcv); library(data.table);
+library(geostatsp, quietly = TRUE);library(mapmisc, quietly = TRUE);library(maptools);
+library(raster);library(ggmap); library(rgdal); library(ggplot2);library(plyr)
+
+knitr::opts_chunk$set(fig.pos = 'H');
+options(tinytex.verbose = TRUE)
+```
+
+# Introduction
+
+Road traffic safety is a crucial component of urban planning and development. Nowadays governments (and sometimes the private sector) dedicate significant resources to providing ample and sufficient infrastructure to accommodate diverse modes of transportation, thereby increasing the productivity of any given urban area. In this project we examine road safety in the City of Toronto from 2007 to 2017 and explore the areas with highest risk of a traffic incident, controlling for different factors.
+
+# Methods
+
+We define the City of Toronto as per the these guidelines (https://www.toronto.ca/city-government/data-research-maps/neighbourhoods-communities/neighbourhood-profiles/). Below are the neighborhood limits and the 2016 population estimates:
+
+```{r echo=FALSE, eval=F}
+# Loading polygon and population data from the City of Toronto
+population <- read.csv("https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/data/neighbourhoods_planning_areas_wgs84_SEB/Wellbeing_TO_2016%20Census_Total%20Pop_Total%20Change_Age%20Groups.csv",stringsAsFactors = FALSE,header=T)
+
+#require(sf)
+shape <- read_sf(dsn = "~/Documents/Github/data_sci_geo/data/neighbourhoods_planning_areas_wgs84_SEB/", layer = "NEIGHBORHOODS_WGS84")
+
+neighborhoods <- shape
+
+# Adding populaation info to neighborhood polygon
+neighborhoods <- add_column(neighborhoods, '2016pop'=NA, 'x_coords' = NA, 'y_coords' = NA)
+
+# Separating X and Y coordinates from polygon
+for (hood in neighborhoods$AREA_NAME) {
+  ## Adding population
+  pop = as.numeric(neighborhoods[neighborhoods$AREA_NAME == hood,][["AREA_S_CD"]])
+  neighborhoods[neighborhoods$AREA_NAME == hood,]$'2016pop' = 
+    population[population$HoodID == pop,]$Pop2016
+  ## Adding x-y
+  temp = unlist(subset(neighborhoods,AREA_NAME == hood)$geometry[[1]])
+  ll = length(temp)
+  x_coord = list(temp[1:(ll/2)])
+  y_coord = list(temp[((ll/2)+1):ll])
+  neighborhoods[neighborhoods$AREA_NAME == hood,]$x_coords = x_coord
+  neighborhoods[neighborhoods$AREA_NAME == hood,]$y_coords = y_coord
+}
+
+st_write(neighborhoods,"~/Documents/Github/data_sci_geo/data/neighbourhoods_planning_areas_wgs84_SEB/NEIGHBORHOODS_WGS84.shp",
+         , delete_layer = TRUE)
+
+neighborhoods <- read_sf(dsn = "~/Documents/Github/data_sci_geo/data/neighbourhoods_planning_areas_wgs84_SEB/", layer = "NEIGHBORHOODS_WGS84")
+
+```
+
+
+```{r echo=F, fig.pos='H', fig.align='center', out.width=c('50%','50%'),fig.subcap=c('Population by neighborhood in the census year 2016', 'Fatal and Non-Fatal Collisions in 2016'),  fig.cap="\\label{fig:figs}EDA with regards to the City of Toronto", cache=T, warning=F, message=F}
+###ALTERNATIVE VISUALIZATION
+neighborhoods = rgdal::readOGR(dsn = "~/Documents/Github/data_sci_geo/data/neighbourhoods_planning_areas_wgs84_SEB/", layer = "NEIGHBORHOODS_WGS84")
+accidents <- read.csv("https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/data/accidents.csv",header=T, stringsAsFactors = FALSE)
+
+# Set up df
+neighborhoods@data$id = rownames(neighborhoods@data)
+neighborhoods.points = fortify(neighborhoods, region="id")
+neighborhoods.df = join(neighborhoods.points, neighborhoods@data, by = "id")
+
+# Plotting command - basic
+
+#ggplot(neighborhoods.df) + aes(long,lat,group=group,fill=X2016pop)+ geom_polygon() +
+#+   geom_path(color="black") + coord_equal()
+
+# Adding points
+
+#sum_accidents <- accidents %>% 
+#  group_by(Neighbourhood, YEAR) %>% 
+#  summarize(`Total Fatalities` = sum(INJURY == "Fatal", na.rm = T),
+ #           `Total Collisions` = n()) %>%
+#  arrange(desc(`Total Fatalities`))
+
+cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+
+#To use for fills, add
+#scale_fill_manual(values=cbPalette)
+
+# To use for line and point colors, add
+#scale_colour_manual(values=cbPalette)
+
+
+ggmap::register_google(key = "AIzaSyB13QyZy3PLnR5BYGtwezYWFaSq_pjrNjA")
+
+
+#####
+p0 <- ggmap(get_googlemap(center = c(lon = -79.384293, lat = 43.71),
+                    zoom = 10, scale = 2,
+                    maptype ='terrain',
+                    color = 'color'), maprange=T,extent = "normal") +
+    labs(x = "", y = "") +
+    scale_x_continuous(limits = c(-79.63926, -79.11524), expand = c(0, 0)) +
+scale_y_continuous(limits = c(43.581, 43.85546), expand = c(0, 0)) +
+  theme(legend.position = "right", 
+        panel.background = element_blank(),
+        axis.line = element_blank(),
+        axis.text = element_blank(),
+        axis.ticks = element_blank(),
+        plot.margin = unit(c(0, 0, -1, -1), 'lines')) +
+  xlab('') +
+  ylab('')
+
+p2 <- p0 + geom_polygon(aes(long,lat,group=group,fill=NA,color="white"),color="plum",fill=NA,data=neighborhoods.df) + geom_point(data=subset(accidents,YEAR==2016), aes(LONGITUDE, LATITUDE, color=factor(ACCLASS))) + scale_color_discrete(name="Injury Type",
+                         breaks=c("Fatal", "Non-Fatal Injury"),
+                         labels=c("Fatal", "Non-Fatal"))
+
+p1 <- p0 + geom_polygon(data=neighborhoods.df, aes(long,lat,group=group, fill=X2016pop),alpha = 0.8,color="plum") + scale_fill_gradientn(name="Population",colours = heat.colors(255)) 
+
+p1
+
+p2
+```
+
+
+```{r echo=F, eval=F, fig.pos='H', fig.align='center', out.width=c('80%','80%'),fig.subcap=c('Population by neighborhood in the census year 2016', 'Fata collisions 2010-2016'),  fig.cap="\\label{fig:figs}EDA with regards to the City of Toronto", cache=T}
+
+# Visualization of fatal vehicular incidents in the City of Toronto 2010-2016
+collisiondat <- read.csv("https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/data/Fatal_Collisions.csv", header=T, stringsAsFactors = FALSE)
+
+coordinates(collisiondat) <- ~LONGITUDE+LATITUDE
+#4326 - WGS84 std
+proj4string(collisiondat) <- "+init=epsg:3034" #"+init=epsg:4326" 
+data_L93 <- spTransform(collisiondat, CRS("+proj=lcc +lat_1=44 +lat_2=49 +lat_0=46.5 +lon_0=3 +x_0=490000 +y_0=4620000 +ellps=GRS80 +units=m +no_defs"))
+#x_0/y_0 = 0.1060606
+
+
+url1 <- "https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/reports/draft/STA2453-Toronto-2016.png"
+download.file(url = url1,
+          destfile = "toronto_incidents.png",
+          mode = 'wb')
+
+knitr::include_graphics(path="Toronto-2016.png")
+
+#spTransform() #Transform polygon or raster into Euclidian object - 3026 is Google std
+```
+
+### Primary Questions
+
+The analysis focuses on answering two main questions:
+
+1. Given a collision occurred which areas in Toronto are the most deadly controlling for other factors?
+2. Which factors are related to the collision safety of neighbourhoods?
+
+### Data Collection
+
+For our analysis we employed data from the [Toronto Police Service](http://data.torontopolice.on.ca), the [City of Toronto](https://www.toronto.ca/city-government/data-research-maps), and [Environment Canada](http://climate.weather.gc.ca/historical_data/search_historic_data_e.html). Each of these datasets contains different levels of granularity and information, and were therefore combined to obtain the following variables of interest outlined in **Appendix: Dataset Variables and Definitions**.
+
+### Data Preparation
+
+The following table provides an overview of the merged data.
+
+```{r echo = F}
+
+data.frame(Accident_ID = c(5002235651, 5000995174, 5000995174, 1249781),
+           Fatal = c(1, 1, 1, 0),
+           Date = c("2015-12-30", "2015-06-13", "2015-06-13", "2011-08-04"),
+           Neighborhood = c("Greenwood-Coxwell", "Annex", "Annex", "Bay Street Corridor"),
+           Population = c(7072, 26703, 26703, 19348),
+           `Max_Temp` = c(4.7, 22.3, 22.3, 26.4)) %>%
+  kable() %>%
+  kable_styling(bootstrap_options = c("striped"))
+```
+
+Traffic incident information provided by Toronto Police served as a base for the data used for this analysis. Each of the 12,557 entries represent a party involved in a traffic collision event where a person was either killed or seriously injured. Other features such as the location of the collision (intersection, neighborhood, ward), road condition (visibility, road precipitation), driver action (e.g. speeding, involved alcohol), and type of vehicles (e.g. automobile, pedestrian, cyclist) involved were also used.
+
+Population counts for 2011 and 2016 are available through the national census for each neighborhood. The populations for the dates not provided by the census were extrapolated using a linear growth model. 
+
+Historical weather data collected from the station in [University of Toronto](https://goo.gl/maps/g8KZF6SWUw82) was also merged based on the day the accident occurred.
+
+### Exploratory Analysis
+
+By summing up counts from 2007 to 2017, West Humber-Clairville appears to be the deadliest intersection followed by South Parkdale, then Wexford/Maryvale. Thankfully, the fatalities appear to be quite low compared to the total number of collisions reported by the Toronto Police.
+
+```{r echo = F}
+accidents <- read.csv("https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/data/accidents.csv",
+                      check.names = F)
+
+accidents %>% group_by(Neighbourhood) %>%
+  dplyr::summarize(`Total Fatalities` = sum(INJURY == "Fatal", na.rm = T),
+            `Total Collisions` = n()) %>%
+  arrange(desc(`Total Fatalities`)) %>%
+  head() %>%
+  kable()%>%
+  kable_styling(bootstrap_options = c("striped"))
+
+
+```
+
+West Humber-Clairville, and Wexford/Maryvale appear again as a dangerous neighborhood even when focussing on pedestrian or cyclist fatalities.
+
+```{r echo = F}
+accidents %>% mutate(Pedestrian = INVTYPE == "Pedestrian",
+                     Cyclist = INVTYPE == "Cyclist",
+                     Other = INVTYPE != "Pedestrian" & INVTYPE != "Cyclist") %>%
+  group_by(Neighbourhood) %>%
+  dplyr::summarize(`Total Pedestrian Fatalities` = sum(INJURY == "Fatal" & Pedestrian == 1, na.rm = T),
+            `Total Pedestrian Collisions` = sum(Pedestrian == 1, na.rm = T)) %>%
+  arrange(desc(`Total Pedestrian Fatalities`)) %>%
+  head() %>%
+  kable()%>%
+  kable_styling(bootstrap_options = c("striped"))
+
+accidents %>% mutate(Pedestrian = INVTYPE == "Pedestrian",
+                     Cyclist = INVTYPE == "Cyclist",
+                     Other = INVTYPE != "Pedestrian" & INVTYPE != "Cyclist") %>%
+  group_by(Neighbourhood) %>%
+  dplyr::summarize(`Total Cyclist Fatalities` = sum(INJURY == "Fatal" & Cyclist == 1, na.rm = T),
+            `Total Cyclist Collisions` = sum(Cyclist == 1, na.rm = T)) %>%
+  arrange(desc(`Total Cyclist Fatalities`)) %>%
+  head()%>%
+  kable()%>%
+  kable_styling(bootstrap_options = c("striped"))
+
+accidents %>% mutate(Pedestrian = INVTYPE == "Pedestrian",
+                     Cyclist = INVTYPE == "Cyclist",
+                     Other = INVTYPE != "Pedestrian" & INVTYPE != "Cyclist") %>%
+  group_by(Neighbourhood) %>%
+  dplyr::summarize(`Total Other Fatalities` = sum(INJURY == "Fatal" & Other == 1, na.rm = T),
+            `Total Other Collisions` = sum(Other == 1, na.rm =T)) %>%
+  arrange(desc(`Total Other Fatalities`)) %>%
+  head()%>%
+  kable()%>%
+  kable_styling(bootstrap_options = c("striped"))
+```
+
+### Modeling
+
+We model our outcome of interest (fatal collision) using a generalized mixed effects model (to be expanded to spatial in the following iteration), clustered by neighborhood. We estimate the odds of experiencing a fatal accident with respect to experiencing a non-fatal one, accross neighborhoods in Toronto, controlling for each day's total precipitation and minimum temperature. We will continue exploring model complexity and structure for the next iteration.
+
+```{r echo=F}
+# Loading final monthly incident data, by neighborhood
+incidentdata <- read.csv("https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/data/accidents.csv", header=T, stringsAsFactors = F,check.names = F)
+
+#incidentdata$Population2 <- incidentdata$Population/1000
+#incidentdata$Days_since_start2 <- incidentdata$Days_since_start/100
+#incidentdata <- filter(incidentdata, ACCLASS != "Property Damage Only")
+
+#population <- read.csv("https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/data/toronto_hood_projections_2007-2017.csv",stringsAsFactors = FALSE,header=T)
+
+#Adding neighborhood area
+#incidentdata_test <- incidentdata %>% 
+#  left_join(dplyr::select(population, HoodID, area_sqkm), by = c("Hood_ID" = "HoodID")) #%>% mutate(density = Population/(1000*area_sqkm))
+
+#write.csv(incidentdata_test, "~/Desktop/Grad_School/COURSEWORK/Spring 2019/Data Science/rough work/accidents.csv", row.names = F)
+
+freqmod1 <- glmer(as.factor(ACCLASS) ~ Days_since_start2 + Tot_precip + Min_temp + (1 + Days_since_start2 |Neighbourhood), family=binomial(link="logit"), nAGQ=0, data=incidentdata,
+                  control=glmerControl(optimizer= "Nelder_Mead"))
+```
+
+#### GLM Model
+A mixed effect model is used to describe the binomial probability of an auto accident resulting to fatality. Each neighbourhood has its own random intercepts.
+\begin{equation}
+  Y_{ij} \sim Bino(N_{i} , p_{i})\\
+  log(p_{i}/1-p_{i}) = X_{i}\beta + \mu_{i}
+\end{equation}
+The covariates this model contains are *visibility*, *types of road*, *traffic control* and *Precipitation*.
+
+- The covariante  *visibility* was binarized to either “Clear” or “Not Clear”, “Clear” was used as reference. 
+- For covariante *types of road*, "Major Arterial", "Major Arterial Ramp" and "Minor Arterial" were grouped into “Arterial”; "Expressway", "Expressway Ramp" were grouped into “expressway”; "Local", "Laneway" were grouped into “Local”, where “Local” was used as reference. 
+- For covariante *traffic control*, "School Guard", "Police Control", "Traffic Controller" were grouped into "Human Control", and since there is not fatal accident in “Human Control”, all records under “Human Control” were removed to avoid spiked estimate."Stop Sign", "Yield Sign", "Traffic Gate" were grouped into "Traffic Sign” and "Pedestrian Crossover", "Streetcar (Stop for)" were grouped into "Pedestrian Crossing". “No Traffic Control” was used as reference.
+
+```{r echo=F}
+
+
+# levels(accidents3$road_class)
+# class(accidents3$tot_precip_mm)
+# table(accidents$Tot_rain)
+
+accidents <- read.csv(file="https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/data/final/accidents.csv", header=TRUE)
+accidents3 = accidents
+
+#group visibility
+accidents3$visibility_b = as.character(accidents3$visibility)
+accidents3$visibility_b = as.factor(ifelse(accidents3$visibility_b =="Clear", "Clear", "Not Clear"))
+
+#factorize hood_id
+accidents3$hood_id = as.factor(accidents3$hood_num)
+
+#group accident outcome
+accidents3$acc_class = as.character(accidents3$acc_class)
+accidents3$acc_class = as.factor(ifelse(accidents3$acc_class =="Fatal", "Fatal", "Non-Fatal"))
+
+#group road class
+accidents3$road_class = as.character(accidents3$road_class)
+accidents3$road_class = ifelse(accidents3$road_class %in% c("Major Arterial", "Major Arterial Ramp", "Minor Arterial"), "Arterial", ifelse(accidents3$road_class %in% c("Expressway", "Expressway Ramp"), "Expressway", ifelse(accidents3$road_class %in% c("Local", "Laneway"), "Local", accidents3$road_class)))
+
+accidents3$road_class = as.factor(accidents3$road_class)                                                        
+accidents3$road_class = relevel(accidents3$road_class,ref='Local')
+
+#traffic control class
+accidents3$traffic_ctrl = as.character(accidents3$traffic_ctrl)
+accidents3$traffic_ctrl = ifelse(accidents3$traffic_ctrl %in% c("", "No Control"), "No Control", ifelse(accidents3$traffic_ctrl %in% c("School Guard", "Police Control", "Traffic Controller"), "Human Control", ifelse(accidents3$traffic_ctrl %in% c("Stop Sign", "Yield Sign", "Traffic Gate"), "Traffic Sign", ifelse(accidents3$traffic_ctrl %in% c("Stop Sign", "Pedestrian Crossover", "Streetcar (Stop for)"), "Pedestrian Crossing", accidents3$traffic_ctrl))))
+
+accidents3 =  subset(accidents3, traffic_ctrl != "Human Control")
+
+accidents3$traffic_ctrl = as.factor(accidents3$traffic_ctrl)                                                        
+accidents3$traffic_ctrl = relevel(accidents3$traffic_ctrl,ref='No Control')
+
+accidents3$acc_class = relevel(accidents3$acc_class ,ref='Non-Fatal')
+
+#group invaded type - may be correlated to road class
+accidents3$person_type = as.character(accidents3$person_type)
+accidents3$person_type = as.factor(ifelse(accidents3$person_type %in% c("Pedestrian", "Pedestrian - Not Hit"), "Pedestrian involved", "Pedestrian not involved"))
+
+# accidents3$Ward_ID = as.factor(accidents3$Ward_ID)
+
+#create offset term
+
+fatality_fit = glmer(acc_class ~ visibility_b + road_class + traffic_ctrl + person_type + tot_precip_mm + (1|hood_id), family = "binomial", nAGQ=0, control=glmerControl(optimizer= "Nelder_Mead"), data=accidents3)
+#person_type + tot_precip_mm 
+
+# summary(fatality_fit)
+
+theCiMat = Pmisc::ciMat(0.95)
+parTable = summary(fatality_fit)$coef[,rownames(theCiMat)] %*% theCiMat
+
+
+rownames(parTable) = c("Intercept", "VISIBILITY: Not Clear", "Arterial", "Collect", "Express way", "Pedestrian Crossing", "Traffic Sign" , "Traffic Signal" , "Traffic Sign", "Total Precipitation")
+knitr::kable(exp(parTable), digits=3)%>%
+kable_styling(bootstrap_options = c("striped"))
+
+```
+
+The estimates match our common sense. The odds of having fatality is higher when driving on highway or merging into highway. And having traffic control leads to a lower odds of dying than no control. Interestingly, the odds of fatality is lower when the visibility is not clear or when there is more precipitation. It may be due to drivers slow down their speed when they have difficulty seeing clear ahead or knowing road is slippery.
+
+#### GAM model
+A semi-parametric temporal model is used to fit the additive accident counts with months as factors, number of days from 2007 as non-parametric term and neighbourhoods as random effects. Toronto population is estimated by using linear function. (linear function is estimated by using population at 2,503,281 in 2006 and at 2,731,571 in 2016.) Offset term is log of population.
+
+
+\begin{equation}
+Y_{i} \sim Poisson(O_{i}\lambda_{i})\\
+log(\lambda_{i}) = X_{i}\beta + f(day) + f(\mu_{i})
+\end{equation}
+
+
+
+```{r echo=F}
+#GAM
+
+# library(Hmisc)
+
+accidents <- read.csv(file="https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/data/final/accidents.csv", header=TRUE)
+accidents4 = accidents
+
+accidents4$year = substr(as.character(accidents4$date),1,4)
+accidents4$month = substr(as.character(accidents4$date),6,7)
+accidents4$day = substr(as.character(accidents4$date),9,10)
+accidents4$longitude = accidents4$long
+accidents4$latitude = accidents4$lat
+accidents4$hood_id = as.factor(accidents4$hood_num)
+
+
+accidents_time <- accidents4 %>% group_by(hood_id, year,month,day) %>% dplyr::summarize(value_perd=n())
+accidents_time_weather <- accidents4 %>% group_by(hood_id, year,month,day) %>% dplyr::summarize(avg_snow = mean(ground_snow_cm), avg_rain = mean(tot_precip_mm))
+
+
+accidents_ts <-  merge(accidents_time,accidents_time_weather, by.x=c("hood_id","year", "month", "day"), all.x=TRUE)
+accidents_ts$date = paste(accidents_ts$year, accidents_ts$month, accidents_ts$day, sep = "-")
+
+accidents_ts$month_f = as.factor(accidents_ts$month)
+
+timeOrigin = ISOdate(2007,1,1,0,0,0, tz='UTC')
+accidents_ts$day_num = as.numeric(difftime(accidents_ts$date, timeOrigin, units='days'))
+
+
+#offset pop
+  # pop = accidents4 %>% 
+  #   select(hood_id, year, Population) %>% 
+  #   group_by(hood_id, year) %>% 
+  #   arrange(hood_id, year) %>% 
+  #   slice(n())
+  # 
+  # pop2 = pop %>% 
+  #   select(year,Population)%>%
+  #   group_by(year) %>% 
+  #   summarise(Population_sum=sum(Population))
+  # 
+  # accidents_ts <-  merge(accidents_ts, pop2, by=c("year"), all.x=TRUE)
+  #estimate population
+  A = (2731571-2503281)/10; B = 2503281 - 2006*A
+  year = seq(2007, 2017, by=1)
+  
+  est_pop = as.data.frame(cbind(year, year*A + B))
+  names(est_pop)[2] = "population_est"
+  
+  accidents_ts <-  merge(accidents_ts, est_pop, by=c("year"), all.x=TRUE)
+  accidents_ts$log_pop = log(accidents_ts$population_est)
+
+# accidents_ts$value = cumsum(accidents_ts$value_perd)
+accidents_ts2 = c()
+for (i in 1:length(levels(accidents_ts$hood_id)))
+{ temp = accidents_ts
+  temp$hood_num = as.numeric(accidents_ts$hood_id)
+  
+  current = subset(temp,temp$hood_num == i)
+  current$value = cumsum(current$value_perd)
+  
+  accidents_ts2 = rbind(accidents_ts2, current) }
+
+
+
+
+accident_ts_gam = gam(value ~ month_f + offset(log_pop) + s(day_num) + s(hood_id,bs="re"), data=accidents_ts2, family='poisson')
+# accident_ts_gam = gam(value ~ month_f + s(day_num,bs="re", by = hood_id), data=accidents_ts2, family='poisson')
+ 
+# rownames(accident_ts_gam) = c("Intercept", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+
+# summary(accident_ts_gam)
+knitr::kable(summary(accident_ts_gam)$p.table[,1:2],digits=3)%>%
+kable_styling(bootstrap_options = c("striped"))
+
+```
+
+January has the highest rate of having accidents comparing to other months of the year. Interestingly, winter has lower rate of accidents. It may because drivers are more cautious when driving in snow days. 
+
+```{r echo=F}
+#plot rr by month
+accident_ts_gam_pred_rr = exp(summary(accident_ts_gam)$p.table[2:12,1:2] %*% Pmisc::ciMat())
+
+matplot( accident_ts_gam_pred_rr, log = "y", xaxt = "n", xlab = "Months", type = "l", lty = c(1, 2, 2), col = "black", ylab = "rr")
+axis(1, at = 1:11, labels = c("Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"))
+```
+
+Below is the prediction of accidents in neighbour 5 and 122
+
+```{r echo=F}
+# check 1 hood
+plot_predict_hoodid = function(hood_id){
+  i = hood_id
+  newX = data.frame(date = seq(from = timeOrigin, by = "months", length.out = 12 * 18))
+  newX$day_num = as.numeric(difftime(newX$date, timeOrigin, units = "days"))
+  newX$month_f = as.factor(substr(as.character(newX$date),6,7))
+  newX$year = substr(as.character(newX$date),1,4)
+  newX$hood_id = i
+  newX_all = newX
+  
+  year = seq(min(newX$year), max(newX$year), by=1)
+  est_pop = as.data.frame(cbind(year, year*A + B))
+  names(est_pop)[2] = "population_est"
+
+  newX_all <-  merge(newX_all, est_pop, by=c("year"), all.x=TRUE)
+  newX_all$log_pop = log(newX_all$population_est)
+  
+  newX_all$hood_id = as.factor(newX_all$hood_id)
+  
+  accident_ts_gam_pred = predict(accident_ts_gam, newX_all, se.fit = TRUE)
+  accident_ts_gam_pred = cbind(newX, accident_ts_gam_pred)
+  
+  accident_ts_gam_pred$lower = accident_ts_gam_pred$fit - 2 * accident_ts_gam_pred$se.fit
+  accident_ts_gam_pred$upper = accident_ts_gam_pred$fit + 2 * accident_ts_gam_pred$se.fit
+  for (D in c("fit", "lower", "upper")) {
+  accident_ts_gam_pred[[paste(D, "exp", sep = "")]] = exp(accident_ts_gam_pred[[D]])
+  ####################plot rr################
+ # accident_ts_gam_pred_rr = as.matrix(as.data.frame(predict.gam(accident_ts_gam, newX_all, type = "terms", terms = "s(timeNumeric)", se.fit = TRUE)))
+ # accident_ts_gam_pred_rr = exp(accident_ts_gam_pred_rr[,c(1,4)] %*% Pmisc::ciMat())
+ # 
+ # matplot(newX_all$year, accident_ts_gam_pred_rr, log = "y", xaxt = "n", xlab = "date", type = "l", lty = c(1, 2, 2), col = "black", ylab = "rr")
+ # axis(1, at = difftime(newX_all$year, timeOrigin, units = "days"), labels = format(dSeq, "%Y"))
+
+}
+
+
+pred_hood = accident_ts_gam_pred
+plot(pred_hood$date, pred_hood[, "fitexp"], type = "n", xlab = "date", ylab = "deaths")
+matlines(pred_hood$date, pred_hood[, c("lowerexp", "upperexp", "fitexp")], lty = 1, col = c("grey","grey", "black"), lwd = c(2, 2, 1))
+}
+
+plot_predict_hoodid(5)
+```
+
+```{r echo=F}
+plot_predict_hoodid(122)
+
+```
+
+#### LGPC Model
+A spatial model Log Gaussian Cox Process LGCP is used to fit the accident counts in 2017 with intercept only.
+
+\begin{equation}
+Y_{ij} \sim N(\lambda(s_{i}) , \tau^2)\\
+\lambda(s_{i}) = U(s)
+cov[U(s + h), U(s)] = \sigma^2\rho(h/\phi;v)
+\end{equation}
+
+
+The plot below shows where the accidents happened in 2017 in Toronto.
+
+```{r echo=F}
+#LGCP
+# library(geohash)
+# library(dplyr)
+# library(DMwR)
+# library(stringr)
+
+# neighborhoods = rgdal::readOGR(dsn = "C:/Users/ThinkPad/Desktop/Eddy/DS", layer = "NEIGHBORHOODS_WGS84")
+# neighborhoods = rgdal::readOGR("C:/Users/ThinkPad/Desktop/Eddy/DS/NEIGHBORHOODS_WGS84.shp",layer="NEIGHBORHOODS_WGS84")
+
+# zoning = rgdal::readOGR("C:/Users/EDDY/Documents/UNIVERSITY/STA2453/Proj2/zoning/ZONING_ZONE_CATAGORIES_WGS84.shp",layer="ZONING_ZONE_CATAGORIES_WGS84")
+# traffic_signals <- read.csv(file="C:/Users/EDDY/Documents/UNIVERSITY/STA2453/Proj2/traffic_signals.csv", header=TRUE,sep=',')
+ 
+accidents <- read.csv(file="https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/data/final/accidents.csv", header=TRUE)
+
+
+accidents$YEAR = substr(as.character(accidents$date),1,4)
+accidents$longitude = accidents$long
+accidents$latitude = accidents$lat
+
+
+#add new features
+#day/night; logdensity
+# accidents$day_night = as.factor(ifelse(accidents$Hour >21 | accidents$Hour <6, "Night", "Day")) #day time is 1
+# accidents$logdensity = log(accidents$density) #day time is 1
+
+#subset to 2017 for now
+accidents = subset(accidents, accidents$YEAR==2017)
+
+accidents_lonlat = as.matrix(cbind(accidents$longitude, accidents$latitude),nrow=nrow(accidents))
+
+accidents_spatial = SpatialPointsDataFrame(coords= accidents_lonlat, data = accidents, coords.nrs = numeric(0), CRS("+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0"),  bbox = NULL)
+
+# spRbind(accidents_spatial, zoning)
+
+accidents2 = spTransform(accidents_spatial, mapmisc::omerc(accidents_spatial, angle=-17))
+theMap = mapmisc::openmap(accidents2, maxTiles=4, fact=3)
+mapmisc::map.new(accidents2)
+plot(theMap, add=TRUE, maxpixels=10^7)
+plot(accidents2, col=mapmisc::col2html("black", 0.4), cex=0.6, add=TRUE)
+
+
+```
+
+The plot below is the expected value of the count (lambda). We could see there are many accidents downtown area and along the Yonge street. More traffic control may be required. We could try human control since it is the safest type of control among all. 
+
+```{r echo=F}
+#testing
+
+canada <- getData(name="GADM", country="CAN", level=2)
+trt_border = subset(canada, NAME_2=="Toronto")
+accidents_spatial_border = spTransform(trt_border, projection(accidents2))
+# plot(accidents_spatial)
+
+accidents_fit = lgcp(formula = ~ 1, data = accidents2, grid = 55, shape = 1, buffer = 2000, 
+                     prior = list(range = 6000, sd =0.5), border=accidents_spatial_border, 
+                                  control.inla = list(strategy='gaussian'), verbose=FALSE)
+
+ mapmisc::map.new(accidents_spatial_border)
+ plot(accidents_fit$raster[['predict.exp']]*10^6, add=TRUE)
+ plot(accidents_spatial_border, add=TRUE)
+```
+ 
+ 
+
+# Results
+
+Our model indicates that a one milimeter increment of total precipitation for any neighborhood in the timeframe in question leads to an increment of 1.2% in the odds of suffering a fatal accident.
+
+
+# Conclusions and Discussion
+
+One of the biggest limitations in our project has been data quality and granularity. The data made available by Geotab does not include large areas of the City of Toronto. Moreover, there are plenty missing observations. We also acknowledge the fact that the collision information we procured from the Toronto Police Service may not describe perfectly the actual number of incidents, as there are many of these that are non-fatal or go unreported.
+
+# Exploratory and Limitation
+
+Getting spatial type of dataset is difficult. Most of the available dataset are outdated since collecting such data is expensive. At first, we tested with Geotab datasets since it seems to have enough information covering the whole Toronto. However, we failed to convert them into a proper and usable raster type data. However, this model would be useful once we have the information/covariates we want, we could use above plot to predict the expected number of accidents (and actually we can plug in many other responses into the model. Eg. Number of reported stolen cars) at places where there is no observation collected.  And hence we could use this to suggest traffic control policy at certain location or to estimate insurance pricing. 
+
+#Appendix: Dataset Variables and Definitions
+```{r echo=F}
+var_def <- read.csv("https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/reports/draft/variable_def.csv",header=T, stringsAsFactors = F, sep=",")
+
+knitr::kable(var_def, format="latex", booktab=T, linesep = "")%>%
+#escape=F, 
+kable_styling(bootstrap_options = c("striped"))
+```
+
+\pagebreak
+
+\newpage
+
+#Appendix: Neighborhoods of Toronto
+```{r echo=F, fig.pos='H', fig.align='center', out.width='95%',fig.subcap=c('Population by neighborhood in the census year 2016', 'Fata collisions 2010-2016'),  fig.cap="\\label{fig:figs}Official City of Toronto Neighborhoods"}
+## Visualizing neighborhoods of Toronto for reference
+url7 <- "https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/reports/draft/toronto-hoods.png"
+download.file(url = url7,
+          destfile = "toronto-hoods.png",
+          mode = 'wb')
+
+knitr::include_graphics(path="toronto-hoods.png")
+```
+
+Refer to the **[City of Toronto](https://www.toronto.ca/city-government/data-research-maps/neighbourhoods-communities/neighbourhood-profiles/)** for the neighborhood names matching the indeces above.
+
+\pagebreak
+
+\newpage
+
+#Appendix: Code
+
+```{r ref.label=knitr::all_labels(), echo = T, eval = F}
+```
+
