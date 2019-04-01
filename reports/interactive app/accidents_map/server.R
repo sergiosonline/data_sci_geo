@@ -4,8 +4,11 @@ shinyServer(function(input, output) {
   # Filter accident data
   filtered_accidents <- reactive({
     accidents %>%
+      # Filter by date of accident
       filter(date >= as.Date(input$acc_date[1]) & date <= as.Date(input$acc_date[2])) %>%
+      # Filter by whether there was a fatality
       filter(acc_class %in% input$fatal) %>%
+      # Filter by other vehicles involved
       mutate(i_bike = if_else(inv_cyc == 1, "Bicycle", NA_character_),
              i_emerg = if_else(inv_emergveh == 1, "Emergency Vehicle", NA_character_),
              i_moto = if_else(inv_moto == 1, "Motorcycle", NA_character_),
@@ -15,12 +18,34 @@ shinyServer(function(input, output) {
                                       gsub("NA, ", "", paste(i_bike, i_emerg, i_moto, i_ped, i_truck,
                                                              sep = ", ")))),
              vehicles_involved_input = as.character(paste(sort(input$auto_type), collapse = ", "))) %>%
-      filter(vehicles_involved == vehicles_involved_input) %>%
+      filter(input$auto_type == "All" | vehicles_involved == vehicles_involved_input) %>%
       select(-i_bike, -i_emerg, -i_moto, -i_ped, -i_truck, -vehicles_involved,
              -vehicles_involved_input) %>%
-      filter(("Precipitated" %in% input$precip & tot_precip_mm > 0) |
+      # Filter by whether it precipitated that day
+      filter(input$precip == "All" | ("Precipitated" %in% input$precip & tot_precip_mm > 0) |
                ("Clear" %in% input$precip & tot_precip_mm == 0) | is.na(input$precip)) %>%
+      # Filter by road class
+      mutate(road_class2 = if_else(grepl("Arterial", road_class), "Arterial",
+                                   if_else(grepl("Collector", road_class), "Collector",
+                                           if_else(grepl("Express", road_class), "Expressway", 
+                                                   "Local")))) %>%
+      filter(input$road_class == "" | input$road_class == road_class2) %>%
+      select(-road_class2) %>%
+      # # Filter by traffic control
+      mutate(traffic_ctrl2 = if_else(traffic_ctrl %in% c("Police Control", "School Guard",
+                                                         "Traffic Controller"), "Human Control",
+                                     if_else(traffic_ctrl %in% c("Stop Sign", "Traffic Signal",
+                                                                 "Yield Sign", "Traffic Gate"),
+                                             "Traffic Sign",
+                                             if_else(traffic_ctrl %in% c("Pedestrian Crossover",
+                                                                         "Streetcar (Stop for)"),
+                                                                         "Pedestrian Crossing",
+                                                     "No Traffic Control")))) %>%
+      filter(input$traffic_ctrl == "" | input$traffic_ctrl == traffic_ctrl2) %>%
+      select(-traffic_ctrl2) %>%
+      # Filter by hour of accident
       filter(hour >= input$acc_time[1] & hour <= input$acc_time[2]) %>%
+      # Filter by population of neighborhood at 2016
       filter(population_2016 >= input$population[1] & population_2016 <= input$population[2])
   })
   
@@ -134,18 +159,88 @@ shinyServer(function(input, output) {
                                               Manoeuver = manoeuver, `Driver Action` = driver_act,
                                               `Driver Condition` = driver_cond,
                                               `Road Class` = road_class, Located = located,
-                                              Visibility = visibility, Light = light))
+                                              Visibility = visibility, Light = light) %>%
+                                       arrange(Date, Accident))
 
-  output$acc_plot <- renderPlot({
-    filtered_table_accidents() %>%
+  output$acc_plot_full <- renderPlotly({
+    data <- filtered_table_accidents() %>%
+      group_by(accident_key) %>%
+      filter(row_number() == 1) %>%
+      ungroup() %>%
       mutate(month = as.yearmon(date)) %>%
-      group_by(month, acc_class, accident_key) %>%
+      group_by(month, acc_class) %>%
+      summarize(`Number of Accidents` = n())
+    
+    p <- ggplot(data, aes(x = month, y = `Number of Accidents`, 
+                    col = acc_class)) +
+      geom_point() + stat_smooth(se = F) + ylab("Number of Accidents") + xlab("Date") + 
+      labs(color = "Accident Class") + theme_minimal()
+    
+    ggplotly(p)
+  })
+  
+  output$acc_plot_full_prop <- renderPlotly({
+    data <- filtered_table_accidents() %>%
+      group_by(accident_key) %>%
+      filter(row_number() == 1) %>%
+      ungroup() %>%
+      mutate(month = as.yearmon(date)) %>%
+      group_by(month) %>%
+      summarize(`Number of Accidents` = sum(acc_class == "Fatal")/n())
+    
+    p <- ggplot(data, aes(x = month, y = `Number of Accidents`)) +
+      geom_point() + stat_smooth(se = F) + ylab("Number of Accidents") + xlab("Date") + 
+      labs(color = "Accident Class") + theme_minimal()
+    
+    ggplotly(p)
+  })
+  
+  
+  
+  output$acc_plot_month_prop <- renderPlotly({
+    data <- filtered_table_accidents() %>%
+      group_by(accident_key) %>%
+      filter(row_number() == 1) %>%
+      ungroup() %>%
+      mutate(month_year = as.yearmon(date),
+             month = month(date),
+             num_days = as.numeric(days_in_month(as.Date(date)))) %>%
+      group_by(month_year, month, num_days) %>%
+      summarize(num_accidents = sum(acc_class == "Fatal")/n()) %>%
+      ungroup() %>%
+      mutate(normalized_acc = num_accidents * (30/num_days)) %>%
+      group_by(month) %>%
+      summarize(normalized_acc = mean(normalized_acc))
+    
+    p <- ggplot(data, aes(x = month, y = normalized_acc)) +
+      geom_point() + geom_line() + ylab("Prop of Fatal Accidents (Normalized)") + xlab("Date") + 
+      labs(color = "Accident Class") + scale_x_continuous(breaks = round(seq(1, 12, by = 1))) + 
+      theme_minimal()
+    
+    ggplotly(p)
+  })
+  
+  output$acc_plot_month <- renderPlotly({
+    data <- filtered_table_accidents() %>%
+      group_by(accident_key) %>%
+      filter(row_number() == 1) %>%
+      ungroup() %>%
+      mutate(month_year = as.yearmon(date),
+             month = month(date),
+             num_days = as.numeric(days_in_month(as.Date(date)))) %>%
+      group_by(month_year, month, num_days, acc_class) %>%
       summarize(num_accidents = n()) %>%
       ungroup() %>%
+      mutate(normalized_acc = num_accidents * (30/num_days)) %>%
       group_by(month, acc_class) %>%
-      summarize(num_accidents = sum(num_accidents, na.rm = T)) %>%
-      ggplot(., aes(x = month, y = num_accidents, col = acc_class, group = acc_class)) +
-      geom_point() + geom_line() + ylab("Number of Accidents") + xlab("Date") + theme_minimal()
+      summarize(normalized_acc = mean(normalized_acc))
+    
+    p <- ggplot(data, aes(x = month, y = normalized_acc, col = acc_class)) +
+      geom_point() + geom_line() + ylab("Number of Accidents (Normalized)") + xlab("Date") + 
+      labs(color = "Accident Class") + scale_x_continuous(breaks = round(seq(1, 12, by = 1))) + 
+      theme_minimal()
+    
+    ggplotly(p)
   })
   
 })

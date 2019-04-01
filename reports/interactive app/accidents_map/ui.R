@@ -15,13 +15,23 @@ shinyUI(fluidPage(
                                     choices = c("Fatal", "Non-Fatal Injury"),
                                     selected = c("Fatal", "Non-Fatal Injury")),
                  
-                 selectInput("auto_type", label = "Other Vehicles Involved", multiple = T,
-                             choices = c("Pedestrian", "Bicycle", "Motorcycle", "Truck", "Emergency Vehicle"),
-                             selected = c("Pedestrian")),
+                 selectInput("auto_type", label = "Other Vehicles Involved",
+                             choices = c("Pedestrian", "Bicycle", "Motorcycle", 
+                                         "Truck", "Emergency Vehicle", "All"),
+                             selected = c("All")),
                  
                  selectInput("precip", label = "Weather Condition",
-                             choices = c("Clear", "Precipitated"), multiple = T, 
-                             selected = c("Clear")),
+                             choices = c("Clear", "Precipitated", "All"), 
+                             selected = c("All")),
+                 
+                 selectInput("road_class", label = "Road Class",
+                             choices = c("Arterial", "Collector", "Expressway", "Local", ""),
+                             selected = c("")),
+                 
+                 selectInput("traffic_ctrl", label = "Traffic Control",
+                             choices = c("No Traffic Control", "Human Control", "Traffic Sign",
+                                         "Pedestrian Crossing", ""),
+                             selected = c("")),
                  
                  sliderInput("acc_time", label = "Hour of accident",
                              min = 0, max = 24, step = 1,
@@ -42,7 +52,10 @@ shinyUI(fluidPage(
                          dataTableOutput("acc_data"))
     ,
     tabPanel("Frequency Table",
-             plotOutput("acc_plot"),
+             plotlyOutput("acc_plot_full"),
+             plotlyOutput("acc_plot_full_prop"),
+             plotlyOutput("acc_plot_month"),
+             plotlyOutput("acc_plot_month_prop"),
              dataTableOutput("acc_data2"))
   )
   )
