@@ -1,0 +1,117 @@
+---
+title: "Untitled"
+author: "Sergio E. Betancourt"
+date: '2019-03-31'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(INLA)
+```
+
+
+
+```{r echo=F}
+accidents <- read.csv(file="https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/data/final/accidents.csv", header=TRUE)
+accidents4 = accidents
+
+accidents4$year = substr(as.character(accidents4$date),1,4)
+accidents4$month = substr(as.character(accidents4$date),6,7)
+accidents4$day = substr(as.character(accidents4$date),9,10)
+accidents4$longitude = accidents4$long
+accidents4$latitude = accidents4$lat
+accidents4$hood_id = as.factor(accidents4$hood_num)
+
+
+accidents4$date = paste(accidents4$year, accidents4$month, accidents4$day, sep = "-")
+
+timeOrigin = ISOdate(2007,1,1,0,0,0, tz='UTC')
+accidents4$day_num = as.integer(as.numeric(difftime(accidents4$date, timeOrigin, units='days')))
+accidents4$week_num = as.integer(as.numeric(difftime(accidents4$date, timeOrigin, units='weeks')))
+
+accidents4 <- filter(accidents4, acc_class!="Property Damage Only")
+accidents4$acc_class <- ifelse(accidents4$acc_class=="Fatal",1,0)
+
+accidents3 = accidents4
+accidents3$visibility_b = as.character(accidents3$visibility)
+accidents3$visibility_b = as.factor(ifelse(accidents3$visibility_b =="Clear", "Clear", "Not Clear"))
+
+#factorize hood_id
+accidents3$hood_id = as.factor(accidents3$hood_num)
+
+#group road class
+accidents3$road_class = as.character(accidents3$road_class)
+accidents3$road_class = ifelse(accidents3$road_class %in% c("Major Arterial", "Major Arterial Ramp", "Minor Arterial"), "Arterial", ifelse(accidents3$road_class %in% c("Expressway", "Expressway Ramp"), "Expressway", ifelse(accidents3$road_class %in% c("Local", "Laneway"), "Local", accidents3$road_class)))
+
+accidents3$road_class = as.factor(accidents3$road_class)                                                        
+accidents3$road_class = relevel(accidents3$road_class,ref='Local')
+
+#traffic control class
+accidents3$traffic_ctrl = as.character(accidents3$traffic_ctrl)
+accidents3$traffic_ctrl = ifelse(accidents3$traffic_ctrl %in% c("", "No Control"), "No Control", ifelse(accidents3$traffic_ctrl %in% c("School Guard", "Police Control", "Traffic Controller"), "Human Control", ifelse(accidents3$traffic_ctrl %in% c("Stop Sign", "Yield Sign", "Traffic Gate"), "Traffic Sign", ifelse(accidents3$traffic_ctrl %in% c("Stop Sign", "Pedestrian Crossover", "Streetcar (Stop for)"), "Pedestrian Crossing", accidents3$traffic_ctrl))))
+
+accidents3 =  subset(accidents3, traffic_ctrl != "Human Control")
+
+accidents3$traffic_ctrl = as.factor(accidents3$traffic_ctrl)                                                        
+accidents3$traffic_ctrl = relevel(accidents3$traffic_ctrl,ref='No Control')
+
+
+#group invaded type - may be correlated to road class
+accidents3$person_type = as.character(accidents3$person_type)
+accidents3$person_type = as.factor(ifelse(accidents3$person_type %in% c("Pedestrian", "Pedestrian - Not Hit"), "Pedestrian involved", "Pedestrian not involved"))
+
+accidents3$week_iid = accidents3$week_num
+
+fitS <- inla(acc_class ~ visibility_b + road_class + traffic_ctrl + person_type + tot_precip_mm +
+               f(week_num, model='rw1' , hyper = list(prec=list(prior='pc.prec', param=c(0.2, 0.05)))
+) + f(week_iid, model='iid' , hyper = list(prec=list(prior='pc.prec', param=c(0.2, 0.05)))
+)
+  + f(hood_id, model='iid', hyper = list(prec=list(prior='pc.prec', param=c(0.25, 0.01)))
+), data=accidents3, family='binomial',
+control.mode = list(theta = c(2.2, 7.2, 5), restart=TRUE)
+)
+      
+fitS$priorPost = Pmisc::priorPost(fitS)
+
+knitr::kable(fitS$priorPost$summary, digits = 5)
+
+fitS$priorPost[[1]]$matplot$xlim = c(0, 0.001)
+for(Dparam in 1:2){
+  do.call(matplot,fitS$priorPost[[Dparam]]$matplot)
+  do.call(legend,fitS$priorPost$legend)
+  }
+
+
+```
+
+
+
+```{r echo=F}
+# plotting
+matplot(
+as.numeric(fitS$summary.random$week_num$ID),
+exp(fitS$summary.random$week_num[,
+c('0.025quant','0.975quant', '0.5quant')]), xaxt='n', xlab='Date 2007-17', lty=1, col=c('grey','grey','black'), type='l', ylab='Odds of Fatal vs Non-Fatal')
+
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
