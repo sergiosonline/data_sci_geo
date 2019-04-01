@@ -2,7 +2,7 @@
 title: "Don't Break a Leg! Road Safety in the City of Toronto"
 subtitle: "STA2453 - Project II Draft"
 author: "Sunwoo (Angela) Kang, Sergio E. Betancourt, Jing Li, and Jiahui (Eddy) Du"
-date: '2019-03-08'
+date: '2019-03-02'
 output:
   pdf_document: default
 header-includes:
@@ -71,7 +71,7 @@ neighborhoods <- read_sf(dsn = "~/Documents/Github/data_sci_geo/data/neighbourho
 
 ```{r echo=F, fig.pos='H', fig.align='center', out.width=c('50%','50%'),fig.subcap=c('Population by neighborhood in the census year 2016', 'Fatal and Non-Fatal Collisions in 2016'),  fig.cap="\\label{fig:figs}EDA with regards to the City of Toronto", cache=T, warning=F, message=F}
 ###ALTERNATIVE VISUALIZATION
-neighborhoods = rgdal::readOGR(dsn = "~/Documents/Github/data_sci_geo/data/neighbourhoods_planning_areas_wgs84_SEB/", layer = "NEIGHBORHOODS_WGS84")
+neighborhoods = rgdal::readOGR(dsn = "~/Documents/Github/data_sci_geo/data/neighbourhoods_planning_areas_wgs84_SEB/", layer = "NEIGHBORHOODS_WGS84",verbose=F)
 accidents <- read.csv("https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/data/accidents.csv",header=T, stringsAsFactors = FALSE)
 
 # Set up df
@@ -371,12 +371,13 @@ Below are the observations from table of estimates:
 - accidents without pedestrian involved has lower odds of having fatality
 - The odds of fatality is low when there is more precipitation. -2% odds of fatality with 1mm of precipitation increasing. It may be due to drivers slow down their speed when they have difficulty seeing clear ahead or knowing road is slippery.
 
-```{r echo=F}
+```{r echo=F,fig.pos='H', fig.align='center',fig.cap="\\label{fig:figs}Plot of time trend effect of Odds of Fatality for the City of Toronto"}
 # plotting
 matplot(
 as.numeric(fitS$summary.random$weeknum$ID),
 exp(fitS$summary.random$weeknum[,
-c('0.025quant','0.975quant', '0.5quant')]), xaxt='n', xlab='Date 2007-17', lty=1, col=c('grey','grey','black'), type='l', ylab='Odds of Fatal vs Non-Fatal')
+c('0.025quant','0.975quant', '0.5quant')]), xlab='2007 - 2017', lty=1, col=c('grey','grey','black'), type='l', xaxt="n", ylab='Odds of Fatal vs Non-Fatal Accident')
+axis(1, at=seq(0,600,52), labels=c("2007","2008","2009","2010","2011","2012","2013","2014","2015","2016","2017","2018"), pch=21)
 ```
 
 
