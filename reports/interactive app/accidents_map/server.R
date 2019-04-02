@@ -19,12 +19,16 @@ shinyServer(function(input, output) {
                                       gsub("NA, ", "", paste(i_bike, i_emerg, i_moto, i_ped, i_truck,
                                                              sep = ", ")))),
              vehicles_involved_input = as.character(paste(sort(input$auto_type), collapse = ", "))) %>%
-      filter(input$auto_type == "All" | vehicles_involved == vehicles_involved_input) %>%
+      filter(input$auto_type == "All" | (input$auto_type == "Automobile" & vehicles_involved == "") |
+               vehicles_involved == vehicles_involved_input) %>%
       select(-i_bike, -i_emerg, -i_moto, -i_ped, -i_truck, -vehicles_involved,
              -vehicles_involved_input) %>%
       # Filter by whether it precipitated that day
       filter(input$precip == "All" | ("Precipitated" %in% input$precip & tot_precip_mm > 0) |
                ("Clear" %in% input$precip & tot_precip_mm == 0) | is.na(input$precip)) %>%
+      # Filter by whether or not it was clear
+      filter(input$visib == "All" | (input$visib == "Clear" & visibility == "Clear") | 
+               (input$visib == "Not Clear" & visibility != "Clear")) %>%
       # Filter by road class
       mutate(road_class2 = if_else(grepl("Arterial", road_class), "Arterial",
                                    if_else(grepl("Collector", road_class), "Collector",

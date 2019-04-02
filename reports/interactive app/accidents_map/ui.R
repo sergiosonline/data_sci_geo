@@ -15,12 +15,16 @@ shinyUI(fluidPage(
                                     selected = c("Fatal", "Non-Fatal Injury")),
                  
                  selectInput("auto_type", label = "Other Vehicles Involved",
-                             choices = c("Pedestrian", "Bicycle", "Motorcycle", 
+                             choices = c("Automobile", "Pedestrian", "Bicycle", "Motorcycle", 
                                          "Truck", "Emergency Vehicle", "All"),
                              selected = c("All")),
                  
                  selectInput("precip", label = "Weather Condition",
                              choices = c("Clear", "Precipitated", "All"), 
+                             selected = c("All")),
+                 
+                 selectInput("visib", label = "Visibility",
+                             choices = c("Clear", "Not Clear", "All"),
                              selected = c("All")),
                  
                  selectInput("road_class", label = "Road Class",
