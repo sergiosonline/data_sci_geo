@@ -1,3 +1,12 @@
+## Download this file into local drive: 
+## https://github.com/sergiosonline/data_sci_geo/tree/master/data/neighbourhoods_planning_areas_wgs84_SEB
+## And update fileloc variable
+
+fileloc <- "C:/Users/angel/OneDrive/Documents/GitHub/data_sci_geo/data/neighbourhoods_planning_areas_wgs84_SEB"
+
+##
+##
+
 library(tidyverse, quietly = T, warn.conflicts = F, verbose = F)
 library(data.table, quietly = T, warn.conflicts = F, verbose = F)
 library(sp)
@@ -8,15 +17,7 @@ library(lubridate)
 library(plotly)
 
 # Load neighborhood polygons with 2016 population
-## Download this file into local drive: 
-## https://github.com/sergiosonline/data_sci_geo/tree/master/data/neighbourhoods_planning_areas_wgs84_SEB
-## And update fileloc variable
-
-fileloc <- "C:/Users/angel/OneDrive/Documents/GitHub/data_sci_geo/data/neighbourhoods_planning_areas_wgs84_SEB"
-#fileloc <- "~/Documents/Github/data_sci_geo/data/neighbourhoods_planning_areas_wgs84_SEB/"
-# fileloc <- "NEIGHBORHOODS_WGS84.shp"
 neighborhoods <- rgdal::readOGR(dsn = fileloc, layer = "NEIGHBORHOODS_WGS84")
-# neighborhoods <- rgdal::readOGR(dsn = fileloc)
 
 # Load accidents data
 accidents <- fread("https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/data/final/accidents.csv") %>%
