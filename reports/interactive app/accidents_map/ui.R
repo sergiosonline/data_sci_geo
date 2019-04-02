@@ -6,10 +6,9 @@ shinyUI(fluidPage(
   
   sidebarLayout(
                sidebarPanel(
-                 sliderInput("acc_date", label = "Date of accident",
-                             min = as.Date("2007-01-01"), max = as.Date("2017-12-01"),
-                             value = c(as.Date("2007-01-01"), as.Date("2017-12-01")),
-                             timeFormat = "%b %Y"),
+                 dateRangeInput("acc_date", label = "Date of accident",
+                             start = as.Date("2007-01-01"), end = max(as.Date(accidents$date)),
+                             min = min(as.Date(accidents$date)), max = max(as.Date(accidents$date))),
                  
                  checkboxGroupInput("fatal", label = "Accident Fatality",
                                     choices = c("Fatal", "Non-Fatal Injury"),
@@ -45,19 +44,18 @@ shinyUI(fluidPage(
                                value = F))
                ,
 
-  mainPanel(
-    tabsetPanel(type = "tabs",
-                tabPanel("Interactive Map", 
-                         leafletOutput("acc_map"), 
-                         dataTableOutput("acc_data"))
-    ,
-    tabPanel("Frequency Table",
-             plotlyOutput("acc_plot_full"),
-             plotlyOutput("acc_plot_full_prop"),
-             plotlyOutput("acc_plot_month"),
-             plotlyOutput("acc_plot_month_prop"),
-             dataTableOutput("acc_data2"))
-  )
-  )
+               mainPanel(
+                 tabsetPanel(type = "tabs",
+                             tabPanel("Interactive Map", 
+                                      leafletOutput("acc_map"), 
+                                      dataTableOutput("acc_data"))
+                             ,
+                             tabPanel("Frequency Table",
+                                      plotlyOutput("acc_plot_full"),
+                                      plotlyOutput("acc_plot_full_prop"),
+                                      plotlyOutput("acc_plot_month"),
+                                      plotlyOutput("acc_plot_month_prop"),
+                                      dataTableOutput("acc_data2")))
+               )
+  ))
 )
-))

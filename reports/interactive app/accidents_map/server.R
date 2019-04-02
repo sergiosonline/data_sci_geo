@@ -1,6 +1,7 @@
 library(shiny)
 
 shinyServer(function(input, output) {
+  
   # Filter accident data
   filtered_accidents <- reactive({
     accidents %>%
@@ -60,7 +61,6 @@ shinyServer(function(input, output) {
   
   # Color scheme for map
   pal2 <- colorFactor(palette = c('darkorchid', 'darkturquoise'), domain = accidents$acc_class)
-  pal_pop <- colorFactor(palette = c('steel blue','indigo'), domain = neighborhoods$X2016pop)
   pal_pop2 <- colorNumeric(palette = hsv(1, seq(0,1,length.out = 12) , 1), neighborhoods$X2016pop, n = 5)
   
   # Pop-up label for accident
@@ -98,6 +98,7 @@ shinyServer(function(input, output) {
         opacity = 1,
         title = 'Accident Class'
       )%>%
+      setView(lng = -79.381989, lat = 43.729214, zoom = 10) %>%
       addProviderTiles(providers$CartoDB.Positron)
   })
   
@@ -150,6 +151,7 @@ shinyServer(function(input, output) {
     }
   })
   
+  # Data displayed as a data table
   output$acc_data <- renderDataTable(filtered_table_accidents() %>%
                                        select(Accident = accident_key, `Accident Class` = acc_class,
                                               Date = date, Time = time,
@@ -162,6 +164,7 @@ shinyServer(function(input, output) {
                                               Visibility = visibility, Light = light) %>%
                                        arrange(Date, Accident))
 
+  # Interactive plot of filtered accidents my month and year
   output$acc_plot_full <- renderPlotly({
     data <- filtered_table_accidents() %>%
       group_by(accident_key) %>%
@@ -169,16 +172,18 @@ shinyServer(function(input, output) {
       ungroup() %>%
       mutate(month = as.yearmon(date)) %>%
       group_by(month, acc_class) %>%
-      summarize(`Number of Accidents` = n())
+      summarize(num = n())
     
-    p <- ggplot(data, aes(x = month, y = `Number of Accidents`, 
+    p <- ggplot(data, aes(x = month, y = num, 
                     col = acc_class)) +
-      geom_point() + stat_smooth(se = F) + ylab("Number of Accidents") + xlab("Date") + 
+      geom_point(aes(text = paste(month, "<br><b>", "Number of Accidents:</b>", num))) + 
+      stat_smooth(se = F) + ylab("Number of Accidents") + xlab("Date") + 
       labs(color = "Accident Class") + theme_minimal()
     
-    ggplotly(p)
+    ggplotly(p, tooltip = "text")
   })
   
+  # Interactive plot of proportion of deadly accidents by month and year
   output$acc_plot_full_prop <- renderPlotly({
     data <- filtered_table_accidents() %>%
       group_by(accident_key) %>%
@@ -186,40 +191,18 @@ shinyServer(function(input, output) {
       ungroup() %>%
       mutate(month = as.yearmon(date)) %>%
       group_by(month) %>%
-      summarize(`Number of Accidents` = sum(acc_class == "Fatal")/n())
+      summarize(perc_fat = sum(acc_class == "Fatal")/n())
     
-    p <- ggplot(data, aes(x = month, y = `Number of Accidents`)) +
-      geom_point() + stat_smooth(se = F) + ylab("Number of Accidents") + xlab("Date") + 
+    p <- ggplot(data, aes(x = month, y = perc_fat)) +
+      geom_point(aes(text = paste(month, "<br><b>", "Proportion of Fatalities:</b>", 
+                                  round(perc_fat * 100, 2), "%"))) + 
+      stat_smooth(se = F) + ylab("Number of Accidents") + xlab("Date") + 
       labs(color = "Accident Class") + theme_minimal()
     
-    ggplotly(p)
+    ggplotly(p, tooltip = "text")
   })
   
-  
-  
-  output$acc_plot_month_prop <- renderPlotly({
-    data <- filtered_table_accidents() %>%
-      group_by(accident_key) %>%
-      filter(row_number() == 1) %>%
-      ungroup() %>%
-      mutate(month_year = as.yearmon(date),
-             month = month(date),
-             num_days = as.numeric(days_in_month(as.Date(date)))) %>%
-      group_by(month_year, month, num_days) %>%
-      summarize(num_accidents = sum(acc_class == "Fatal")/n()) %>%
-      ungroup() %>%
-      mutate(normalized_acc = num_accidents * (30/num_days)) %>%
-      group_by(month) %>%
-      summarize(normalized_acc = mean(normalized_acc))
-    
-    p <- ggplot(data, aes(x = month, y = normalized_acc)) +
-      geom_point() + geom_line() + ylab("Prop of Fatal Accidents (Normalized)") + xlab("Date") + 
-      labs(color = "Accident Class") + scale_x_continuous(breaks = round(seq(1, 12, by = 1))) + 
-      theme_minimal()
-    
-    ggplotly(p)
-  })
-  
+  # Interactive plot of filtered accidents by month normalized so each month has 30 days
   output$acc_plot_month <- renderPlotly({
     data <- filtered_table_accidents() %>%
       group_by(accident_key) %>%
@@ -233,14 +216,42 @@ shinyServer(function(input, output) {
       ungroup() %>%
       mutate(normalized_acc = num_accidents * (30/num_days)) %>%
       group_by(month, acc_class) %>%
-      summarize(normalized_acc = mean(normalized_acc))
+      summarize(num = round(mean(normalized_acc)))
     
-    p <- ggplot(data, aes(x = month, y = normalized_acc, col = acc_class)) +
-      geom_point() + geom_line() + ylab("Number of Accidents (Normalized)") + xlab("Date") + 
+    p <- ggplot(data, aes(x = month, y = num, col = acc_class)) +
+      geom_point(aes(text = paste(month.abb[month], "<br><b>", 
+                                  "Number of Accidents (Normalized):</b>", num))) + 
+      geom_line() + ylab("Prop of Fatal Accidents (Normalized)") + xlab("Month") + 
       labs(color = "Accident Class") + scale_x_continuous(breaks = round(seq(1, 12, by = 1))) + 
       theme_minimal()
     
-    ggplotly(p)
+    ggplotly(p, tooltip = "text")
+  })
+  
+  # Interactive plot of proportion of deadly accidents by month
+  output$acc_plot_month_prop <- renderPlotly({
+    data <- filtered_table_accidents() %>%
+      group_by(accident_key) %>%
+      filter(row_number() == 1) %>%
+      ungroup() %>%
+      mutate(month_year = as.yearmon(date),
+             month = month(date),
+             num_days = as.numeric(days_in_month(as.Date(date)))) %>%
+      group_by(month_year, month, num_days) %>%
+      summarize(num_fatalities = sum(acc_class == "Fatal")/n()) %>%
+      ungroup() %>%
+      mutate(normalized_fat = num_fatalities * (30/num_days)) %>%
+      group_by(month) %>%
+      summarize(num = round(mean(normalized_fat), 2))
+    
+    p <- ggplot(data, aes(x = month, y = num)) +
+      geom_point(aes(text = paste(month.abb[month], "<br><b>", 
+                                  "Proportion of Fatalities (Normalized):</b>", num))) + 
+      geom_line() + ylab("Proportion of Fatalities (Normalized)") + xlab("Month") + 
+      labs(color = "Accident Class") + scale_x_continuous(breaks = round(seq(1, 12, by = 1))) + 
+      theme_minimal()
+    
+    ggplotly(p, tooltip = "text")
   })
   
 })
