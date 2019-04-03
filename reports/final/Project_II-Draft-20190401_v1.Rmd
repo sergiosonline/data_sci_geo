@@ -171,18 +171,17 @@ For our analysis we employed data from the [Toronto Police Service](http://data.
 The following table provides an overview of the merged data.
 
 ```{r echo = F}
-
-data.frame(Accident_ID = c(5002235651, 5000995174, 5000995174, 1249781),
+data.frame(`Accident Key` = c(5002235651, 5000995174, 5000995174, 1249781),
            Fatal = c(1, 1, 1, 0),
            Date = c("2015-12-30", "2015-06-13", "2015-06-13", "2011-08-04"),
            Neighborhood = c("Greenwood-Coxwell", "Annex", "Annex", "Bay Street Corridor"),
            Population = c(7072, 26703, 26703, 19348),
-           `Max_Temp` = c(4.7, 22.3, 22.3, 26.4)) %>%
+           `Max Temp` = c(4.7, 22.3, 22.3, 26.4)) %>%
   kable() %>%
   kable_styling(bootstrap_options = c("striped"))
 ```
 
-Traffic incident information provided by Toronto Police served as a base for the data used for this analysis. Each of the 12,557 entries represent a party involved in a traffic collision event where a person was either killed or seriously injured. Other features such as the location of the collision (intersection, neighborhood, ward), road condition (visibility, road precipitation), driver action (e.g. speeding, involved alcohol), and type of vehicles (e.g. automobile, pedestrian, cyclist) involved were also used.
+Traffic incident information provided by Toronto Police served as a base for the data used for this analysis. There are 3,902 unique accidents in this dataset. Each of the 11,360 entries represent a party involved in a traffic collision event. Other features such as the location of the collision (intersection, neighborhood, ward), road condition (visibility, road precipitation), driver action (e.g. speeding, involved alcohol), and types of vehicles (e.g. automobile, pedestrian, cyclist) involved were also used.
 
 Population counts for 2011 and 2016 are available through the national census for each neighborhood. The populations for the dates not provided by the census were extrapolated using a linear growth model. 
 
@@ -190,56 +189,138 @@ Historical weather data collected from the station in [University of Toronto](ht
 
 ### Exploratory Analysis
 
-By summing up counts from 2007 to 2017, West Humber-Clairville appears to be the deadliest intersection followed by South Parkdale, then Wexford/Maryvale. Thankfully, the fatalities appear to be quite low compared to the total number of collisions reported by the Toronto Police.
+Since the data is spatial in nature, it was of foremost interest to be able to plot the accidents on a map. In order to interact with the visualization and filter data by features of interest a Shiny application was created. The following are instructions on downloading and using the application. Because the function `rgdal::readOGR` requires a file path, calibrations must be made on your device to use the application.
+
+\begin{enumerate}
+  \item Download `global.R`, `ui.R`, and `server.R` from [here](https://github.com/sergiosonline/data_sci_geo/tree/master/reports/interactive%20app/accidents_map).
+  \item Download the contents of the file [here](https://github.com/sergiosonline/data_sci_geo/tree/master/data/neighbourhoods_planning_areas_wgs84_SEB) and save to a local directory.
+  \item Update the variable `file_loc` in the `global.R` script as seen below.
+  ![](https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/reports/final/images/screenshot%20for%20app%20instructions.png)
+  \item Run the application from within RStudio
+\end{enumerate}
+
+![Screenshot of the interface](https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/reports/final/images/screenshot%20of%20general%20app.png)
+
+Using this application for our exploratory analysis allowed us to uncover some interesting trends quite quickly. Another advantage was that the application was one way to check whether a feature was reasonable to include into our models. Moreover, because it is simple to add inputs and functionality we could customize it to meet our needs dynamically.
+
+Firstly, the number of accidents did not appear to increase with year even though the population of Toronto grew by a considerable amount from 2007 to 2017. While it's great news for Torontonians, this could be a result of many factors. It would be favorable to assume that the number of accidents decreased due to the efforts of the City to improve road safety, it is equally likely for it to have been because the Toronto Police were less rigorous with their data keeping, or that people involved in accidents were less likely to report it and get the police involved. In addition, while the total number of accidents have been going down, the number of fatal accidents have remained stable, causing the proportion of fatal accidents to actually increase by year.
+
+![](https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/reports/final/images/all%20years_1.png)
+![](https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/reports/final/images/all%20years_2.png)
+![Map of accidents that have occurred within a year from 2007-2017](https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/reports/final/images/all%20years_3.png)
+
+Any plots with smooth lines used loess - the default in ggplot to avoid distracting the reader if the data was very noisy.
 
 ```{r echo = F}
-accidents <- read.csv("https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/data/accidents.csv",
-                      check.names = F)
+p <- accidents %>%
+  group_by(accident_key) %>%
+  filter(row_number() == 1) %>%
+  ungroup() %>%
+  mutate(month_year = as.yearmon(date),
+         month = month(date),
+         year = year(date),
+         num_days = as.numeric(days_in_month(as.Date(date))))
 
-accidents %>% group_by(Neighbourhood) %>%
-  dplyr::summarize(`Total Fatalities` = sum(INJURY == "Fatal", na.rm = T),
+p %>% group_by(month_year, acc_class) %>%
+      summarize(num = n()) %>%
+  ggplot(., aes(x = month_year, y = num, col = acc_class)) +
+  geom_point(alpha = 0.8) + 
+  stat_smooth(se = F) + ylab("Number of Accidents") + xlab("Date") + 
+  labs(color = "Accident Class") + theme_minimal()
+
+p %>% group_by(month_year) %>%
+  summarize(perc_fat = sum(acc_class == "Fatal")/n()) %>%
+  ggplot(., aes(x = month_year, y = perc_fat)) +
+  geom_point(alpha = 0.8) + 
+  stat_smooth(se = F) + ylab("Number of Accidents") + xlab("Date") + 
+  labs(color = "Accident Class") + theme_minimal()
+```
+
+The accidents also appear to be concentrated in downtown core which is likely due to the high population density. However, it is worthy to note that fatal accidents do not appear to be concentrated in downtown. This could be due to the lower speed limits, and shorter intersections which do not allow cars to accelerate as much as freeways or even arterial roads.
+
+The types of vehicles that were involved in an accident also displayed differences in the proportion of fatalities recorded. All accidents in the dataset represent those that involved automobiles and therefore, as expected, when pedestrians or cyclists were involved as well, the proportion of fatalities was much higher. Accidents involving bicycles also revealed interesting spatial patterns. 
+
+![Plot of accidents involving pedestrians for 2007-2017](https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/reports/final/images/all%20pedestrians.png)
+
+As expected, most of them were concentrated in downtown since there is more infrastructure in place for cyclists in this area of the city and because the shorter distances and traffic levels make it a more popular transportion method. We find, however, that the fatal accidents are more uniformly distributed around the city perhaps making the case that bicycle lanes are effective at preventing lethal accidents for cyclists.
+
+![Plot of accidents involving cyclists for 2007-2017](https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/reports/final/images/all%20pedestrians.png)
+![Plot of fatal accidents involving cyclists for 2007-2017](https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/reports/final/images/fatal%20cyclists.png)
+
+The road conditions, namely the visibility of the road and whether it had precipitated also affected the probability of an accident occurring. The following is a map of where the accidents occurred for the different road conditions. 
+
+```{r echo = F}
+p %>% mutate(clear = visibility == "Clear") %>%
+  group_by(clear, year) %>%
+  summarize(prop_fat = sum(acc_class == "Fatal")/n()) %>%
+  ggplot(., aes(x = year, y = prop_fat, col = clear)) +
+  geom_point(alpha = 0.8) + geom_line() + ylab("Proportion of Fatal Accidents") + xlab("Year") + 
+  labs(color = "Clear") + theme_minimal() + ggtitle("Proportion of Fatal Accidents by Visibility of Road")
+```
+
+Surprisingly, if it had precipitated the day of the accident, there were periods of time where it was less likely we were to find a fatal accident. This may be because bad weather deters people from going outside and driving. Note that due to data limitations, the type of precipitation was not distinguished.
+
+```{r echo = F}
+p %>%
+  mutate(precipitated = if_else(tot_precip_mm > 0, "Precipitated", "Did not precipitate")) %>%
+  group_by(month_year, acc_class, precipitated) %>%
+  summarize(num = n()) %>%
+  ggplot(., aes(x = month_year, y = num, col = acc_class)) + 
+  geom_point(alpha = 0.8) + geom_line() + ylab("Number of Accidents") + xlab("Date") + 
+  labs(color = "Accident Class") + facet_wrap(~precipitated) + theme_minimal()
+  
+p %>%
+  mutate(precipitated = if_else(tot_precip_mm > 0, "Precipitated", "Did not precipitate")) %>%
+  group_by(month_year, precipitated) %>%
+  summarize(prop_fat = sum(acc_class == "Fatal")/n()) %>%
+  ggplot(., aes(x = month_year, y = prop_fat, col = precipitated)) + 
+  geom_point(alpha = 0.8) + geom_smooth(se = F) + ylab("Proportion of Fatal Accidents") + xlab("Date") + 
+  labs(color = "Accident Class") + theme_minimal()
+```
+
+By summing up counts from 2007 to 2017, West Humber-Clairville appeared to be the deadliest intersection followed by South Parkdale, then Wexford/Maryvale. Thankfully, the fatalities appeared to be quite low compared to the total number of collisions reported by the Toronto Police.
+
+```{r echo = F}
+accidents <- read.csv("https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/data/accidents.csv", check.names = F)
+
+accidents %>% group_by(accident_key) %>%
+  filter(row_number() == 1) %>%
+  ungroup() %>%
+  group_by(hood_name) %>%
+  dplyr::summarize(`Total Fatalities` = sum(injury == "Fatal", na.rm = T),
             `Total Collisions` = n()) %>%
   arrange(desc(`Total Fatalities`)) %>%
   head() %>%
   kable()%>%
   kable_styling(bootstrap_options = c("striped"))
-
-
 ```
 
 West Humber-Clairville, and Wexford/Maryvale appear again as a dangerous neighborhood even when focussing on pedestrian or cyclist fatalities.
 
 ```{r echo = F}
-accidents %>% mutate(Pedestrian = INVTYPE == "Pedestrian",
-                     Cyclist = INVTYPE == "Cyclist",
-                     Other = INVTYPE != "Pedestrian" & INVTYPE != "Cyclist") %>%
-  group_by(Neighbourhood) %>%
-  dplyr::summarize(`Total Pedestrian Fatalities` = sum(INJURY == "Fatal" & Pedestrian == 1, na.rm = T),
-            `Total Pedestrian Collisions` = sum(Pedestrian == 1, na.rm = T)) %>%
-  arrange(desc(`Total Pedestrian Fatalities`)) %>%
+accidents %>% 
+  filter(inv_ped == 1) %>%
+  group_by(accident_key) %>%
+  filter(row_number() == 1) %>%
+  ungroup() %>%
+  group_by(hood_name) %>%
+  dplyr::summarize(`Total Pedestrian Fatalities` = sum(injury == "Fatal", na.rm = T),
+            `Total Collisions with Pedestrians` = n()) %>%
+  arrange(desc(`Total Fatalities`)) %>%
   head() %>%
   kable()%>%
   kable_styling(bootstrap_options = c("striped"))
 
-accidents %>% mutate(Pedestrian = INVTYPE == "Pedestrian",
-                     Cyclist = INVTYPE == "Cyclist",
-                     Other = INVTYPE != "Pedestrian" & INVTYPE != "Cyclist") %>%
-  group_by(Neighbourhood) %>%
-  dplyr::summarize(`Total Cyclist Fatalities` = sum(INJURY == "Fatal" & Cyclist == 1, na.rm = T),
-            `Total Cyclist Collisions` = sum(Cyclist == 1, na.rm = T)) %>%
-  arrange(desc(`Total Cyclist Fatalities`)) %>%
-  head()%>%
-  kable()%>%
-  kable_styling(bootstrap_options = c("striped"))
-
-accidents %>% mutate(Pedestrian = INVTYPE == "Pedestrian",
-                     Cyclist = INVTYPE == "Cyclist",
-                     Other = INVTYPE != "Pedestrian" & INVTYPE != "Cyclist") %>%
-  group_by(Neighbourhood) %>%
-  dplyr::summarize(`Total Other Fatalities` = sum(INJURY == "Fatal" & Other == 1, na.rm = T),
-            `Total Other Collisions` = sum(Other == 1, na.rm =T)) %>%
-  arrange(desc(`Total Other Fatalities`)) %>%
-  head()%>%
+accidents %>% 
+  filter(inv_cyc == 1) %>%
+  group_by(accident_key) %>%
+  filter(row_number() == 1) %>%
+  ungroup() %>%
+  group_by(hood_name) %>%
+  dplyr::summarize(`Total Cyclist Fatalities` = sum(injury == "Fatal", na.rm = T),
+            `Total Collisions with Cyclists` = n()) %>%
+  arrange(desc(`Total Fatalities`)) %>%
+  head() %>%
   kable()%>%
   kable_styling(bootstrap_options = c("striped"))
 ```
