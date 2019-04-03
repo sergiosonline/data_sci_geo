@@ -9,8 +9,6 @@ shinyUI(fluidPage(
                  actionButton("action", "Create Map"),
                  br(), br(), 
                  
-                 textInput("shape_location", label = "Enter the location of shape file"),
-                 
                  dateRangeInput("acc_date", label = "Date of accident",
                              start = as.Date("2007-01-01"), end = max(as.Date(accidents$date)),
                              min = min(as.Date(accidents$date)), max = max(as.Date(accidents$date))),
