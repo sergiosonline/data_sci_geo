@@ -3,7 +3,7 @@ library(shiny)
 shinyServer(function(input, output) {
   
   # Filter accident data
-  filtered_accidents <- reactive({
+  filtered_accidents <- eventReactive(input$action, {
     accidents %>%
       # Filter by date of accident
       filter(date >= as.Date(input$acc_date[1]) & date <= as.Date(input$acc_date[2])) %>%
@@ -63,22 +63,14 @@ shinyServer(function(input, output) {
                    .funs = funs(unique(.)))
   })
   
-  # Color scheme for map
-  pal2 <- colorFactor(palette = c('darkorchid', 'darkturquoise'), domain = accidents$acc_class)
-  pal_pop2 <- colorNumeric(palette = hsv(1, seq(0,1,length.out = 12) , 1), neighborhoods$X2016pop, n = 5)
-  
   # Pop-up label for accident
-  labs_acc <- reactive({lapply(seq(nrow(filtered_plot_accidents())), function(i) {
-    paste0('<b>', filtered_plot_accidents()[i, "acc_class"], "</b><br/>",
-           filtered_plot_accidents()[i, "date"], '<br/>',
-           filtered_plot_accidents()[i, "street1"], ', ', 
-           filtered_plot_accidents()[i, "street2"],'<br/>',
-           "Parties involved: ", filtered_plot_accidents()[i, "parties_involved"])})
+  labs_acc <- reactive({
+    paste0("<b>", filtered_plot_accidents()$acc_class, "</b><br/>", 
+           filtered_plot_accidents()$date, "<br/>", 
+           filtered_plot_accidents()$street1, ", ",
+           filtered_plot_accidents()$street2, "<br/>",
+           "Parties involved:", filtered_plot_accidents()$parties_involved)
   })
-  
-  # Pop-up label for neighborhood
-  labs_hood <- paste0('<b>', gsub(" *\\(.*?\\) *", "", neighborhoods$AREA_NAME), '</b><br/>',
-                      '2016 Population: ', neighborhoods$X2016pop)
   
   # Leaflet map
   output$acc_map <- renderLeaflet({
@@ -145,42 +137,56 @@ shinyServer(function(input, output) {
   filtered_table_accidents <- reactive({
     if(is.null(input$acc_map_click))
       return(filtered_accidents())
-    else if(length(input$acc_map_shape_click) == 3){
+    else if(length(input$acc_map_click) == 3){
       return(filtered_accidents() %>%
-               filter(lat == input$acc_map_click[1] & long == input$acc_map_click[2]))
+               filter(lat == input$acc_map_click[1] & 
+                        long == input$acc_map_click[2]))
     }
-    else if(length(input$acc_map_shape_click == 4)){
+    # Or by neighborhood
+    else if(length(input$acc_map_shape_click) == 4){
       return(filtered_accidents() %>%
              filter(hood_name == input$acc_map_shape_click[1]))
+    }
+    else{
+      return(filtered_accidents())
     }
   })
   
   # Data displayed as a data table
-  output$acc_data <- renderDataTable(filtered_table_accidents() %>%
-                                       select(Accident = accident_key, `Accident Class` = acc_class,
-                                              Date = date, Time = time,
-                                              `Street 1` = street1, `Street 2` = street2,
-                                              Person = person_type, Age = person_age, Injury = injury,
-                                              Vehicle = veh_type,
-                                              Manoeuver = manoeuver, `Driver Action` = driver_act,
-                                              `Driver Condition` = driver_cond,
-                                              `Road Class` = road_class, Located = located,
-                                              Visibility = visibility, Light = light) %>%
-                                       arrange(Date, Accident))
-
-  # Interactive plot of filtered accidents my month and year
-  output$acc_plot_full <- renderPlotly({
-    data <- filtered_table_accidents() %>%
+  output$acc_data <- renderDataTable({
+    filtered_table_accidents() %>%
+        select(Accident = accident_key, `Accident Class` = acc_class,
+               Date = date, Time = time,
+               `Street 1` = street1, `Street 2` = street2,
+               Person = person_type, Age = person_age, Injury = injury,
+               Vehicle = veh_type,
+               Manoeuver = manoeuver, `Driver Action` = driver_act,
+               `Driver Condition` = driver_cond,
+               `Road Class` = road_class, Located = located,
+               Visibility = visibility, Light = light) %>%
+        arrange(Date, Accident)})
+  
+  # Plotly data
+  plotlydata <- reactive({
+    filtered_accidents() %>%
       group_by(accident_key) %>%
       filter(row_number() == 1) %>%
       ungroup() %>%
-      mutate(month = as.yearmon(date)) %>%
-      group_by(month, acc_class) %>%
+      mutate(month_year = as.yearmon(date),
+             month = month(date),
+             num_days = as.numeric(days_in_month(as.Date(date))))
+  })
+
+  # Interactive plot of filtered accidents my month and year
+  output$acc_plot_full <- renderPlotly({
+    data <- plotlydata() %>%
+      group_by(month_year, acc_class) %>%
       summarize(num = n())
     
-    p <- ggplot(data, aes(x = month, y = num, 
+    p <- ggplot(data, aes(x = month_year, y = num, 
                     col = acc_class)) +
-      geom_point(aes(text = paste(month, "<br><b>", "Number of Accidents:</b>", num))) + 
+      geom_point(aes(text = paste(month_year, "<br><b>", "Number of Accidents:</b>", num)), 
+                 alpha = 0.8) + 
       stat_smooth(se = F) + ylab("Number of Accidents") + xlab("Date") + 
       labs(color = "Accident Class") + theme_minimal()
     
@@ -189,17 +195,13 @@ shinyServer(function(input, output) {
   
   # Interactive plot of proportion of deadly accidents by month and year
   output$acc_plot_full_prop <- renderPlotly({
-    data <- filtered_table_accidents() %>%
-      group_by(accident_key) %>%
-      filter(row_number() == 1) %>%
-      ungroup() %>%
-      mutate(month = as.yearmon(date)) %>%
-      group_by(month) %>%
+    data <- plotlydata() %>%
+      group_by(month_year) %>%
       summarize(perc_fat = sum(acc_class == "Fatal")/n())
     
-    p <- ggplot(data, aes(x = month, y = perc_fat)) +
-      geom_point(aes(text = paste(month, "<br><b>", "Proportion of Fatalities:</b>", 
-                                  round(perc_fat * 100, 2), "%"))) + 
+    p <- ggplot(data, aes(x = month_year, y = perc_fat)) +
+      geom_point(aes(text = paste(month_year, "<br><b>", "Proportion of Fatalities:</b>", 
+                                  round(perc_fat * 100, 2), "%")), alpha = 0.8) + 
       stat_smooth(se = F) + ylab("Number of Accidents") + xlab("Date") + 
       labs(color = "Accident Class") + theme_minimal()
     
@@ -208,13 +210,7 @@ shinyServer(function(input, output) {
   
   # Interactive plot of filtered accidents by month normalized so each month has 30 days
   output$acc_plot_month <- renderPlotly({
-    data <- filtered_table_accidents() %>%
-      group_by(accident_key) %>%
-      filter(row_number() == 1) %>%
-      ungroup() %>%
-      mutate(month_year = as.yearmon(date),
-             month = month(date),
-             num_days = as.numeric(days_in_month(as.Date(date)))) %>%
+    data <- plotlydata() %>%
       group_by(month_year, month, num_days, acc_class) %>%
       summarize(num_accidents = n()) %>%
       ungroup() %>%
@@ -224,7 +220,7 @@ shinyServer(function(input, output) {
     
     p <- ggplot(data, aes(x = month, y = num, col = acc_class)) +
       geom_point(aes(text = paste(month.abb[month], "<br><b>", 
-                                  "Number of Accidents (Normalized):</b>", num))) + 
+                                  "Number of Accidents (Normalized):</b>", num)), alpha = 0.8) + 
       geom_line() + ylab("Prop of Fatal Accidents (Normalized)") + xlab("Month") + 
       labs(color = "Accident Class") + scale_x_continuous(breaks = round(seq(1, 12, by = 1))) + 
       theme_minimal()
@@ -234,13 +230,7 @@ shinyServer(function(input, output) {
   
   # Interactive plot of proportion of deadly accidents by month
   output$acc_plot_month_prop <- renderPlotly({
-    data <- filtered_table_accidents() %>%
-      group_by(accident_key) %>%
-      filter(row_number() == 1) %>%
-      ungroup() %>%
-      mutate(month_year = as.yearmon(date),
-             month = month(date),
-             num_days = as.numeric(days_in_month(as.Date(date)))) %>%
+    data <- plotlydata() %>%
       group_by(month_year, month, num_days) %>%
       summarize(num_fatalities = sum(acc_class == "Fatal")/n()) %>%
       ungroup() %>%
@@ -250,7 +240,7 @@ shinyServer(function(input, output) {
     
     p <- ggplot(data, aes(x = month, y = num)) +
       geom_point(aes(text = paste(month.abb[month], "<br><b>", 
-                                  "Proportion of Fatalities (Normalized):</b>", num))) + 
+                                  "Proportion of Fatalities (Normalized):</b>", num)), alpha = 0.8) + 
       geom_line() + ylab("Proportion of Fatalities (Normalized)") + xlab("Month") + 
       labs(color = "Accident Class") + scale_x_continuous(breaks = round(seq(1, 12, by = 1))) + 
       theme_minimal()

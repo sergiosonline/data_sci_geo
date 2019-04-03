@@ -16,6 +16,8 @@ library(zoo)
 library(lubridate)
 library(plotly)
 
+##### DATA CLEANING #####
+
 # Load neighborhood polygons with 2016 population
 neighborhoods <- rgdal::readOGR(dsn = fileloc, layer = "NEIGHBORHOODS_WGS84")
 
@@ -40,3 +42,14 @@ accidents <- accidents %>%
   select(-division, -ward_num, -hood_num)
 
 rm(per_accident, population)
+
+
+##### LABELS #####
+
+# Color scheme for map
+pal2 <- colorFactor(palette = c('darkorchid', 'darkturquoise'), domain = accidents$acc_class)
+pal_pop2 <- colorNumeric(palette = hsv(1, seq(0,1,length.out = 12) , 1), neighborhoods$X2016pop, n = 5)
+
+# Pop-up label for neighborhood
+labs_hood <- paste0('<b>', gsub(" *\\(.*?\\) *", "", neighborhoods$AREA_NAME), '</b><br/>',
+                    '2016 Population: ', neighborhoods$X2016pop)
