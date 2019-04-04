@@ -193,23 +193,66 @@ Historical weather data collected from the station in [University of Toronto](ht
 
 Since the data is spatial in nature, it was of foremost interest to be able to plot the accidents on a map. In order to interact with the visualization and filter data by features of interest a Shiny application was created. The following are instructions on downloading and using the application. Because the function `rgdal::readOGR` requires a file path, calibrations must be made on your device to use the application.
 
-\begin{enumerate}
-  \item Download `global.R`, `ui.R`, and `server.R` from [here](https://github.com/sergiosonline/data_sci_geo/tree/master/reports/interactive%20app/accidents_map).
-  \item Download the contents of the file [here](https://github.com/sergiosonline/data_sci_geo/tree/master/data/neighbourhoods_planning_areas_wgs84_SEB) and save to a local directory.
-  \item Update the variable `file_loc` in the `global.R` script as seen below.
-  ![](https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/reports/final/images/screenshot%20for%20app%20instructions.png)
-  \item Run the application from within RStudio
-\end{enumerate}
+  1. Download `global.R`, `ui.R`, and `server.R` from [here](https://github.com/sergiosonline/data_sci_geo/tree/master/reports/interactive%20app/accidents_map)
+  
+  2. Download the contents of the file [here](https://github.com/sergiosonline/data_sci_geo/tree/master/data/neighbourhoods_planning_areas_wgs84_SEB) and save to a local directory.
+  
+  3. Update the variable `file_loc` in the `global.R` script as seen below.
+```{r echo=F, fig.pos='H', fig.align='center', out.width='95%'}
+## Visualizing neighborhoods of Toronto for reference
+url9 <- "https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/reports/final/images/screenshot%20for%20app%20instructions.png"
+download.file(url = url9,
+          destfile = "app-instructions.png",
+          mode = 'wb')
 
-![Screenshot of the interface](https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/reports/final/images/screenshot%20of%20general%20app.png)
+knitr::include_graphics(path="app-instructions.png")
+```  
+ 
+  4. Run the application from within RStudio
+
+```{r echo=F, fig.pos='H', fig.align='center', out.width='95%'}
+## Visualizing neighborhoods of Toronto for reference
+url10 <- "https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/reports/final/images/screenshot%20of%20general%20app.png"
+download.file(url = url10,
+          destfile = "general-app.png",
+          mode = 'wb')
+
+knitr::include_graphics(path="general-app.png")
+```  
 
 Using this application for our exploratory analysis allowed us to uncover some interesting trends quite quickly. Another advantage was that the application was one way to check whether a feature was reasonable to include into our models. Moreover, because it is simple to add inputs and functionality we could customize it to meet our needs dynamically.
 
 Firstly, the number of accidents did not appear to increase with year even though the population of Toronto grew by a considerable amount from 2007 to 2017. While it's great news for Torontonians, this could be a result of many factors. It would be favorable to assume that the number of accidents decreased due to the efforts of the City to improve road safety, it is equally likely for it to have been because the Toronto Police were less rigorous with their data keeping, or that people involved in accidents were less likely to report it and get the police involved. In addition, while the total number of accidents have been going down, the number of fatal accidents have remained stable, causing the proportion of fatal accidents to actually increase by year.
 
-![](https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/reports/final/images/all%20years_1.png)
-![](https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/reports/final/images/all%20years_2.png)
-![Map of accidents that have occurred within a year from 2007-2017](https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/reports/final/images/all%20years_3.png)
+```{r echo=F, fig.pos='H', fig.align='center', out.width='95%'}
+## Visualizing neighborhoods of Toronto for reference
+url11 <- "https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/reports/final/images/all%20years_1.png"
+download.file(url = url11,
+          destfile = "all-years1.png",
+          mode = 'wb')
+
+knitr::include_graphics(path="all-years1.png")
+```  
+
+```{r echo=F, fig.pos='H', fig.align='center', out.width='95%'}
+## Visualizing neighborhoods of Toronto for reference
+url12 <- "https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/reports/final/images/all%20years_2.png"
+download.file(url = url12,
+          destfile = "all-years2.png",
+          mode = 'wb')
+
+knitr::include_graphics(path="all-years2.png")
+```  
+
+```{r echo=F, fig.pos='H', fig.align='center', out.width='95%'}
+## Visualizing neighborhoods of Toronto for reference
+url13 <- "https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/reports/final/images/all%20years_3.png"
+download.file(url = url13,
+          destfile = "all-years3.png",
+          mode = 'wb')
+
+knitr::include_graphics(path="all-years3.png")
+```  
 
 Any plots with smooth lines used loess - the default in ggplot to avoid distracting the reader if the data was very noisy.
 
@@ -244,12 +287,28 @@ The accidents also appear to be concentrated in downtown core which is likely du
 
 The types of vehicles that were involved in an accident also displayed differences in the proportion of fatalities recorded. All accidents in the dataset represent those that involved automobiles and therefore, as expected, when pedestrians or cyclists were involved as well, the proportion of fatalities was much higher. Accidents involving bicycles also revealed interesting spatial patterns. 
 
-![Plot of accidents involving pedestrians for 2007-2017](https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/reports/final/images/all%20pedestrians.png)
+```{r echo=F, fig.pos='H', fig.align='center', out.width='95%'}
+## Visualizing neighborhoods of Toronto for reference
+url13 <- "https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/reports/final/images/all%20pedestrians.png"
+download.file(url = url13,
+          destfile = "pedestrians.png",
+          mode = 'wb')
+
+knitr::include_graphics(path="pedestrians.png")
+```  
 
 As expected, most of them were concentrated in downtown since there is more infrastructure in place for cyclists in this area of the city and because the shorter distances and traffic levels make it a more popular transportion method. We find, however, that the fatal accidents are more uniformly distributed around the city perhaps making the case that bicycle lanes are effective at preventing lethal accidents for cyclists.
 
-![Plot of accidents involving cyclists for 2007-2017](https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/reports/final/images/all%20pedestrians.png)
-![Plot of fatal accidents involving cyclists for 2007-2017](https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/reports/final/images/fatal%20cyclists.png)
+```{r echo=F, fig.pos='H', fig.align='center', out.width='95%'}
+## Visualizing neighborhoods of Toronto for reference
+url14 <- "https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/reports/final/images/fatal%20cyclists.png"
+
+download.file(url = url13,
+          destfile = "cyclists.png",
+          mode = 'wb')
+
+knitr::include_graphics(path="cyclists.png")
+```  
 
 The road conditions, namely the visibility of the road and whether it had precipitated also affected the probability of an accident occurring. The following is a map of where the accidents occurred for the different road conditions. 
 
@@ -562,7 +621,7 @@ cov[U(s + h), U(s)] = \sigma^2\rho(h/\phi;v)
 
 The plot below shows where the accidents happened in 2017 in Toronto. Accidents are concentrated in downtown areas and also along the Yonge street.
 
-```{r echo=F}
+```{r echo=F, eval=F}
 # neighborhoods = rgdal::readOGR(dsn = "C:/Users/ThinkPad/Desktop/Eddy/DS", layer = "NEIGHBORHOODS_WGS84")
 # neighborhoods = rgdal::readOGR("C:/Users/ThinkPad/Desktop/Eddy/DS/NEIGHBORHOODS_WGS84.shp",layer="NEIGHBORHOODS_WGS84")
 
@@ -601,7 +660,7 @@ plot(accidents2, col=mapmisc::col2html("black", 0.4), cex=0.6, add=TRUE)
 
 The plot below is the expected value of the count (lambda). We could see that many accidents are expected in downtown area and along the Yonge street. More traffic control may be required. We could try human control since it is the safest type of control among all. 
 
-```{r echo=F}
+```{r echo=F, eval=F}
 #testing
 
 canada <- getData(name="GADM", country="CAN", level=2)
