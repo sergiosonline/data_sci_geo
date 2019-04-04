@@ -1,8 +1,8 @@
 ---
 title: "Don't Break a Leg! Road Safety in the City of Toronto"
-subtitle: "STA2453 - Project II Draft"
+subtitle: "STA2453 - Project II Final Report"
 author: "Sunwoo (Angela) Kang, Sergio E. Betancourt, Jing Li, and Jiahui (Eddy) Du"
-date: '2019-03-02'
+date: '2019-03-04'
 output:
   pdf_document: default
 header-includes:
@@ -135,7 +135,7 @@ p2
 ```
 
 
-```{r echo=F, eval=F, fig.pos='H', fig.align='center', out.width=c('80%','80%'),fig.subcap=c('Population by neighborhood in the census year 2016', 'Fata collisions 2010-2016'),  fig.cap="\\label{fig:figs}EDA with regards to the City of Toronto", cache=T}
+```{r echo=F, eval=F, fig.pos='H', fig.align='center', out.width=c('80%','80%'),fig.subcap=c('Population by neighborhood in the census year 2016', 'Fata collisions 2010-2016'),  fig.cap="\\label{fig:figs}EDA with regards to the City of Toronto"}
 
 # Visualization of fatal vehicular incidents in the City of Toronto 2010-2016
 collisiondat <- read.csv("https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/data/Fatal_Collisions.csv", header=T, stringsAsFactors = FALSE)
