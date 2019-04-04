@@ -504,12 +504,12 @@ accidents4$latitude = accidents4$lat
 accidents4$hood_id = as.factor(accidents4$hood_num)
 
 
-accidents_time <- accidents4 %>% group_by(hood_id, year,month,day) %>% dplyr::summarize(value_perd=n())
-accidents_time_weather <- accidents4 %>% group_by(hood_id, year,month,day) %>% dplyr::summarize(avg_snow = mean(ground_snow_cm), avg_rain = mean(tot_precip_mm))
+accidents_time <- accidents4 %>% group_by(hood_id, year,month) %>% summarise(value_perd=n())
+accidents_time_weather <- accidents4 %>% group_by(hood_id, year,month) %>% summarise(avg_snow = mean(ground_snow_cm), avg_rain = mean(tot_precip_mm))
 
 
-accidents_ts <-  merge(accidents_time,accidents_time_weather, by.x=c("hood_id","year", "month", "day"), all.x=TRUE)
-accidents_ts$date = paste(accidents_ts$year, accidents_ts$month, accidents_ts$day, sep = "-")
+accidents_ts <-  merge(accidents_time, accidents_time_weather, by=c("hood_id","year", "month"), all.x=TRUE)
+accidents_ts$date = paste(accidents_ts$year, accidents_ts$month,'01', sep = "-")
 
 accidents_ts$month_f = as.factor(accidents_ts$month)
 
@@ -539,20 +539,24 @@ accidents_ts$day_num = as.numeric(difftime(accidents_ts$date, timeOrigin, units=
   
   accidents_ts <-  merge(accidents_ts, est_pop, by=c("year"), all.x=TRUE)
   accidents_ts$log_pop = log(accidents_ts$population_est)
-
+#plot of time trend without model fitting
+  newX = data.frame(date = seq(from = timeOrigin, by = "months", length.out = 12 * 11))
+  # plot(newX$date, accidents_ts$value_perd,xlab = "Year", ylab = "number of accident in Toronto")
 # accidents_ts$value = cumsum(accidents_ts$value_perd)
-accidents_ts2 = c()
-for (i in 1:length(levels(accidents_ts$hood_id)))
-{ temp = accidents_ts
-  temp$hood_num = as.numeric(accidents_ts$hood_id)
-  
-  current = subset(temp,temp$hood_num == i)
-  current$value = cumsum(current$value_perd)
-  
-  accidents_ts2 = rbind(accidents_ts2, current) }
-
-
-
+# accidents_ts2 = c()
+# for (i in 1:length(levels(accidents_ts$hood_id)))
+# { temp = accidents_ts
+#   temp$hood_num = as.numeric(accidents_ts$hood_id)
+#   
+#   current = subset(temp,temp$hood_num == i)
+#   current$value = cumsum(current$value_perd)
+#   
+#   accidents_ts2 = rbind(accidents_ts2, current) }
+#####change back not to be cummulative count
+accidents_ts2 = accidents_ts
+accidents_ts2$value = accidents_ts2$value_perd
+#######
+accidents_ts2$month_f = relevel(as.factor(accidents_ts2$month_f), ref="01")
 
 accident_ts_gam = gam(value ~ month_f + offset(log_pop) + s(day_num) + s(hood_id,bs="re"), data=accidents_ts2, family='poisson')
 # accident_ts_gam = gam(value ~ month_f + s(day_num,bs="re", by = hood_id), data=accidents_ts2, family='poisson')
@@ -560,28 +564,13 @@ accident_ts_gam = gam(value ~ month_f + offset(log_pop) + s(day_num) + s(hood_id
 # rownames(accident_ts_gam) = c("Intercept", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
 
 # summary(accident_ts_gam)
-knitr::kable(summary(accident_ts_gam)$p.table[,1:2],digits=3)%>%
-kable_styling(bootstrap_options = c("striped"))
+knitr::kable(summary(accident_ts_gam)$p.table[,1:2],digits=3)
 
-```
-
-January has the highest rate of having accidents comparing to other months of the year. It is interesting to notice that within the winter period, only January and Feburary have such high amount of accidents. It may be due to the fact that drivers are more cautious when driving in snow days and November and Decemeber are holidays season so you may find less cars on the street. 
-
-```{r echo=F}
-#plot rr by month
-accident_ts_gam_pred_rr = exp(summary(accident_ts_gam)$p.table[2:12,1:2] %*% Pmisc::ciMat())
-
-matplot( accident_ts_gam_pred_rr, log = "y", xaxt = "n", xlab = "Months", type = "l", lty = c(1, 2, 2), col = "black", ylab = "rr")
-axis(1, at = 1:11, labels = c("Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"))
-```
-
-Below is the prediction of accidents in neighbour 5 and 122
-
-```{r echo=F}
 # check 1 hood
+# hood_id=77
 plot_predict_hoodid = function(hood_id){
   i = hood_id
-  newX = data.frame(date = seq(from = timeOrigin, by = "months", length.out = 12 * 18))
+  newX = data.frame(date = seq(from = timeOrigin, by = "months", length.out = 12 * 13))
   newX$day_num = as.numeric(difftime(newX$date, timeOrigin, units = "days"))
   newX$month_f = as.factor(substr(as.character(newX$date),6,7))
   newX$year = substr(as.character(newX$date),1,4)
@@ -619,7 +608,50 @@ plot(pred_hood$date, pred_hood[, "fitexp"], type = "n", xlab = "date", ylab = "n
 matlines(pred_hood$date, pred_hood[, c("lowerexp", "upperexp", "fitexp")], lty = 1, col = c("grey","grey", "black"), lwd = c(2, 2, 1))
 }
 
+# plot_predict_hoodid(5)
+# plot_predict_hoodid(122)
+
+
+#plot rr by month
+# accident_ts_gam_pred_rr = exp(summary(accident_ts_gam)$p.table[2:12,1:2] %*% Pmisc::ciMat())
+# 
+# matplot( accident_ts_gam_pred_rr, log = "y", xaxt = "n", xlab = "Months", type = "l", lty = c(1, 2, 2), col = "black", ylab = "Rate Ratio")
+# axis(1, at = 1:11, labels = c("Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"))
+
+```
+
+From the table above we may notice summer has higher amount of accidents in general. It may because there are more drivers and more racing cars in the summer. Also drivers are more cautious when driving in snow days. A rate ratio plot below show this same pattern.
+
+```{r echo=F}
+#plot rr by month
+accident_ts_gam_pred_rr = exp(summary(accident_ts_gam)$p.table[2:12,1:2] %*% Pmisc::ciMat())
+
+matplot( accident_ts_gam_pred_rr, log = "y", xaxt = "n", xlab = "Months", type = "l", lty = c(1, 2, 2), col = "black", ylab = "rr")
+axis(1, at = 1:11, labels = c("Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"))
+```
+
+Below are plot of number of accidents happend in Toronto and the predictions of accidents in neighbour 5 and 122 from GAM. In gereral they capture a trend that the number of accidents are descreasing over years.
+
+```{r echo=F}
+accidents_ts_y = accidents4 %>% group_by( year,month) %>% summarise(value_perd=n())
+accidents_ts_y$date = paste(accidents_ts_y$year, accidents_ts_y$month,'01', sep = "-")
+
+
+accidents_ts_y$month_f = as.factor(accidents_ts_y$month)
+
+timeOrigin = ISOdate(2007,1,1,0,0,0, tz='UTC')
+accidents_ts_y$day_num = as.numeric(difftime(accidents_ts_y$date, timeOrigin, units='days'))
+
+newX_all = data.frame(date = seq(from = timeOrigin, by = "months", length.out = 12 * 11))
+
+plot(newX_all$date, accidents_ts_y$value_perd,xlab = "Year", ylab = "number of accident in Toronto")
+
+
+```
+
+```{r echo=F}
 plot_predict_hoodid(5)
+
 ```
 
 ```{r echo=F}
@@ -631,7 +663,7 @@ plot_predict_hoodid(122)
 A spatial model Log Gaussian Cox Process LGCP is used to fit the accident counts in 2017 with intercept only.
 
 \begin{equation}
-Y_{ij} \sim N(\lambda(s_{i}) , \tau^2)
+Y_{ij} \sim Poisson(O_{i}\lambda(s_{i}))
 \end{equation}
 \begin{equation}
 \lambda(s_{i}) = U(s)
@@ -640,7 +672,7 @@ Y_{ij} \sim N(\lambda(s_{i}) , \tau^2)
 cov[U(s + h), U(s)] = \sigma^2\rho(h/\phi;v)
 \end{equation}
 
-The plot below shows where the accidents happened in 2017 in Toronto.
+The plot below shows where the accidents happened in 2017 in Toronto. Accidents are concentrated in downtown areas and also along the Yonge street.
 
 ```{r echo=F}
 # neighborhoods = rgdal::readOGR(dsn = "C:/Users/ThinkPad/Desktop/Eddy/DS", layer = "NEIGHBORHOODS_WGS84")
@@ -679,7 +711,7 @@ plot(theMap, add=TRUE, maxpixels=10^7)
 plot(accidents2, col=mapmisc::col2html("black", 0.4), cex=0.6, add=TRUE)
 ```
 
-The plot below is the expected value of the count (lambda). We could see there are many accidents downtown area and along the Yonge street. More traffic control may be required. We could try human control since it is the safest type of control among all. 
+The plot below is the expected value of the count (lambda). We could see that many accidents are expected in downtown area and along the Yonge street. More traffic control may be required. We could try human control since it is the safest type of control among all. 
 
 ```{r echo=F}
 #testing
