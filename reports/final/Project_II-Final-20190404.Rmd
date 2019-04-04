@@ -71,7 +71,7 @@ neighborhoods <- read_sf(dsn = "~/Documents/Github/data_sci_geo/data/neighbourho
 ```
 
 
-```{r echo=F, fig.pos='H', fig.align='center', out.width=c('50%','50%'),fig.subcap=c('Population by neighborhood in the census year 2016', 'Fatal and Non-Fatal Collisions in 2016'),  fig.cap="\\label{fig:figs}EDA with regards to the City of Toronto", warning=F, message=F}
+```{r echo=F, fig.pos='H', fig.align='center', out.width='75%', fig.cap="\\label{fig:figs}'Population by neighborhood of the City of Toronto in the census year 2016'", warning=F, message=F}
 ###ALTERNATIVE VISUALIZATION
 neighborhoods = rgdal::readOGR(dsn = "~/Documents/Github/data_sci_geo/data/neighbourhoods_planning_areas_wgs84_SEB/", layer = "NEIGHBORHOODS_WGS84",verbose=F)
 accidents <- read.csv("https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/data/accidents.csv",header=T, stringsAsFactors = FALSE)
@@ -123,39 +123,17 @@ scale_y_continuous(limits = c(43.581, 43.85546), expand = c(0, 0)) +
   xlab('') +
   ylab('')
 
-p2 <- p0 + geom_polygon(aes(long,lat,group=group,fill=NA,color="white"),color="plum",fill=NA,data=neighborhoods.df) + geom_point(data=subset(accidents,YEAR==2016), aes(LONGITUDE, LATITUDE, color=factor(ACCLASS))) + scale_color_discrete(name="Injury Type",
-                         breaks=c("Fatal", "Non-Fatal Injury"),
-                         labels=c("Fatal", "Non-Fatal"))
+#p2 <- p0 + geom_polygon(aes(long,lat,group=group,fill=NA,color="white"),color="plum",fill=NA,data=neighborhoods.df) + geom_point(data=subset(accidents,YEAR==2016), aes(LONGITUDE, LATITUDE, color=factor(ACCLASS))) + scale_color_discrete(name="Injury Type",
+#                         breaks=c("Fatal", "Non-Fatal Injury"),
+#                         labels=c("Fatal", "Non-Fatal"))
 
 p1 <- p0 + geom_polygon(data=neighborhoods.df, aes(long,lat,group=group, fill=X2016pop),alpha = 0.8,color="plum") + scale_fill_gradientn(name="Population",colours = heat.colors(255)) 
 
 p1
 
-p2
+#p2
 ```
 
-
-```{r echo=F, eval=F, fig.pos='H', fig.align='center', out.width=c('80%','80%'),fig.subcap=c('Population by neighborhood in the census year 2016', 'Fata collisions 2010-2016'),  fig.cap="\\label{fig:figs}EDA with regards to the City of Toronto"}
-
-# Visualization of fatal vehicular incidents in the City of Toronto 2010-2016
-collisiondat <- read.csv("https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/data/Fatal_Collisions.csv", header=T, stringsAsFactors = FALSE)
-
-coordinates(collisiondat) <- ~LONGITUDE+LATITUDE
-#4326 - WGS84 std
-proj4string(collisiondat) <- "+init=epsg:3034" #"+init=epsg:4326" 
-data_L93 <- spTransform(collisiondat, CRS("+proj=lcc +lat_1=44 +lat_2=49 +lat_0=46.5 +lon_0=3 +x_0=490000 +y_0=4620000 +ellps=GRS80 +units=m +no_defs"))
-#x_0/y_0 = 0.1060606
-
-
-url1 <- "https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/reports/draft/STA2453-Toronto-2016.png"
-download.file(url = url1,
-          destfile = "toronto_incidents.png",
-          mode = 'wb')
-
-knitr::include_graphics(path="Toronto-2016.png")
-
-#spTransform() #Transform polygon or raster into Euclidian object - 3026 is Google std
-```
 
 ### Primary Questions
 
@@ -198,7 +176,7 @@ Since the data is spatial in nature, it was of foremost interest to be able to p
   2. Download the contents of the file [here](https://github.com/sergiosonline/data_sci_geo/tree/master/data/neighbourhoods_planning_areas_wgs84_SEB) and save to a local directory.
   
   3. Update the variable `file_loc` in the `global.R` script as seen below.
-```{r echo=F, fig.pos='H', fig.align='center', out.width='95%'}
+```{r echo=F, fig.pos='H', fig.align='center', out.width='25%'}
 ## Visualizing neighborhoods of Toronto for reference
 url9 <- "https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/reports/final/images/screenshot%20for%20app%20instructions.png"
 download.file(url = url9,
@@ -210,7 +188,7 @@ knitr::include_graphics(path="app-instructions.png")
  
   4. Run the application from within RStudio
 
-```{r echo=F, fig.pos='H', fig.align='center', out.width='95%'}
+```{r echo=F, fig.pos='H', fig.align='center', out.width='45%'}
 ## Visualizing neighborhoods of Toronto for reference
 url10 <- "https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/reports/final/images/screenshot%20of%20general%20app.png"
 download.file(url = url10,
@@ -224,60 +202,31 @@ Using this application for our exploratory analysis allowed us to uncover some i
 
 Firstly, the number of accidents did not appear to increase with year even though the population of Toronto grew by a considerable amount from 2007 to 2017. While it's great news for Torontonians, this could be a result of many factors. It would be favorable to assume that the number of accidents decreased due to the efforts of the City to improve road safety, it is equally likely for it to have been because the Toronto Police were less rigorous with their data keeping, or that people involved in accidents were less likely to report it and get the police involved. In addition, while the total number of accidents have been going down, the number of fatal accidents have remained stable, causing the proportion of fatal accidents to actually increase by year.
 
-```{r echo=F, fig.pos='H', fig.align='center', out.width='95%'}
-## Visualizing neighborhoods of Toronto for reference
-url11 <- "https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/reports/final/images/all%20years_1.png"
-download.file(url = url11,
-          destfile = "all-years1.png",
-          mode = 'wb')
+Any plots with smooth lines used Loess - the default in ggplot to avoid distracting the reader if the data was very noisy.
 
-knitr::include_graphics(path="all-years1.png")
-```  
 
-```{r echo=F, fig.pos='H', fig.align='center', out.width='95%'}
-## Visualizing neighborhoods of Toronto for reference
-url12 <- "https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/reports/final/images/all%20years_2.png"
-download.file(url = url12,
-          destfile = "all-years2.png",
-          mode = 'wb')
-
-knitr::include_graphics(path="all-years2.png")
-```  
-
-```{r echo=F, fig.pos='H', fig.align='center', out.width='95%'}
-## Visualizing neighborhoods of Toronto for reference
-url13 <- "https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/reports/final/images/all%20years_3.png"
-download.file(url = url13,
-          destfile = "all-years3.png",
-          mode = 'wb')
-
-knitr::include_graphics(path="all-years3.png")
-```  
-
-Any plots with smooth lines used loess - the default in ggplot to avoid distracting the reader if the data was very noisy.
-
-```{r echo = F}
+```{r  eval=T, echo=F, fig.pos='H', fig.align='center', out.width=c('40%','40%'), fig.subcap=c('Accidents by Class', 'Total Number of Accidents'), fig.cap="\\label{fig:figs}'Loess-Smoothed plots of Total Accidents and Accidents by Class in the City of Toronto in the years 2007 - 2017'"}
 accidents <- read.csv("https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/data/final/accidents.csv",header=T, stringsAsFactors = FALSE)
 
 p <- accidents %>%
   group_by(accident_key) %>%
   filter(row_number() == 1) %>%
   ungroup() %>%
-  mutate(month_year = as.yearmon(date),
+  mutate(monthyear = as.yearmon(date),
          month = month(date),
          year = year(date),
-         num_days = as.numeric(days_in_month(as.Date(date))))
+         numdays = as.numeric(days_in_month(as.Date(date))))
 
-p %>% group_by(month_year, acc_class) %>%
+p %>% group_by(monthyear, acc_class) %>%
       dplyr::summarize(num = n()) %>%
-  ggplot(., aes(x = month_year, y = num, col = acc_class)) +
+  ggplot(., aes(x = monthyear, y = num, col = acc_class)) +
   geom_point(alpha = 0.8) + 
   stat_smooth(se = F) + ylab("Number of Accidents") + xlab("Date") + 
   labs(color = "Accident Class") + theme_minimal()
 
-p %>% group_by(month_year) %>%
+p %>% group_by(monthyear) %>%
   dplyr::summarize(perc_fat = sum(acc_class == "Fatal")/n()) %>%
-  ggplot(., aes(x = month_year, y = perc_fat)) +
+  ggplot(., aes(x = monthyear, y = perc_fat)) +
   geom_point(alpha = 0.8) + 
   stat_smooth(se = F) + ylab("Number of Accidents") + xlab("Date") + 
   labs(color = "Accident Class") + theme_minimal()
@@ -287,7 +236,7 @@ The accidents also appear to be concentrated in downtown core which is likely du
 
 The types of vehicles that were involved in an accident also displayed differences in the proportion of fatalities recorded. All accidents in the dataset represent those that involved automobiles and therefore, as expected, when pedestrians or cyclists were involved as well, the proportion of fatalities was much higher. Accidents involving bicycles also revealed interesting spatial patterns. 
 
-```{r echo=F, fig.pos='H', fig.align='center', out.width='95%'}
+```{r echo=F, fig.pos='H', fig.align='center', out.width='55%', message=F,fig.cap="\\label{fig:figs}'Pedestrian Deaths in the City of Toronto'"}
 ## Visualizing neighborhoods of Toronto for reference
 url13 <- "https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/reports/final/images/all%20pedestrians.png"
 download.file(url = url13,
@@ -299,11 +248,11 @@ knitr::include_graphics(path="pedestrians.png")
 
 As expected, most of them were concentrated in downtown since there is more infrastructure in place for cyclists in this area of the city and because the shorter distances and traffic levels make it a more popular transportion method. We find, however, that the fatal accidents are more uniformly distributed around the city perhaps making the case that bicycle lanes are effective at preventing lethal accidents for cyclists.
 
-```{r echo=F, fig.pos='H', fig.align='center', out.width='95%'}
+```{r echo=F, fig.pos='H', fig.align='center', out.width='55%', message=F,fig.cap="\\label{fig:figs'}Cyclist Deaths in the City of Toronto'"}
 ## Visualizing neighborhoods of Toronto for reference
 url14 <- "https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/reports/final/images/fatal%20cyclists.png"
 
-download.file(url = url13,
+download.file(url = url14,
           destfile = "cyclists.png",
           mode = 'wb')
 
@@ -312,31 +261,31 @@ knitr::include_graphics(path="cyclists.png")
 
 The road conditions, namely the visibility of the road and whether it had precipitated also affected the probability of an accident occurring. The following is a map of where the accidents occurred for the different road conditions. 
 
-```{r echo = F}
+```{r echo = F, fig.pos='H', fig.align='center', out.width='55%', message=F,fig.cap="\\label{fig:figs}Proportion of Fatal Accidents by Visibility of Road"}
 p %>% mutate(clear = visibility == "Clear") %>%
   group_by(clear, year) %>%
   dplyr::summarize(prop_fat = sum(acc_class == "Fatal")/n()) %>%
   ggplot(., aes(x = year, y = prop_fat, col = clear)) +
   geom_point(alpha = 0.8) + geom_line() + ylab("Proportion of Fatal Accidents") + xlab("Year") + 
-  labs(color = "Clear") + theme_minimal() + ggtitle("Proportion of Fatal Accidents by Visibility of Road")
+  labs(color = "Clear") + theme_minimal() 
 ```
 
 Surprisingly, if it had precipitated the day of the accident, there were periods of time where it was less likely we were to find a fatal accident. This may be because bad weather deters people from going outside and driving. Note that due to data limitations, the type of precipitation was not distinguished.
 
-```{r echo = F}
+```{r  eval=T, echo=F, fig.pos='H', fig.align='center', out.width=c('40%','40%'), fig.subcap=c('Count', 'Proportion'), fig.cap="\\label{fig:figs}Loess-Smoothed plots of Accidents by Precipitation in the City of Toronto in the years 2007 - 2017"}
 p %>%
   mutate(precipitated = if_else(tot_precip_mm > 0, "Precipitated", "Did not precipitate")) %>%
-  group_by(month_year, acc_class, precipitated) %>%
+  group_by(monthyear, acc_class, precipitated) %>%
   dplyr::summarize(num = n()) %>%
-  ggplot(., aes(x = month_year, y = num, col = acc_class)) + 
+  ggplot(., aes(x = monthyear, y = num, col = acc_class)) + 
   geom_point(alpha = 0.8) + geom_line() + ylab("Number of Accidents") + xlab("Date") + 
   labs(color = "Accident Class") + facet_wrap(~precipitated) + theme_minimal()
-  
+
 p %>%
   mutate(precipitated = if_else(tot_precip_mm > 0, "Precipitated", "Did not precipitate")) %>%
-  group_by(month_year, precipitated) %>%
+  group_by(monthyear, precipitated) %>%
   dplyr::summarize(prop_fat = sum(acc_class == "Fatal")/n()) %>%
-  ggplot(., aes(x = month_year, y = prop_fat, col = precipitated)) + 
+  ggplot(., aes(x = monthyear, y = prop_fat, col = precipitated)) + 
   geom_point(alpha = 0.8) + geom_smooth(se = F) + ylab("Proportion of Fatal Accidents") + xlab("Date") + 
   labs(color = "Accident Class") + theme_minimal()
 ```
@@ -388,7 +337,7 @@ accidents %>%
   kable_styling(bootstrap_options = c("striped"))
 ```
 
-### Modeling
+# Modeling
 
 We model our outcome of interest (fatal collision) using a generalized mixed effects model (to be expanded to spatial in the following iteration), clustered by neighborhood. We estimate the odds of experiencing a fatal accident with respect to experiencing a non-fatal one, accross neighborhoods in Toronto, controlling for each day's total precipitation and minimum temperature. We will continue exploring model complexity and structure for the next iteration.
 
@@ -412,7 +361,7 @@ freqmod1 <- glmer(as.factor(ACCLASS) ~ Days_since_start2 + Tot_precip + Min_temp
                   control=glmerControl(optimizer= "Nelder_Mead"))
 ```
 
-#### Bayesian Mixed-Effects Semi-parametric Logit Model
+### Bayesian Mixed-Effects Semi-parametric Logit Model
 Mixed effects logistic regression is used to model binary outcome variables, in which the log odds of the outcomes are modeled as a linear combination of the predictor variables when data are clustered or there are both fixed and random effects. A mixed effect model is used to describe the binomial probability of an auto accident resulting to fatality. Each neighbourhood has its own random intercept and we account for the progression of time through a semi-parametric term.
 \begin{equation}
 Y_{ijt} \sim \text{bernoulli}(\pi_{ijt})
@@ -518,7 +467,7 @@ fitS$priorPost$legend$x = "topleft"
 #do.call(legend, fitS$priorPost$legend)
 
 ```
-#### Semi-Parametric Poisson Regression (GAM) Model
+### Semi-Parametric Poisson Regression (GAM) Model
 A semi-parametric temporal model is used to fit the total accident counts with months as factors, number of days from 2007 as non-parametric term and neighbourhoods as random effects. The population of the City of Toronto is estimated with a linear growth function extrapolating the yearly growth rate in population from 2006 (est. 2'503,281) to 2016 (est. 2'731,571). This model includes an offset term corresponding to the logarithm of population.
 
 \begin{equation}
@@ -548,16 +497,13 @@ accidents4$hood_id = as.factor(accidents4$hood_num)
 accidents_time <- accidents4 %>% group_by(hood_id, year,month) %>% dplyr::summarize(value_perd=n())
 accidents_time_weather <- accidents4 %>% group_by(hood_id, year,month) %>% summarise(avg_snow = mean(ground_snow_cm), avg_rain = mean(tot_precip_mm))
 
-
 accidents_ts <-  merge(accidents_time, accidents_time_weather, by=c("hood_id","year", "month"), all.x=TRUE)
 accidents_ts$date = paste(accidents_ts$year, accidents_ts$month,'01', sep = "-")
 
-accidents_ts$month_f = as.factor(accidents_ts$month)
+accidents_ts$monthf = as.factor(accidents_ts$month)
 
 timeOrigin = ISOdate(2007,1,1,0,0,0, tz='UTC')
 accidents_ts$day_num = as.numeric(difftime(accidents_ts$date, timeOrigin, units='days'))
-
-
 #offset pop
   # pop = accidents4 %>% 
   #   select(hood_id, year, Population) %>% 
@@ -597,16 +543,16 @@ accidents_ts$day_num = as.numeric(difftime(accidents_ts$date, timeOrigin, units=
 accidents_ts2 = accidents_ts
 accidents_ts2$value = accidents_ts2$value_perd
 #######
-accidents_ts2$month_f = relevel(as.factor(accidents_ts2$month_f), ref="01")
+accidents_ts2$monthf = relevel(as.factor(accidents_ts2$monthf), ref="01")
 
-accident_ts_gam = gam(value ~ month_f + offset(log_pop) + s(day_num) + s(hood_id,bs="re"), data=accidents_ts2, family='poisson')
+accident_ts_gam = gam(value ~ monthf + offset(log_pop) + s(day_num) + s(hood_id,bs="re"), data=accidents_ts2, family='poisson')
 # accident_ts_gam = gam(value ~ month_f + s(day_num,bs="re", by = hood_id), data=accidents_ts2, family='poisson')
  
 # rownames(accident_ts_gam) = c("Intercept", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
 ```
 
 
-#### LGPC Model
+### LGPC Model
 A spatial model Log Gaussian Cox Process LGCP is used to fit the accident counts in 2017 with intercept only.
 
 \begin{equation}
@@ -681,19 +627,23 @@ accidents_fit = lgcp(formula = ~ 1, data = accidents2, grid = 55, shape = 1, buf
 
 # Results
 
-#### Semi-Parametric Poisson Regression (GAM) Model
+### Semi-Parametric Poisson Regression (GAM) Model
 
-```{r echo=F}
+```{r echo = F, message=F}
 # summary(accident_ts_gam)
-knitr::kable(summary(accident_ts_gam)$p.table[,1:2],digits=3)
+knitr::kable(summary(accident_ts_gam)$p.table[,1:2],digits=3, escape=F, format="latex", booktab=T,linesep = "")  %>% 
+  kable_styling(latex_options = "hold_position") 
 
+```
+
+```{r echo = F,fig.pos='H', fig.align='center', out.width='65%', message=F}
 # check 1 hood
 # hood_id=77
 plot_predict_hoodid = function(hood_id){
   i = hood_id
   newX = data.frame(date = seq(from = timeOrigin, by = "months", length.out = 12 * 13))
   newX$day_num = as.numeric(difftime(newX$date, timeOrigin, units = "days"))
-  newX$month_f = as.factor(substr(as.character(newX$date),6,7))
+  newX$monthf = as.factor(substr(as.character(newX$date),6,7))
   newX$year = substr(as.character(newX$date),1,4)
   newX$hood_id = i
   newX_all = newX
@@ -738,12 +688,11 @@ matlines(pred_hood$date, pred_hood[, c("lowerexp", "upperexp", "fitexp")], lty =
 # 
 # matplot( accident_ts_gam_pred_rr, log = "y", xaxt = "n", xlab = "Months", type = "l", lty = c(1, 2, 2), col = "black", ylab = "Rate Ratio")
 # axis(1, at = 1:11, labels = c("Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"))
-
 ```
 
 From the table above we may notice summer has higher amount of accidents in general. It may because there are more drivers and more racing cars in the summer. Also drivers are more cautious when driving in snow days. A rate ratio plot below show this same pattern.
 
-```{r echo=F}
+```{r echo = F,fig.pos='H', fig.align='center', out.width='65%', message=F}
 #plot rr by month
 accident_ts_gam_pred_rr = exp(summary(accident_ts_gam)$p.table[2:12,1:2] %*% Pmisc::ciMat())
 
@@ -753,12 +702,12 @@ axis(1, at = 1:11, labels = c("Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "
 
 Below are plot of number of accidents happend in Toronto and the predictions of accidents in neighbour 5 and 122 from GAM. In gereral they capture a trend that the number of accidents are descreasing over years.
 
-```{r echo=F}
+```{r echo = F,fig.pos='H', fig.align='center', out.width='65%', message=F}
 accidents_ts_y = accidents4 %>% group_by( year,month) %>% dplyr::summarize(value_perd=n())
 accidents_ts_y$date = paste(accidents_ts_y$year, accidents_ts_y$month,'01', sep = "-")
 
 
-accidents_ts_y$month_f = as.factor(accidents_ts_y$month)
+accidents_ts_y$monthf = as.factor(accidents_ts_y$month)
 
 timeOrigin = ISOdate(2007,1,1,0,0,0, tz='UTC')
 accidents_ts_y$day_num = as.numeric(difftime(accidents_ts_y$date, timeOrigin, units='days'))
@@ -766,21 +715,16 @@ accidents_ts_y$day_num = as.numeric(difftime(accidents_ts_y$date, timeOrigin, un
 newX_all = data.frame(date = seq(from = timeOrigin, by = "months", length.out = 12 * 11))
 
 plot(newX_all$date, accidents_ts_y$value_perd,xlab = "Year", ylab = "number of accident in Toronto")
-
-
 ```
 
-```{r echo=F}
+```{r echo = F, fig.pos='H', fig.align='center', out.width=c('50%','50%'), message=F}
 plot_predict_hoodid(5)
 
-```
-
-```{r echo=F}
 plot_predict_hoodid(122)
-
 ```
 
-#### Bayesian Mixed-Effects Semi-parametric Logit Model
+
+### Bayesian Mixed-Effects Semi-parametric Logit Model
 
 Below are the resulting estimates of this model:
 
@@ -839,6 +783,41 @@ knitr::include_graphics(path="toronto-hoods.png")
 ```
 
 Refer to the **[City of Toronto](https://www.toronto.ca/city-government/data-research-maps/neighbourhoods-communities/neighbourhood-profiles/)** for the neighborhood names matching the indeces above.
+
+\pagebreak
+
+\newpage
+
+#Appendix: Visualizations of Collision Locations through the Years
+
+```{r echo=F, fig.pos='H', fig.align='center', out.width='65%'}
+## Visualizing neighborhoods of Toronto for reference
+url11 <- "https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/reports/final/images/all%20years_1.png"
+download.file(url = url11,
+          destfile = "all-years1.png",
+          mode = 'wb')
+
+knitr::include_graphics(path="all-years1.png")
+```  
+```{r echo=F, fig.pos='H', fig.align='center', out.width='65%'}
+## Visualizing neighborhoods of Toronto for reference
+url12 <- "https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/reports/final/images/all%20years_2.png"
+download.file(url = url12,
+          destfile = "all-years2.png",
+          mode = 'wb')
+
+knitr::include_graphics(path="all-years2.png")
+```  
+
+```{r echo=F, fig.pos='H', fig.align='center', out.width='65%'}
+## Visualizing neighborhoods of Toronto for reference
+url13 <- "https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/reports/final/images/all%20years_3.png"
+download.file(url = url13,
+          destfile = "all-years3.png",
+          mode = 'wb')
+
+knitr::include_graphics(path="all-years3.png")
+```  
 
 \pagebreak
 
