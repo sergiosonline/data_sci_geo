@@ -161,7 +161,7 @@ knitr::include_graphics(path="Toronto-2016.png")
 
 The analysis focuses on answering two main questions:
 
-1. Given a collision occurred which areas in Toronto are the most deadly controlling for other factors?
+1. Given a collision occurred which areas in Toronto are the most deadly, controlling for other factors?
 2. Which factors are related to the collision safety of neighbourhoods?
 
 ### Data Collection
@@ -359,20 +359,20 @@ Mixed effects logistic regression is used to model binary outcome variables, in 
 Y_{ijt} \sim \text{bernoulli}(\pi_{ijt})
 \end{equation}
 \begin{equation}
-\text{logit}(\pi_{ijt}) = X_{ijt}\beta + U_i + f(W_{ijt})
+\text{logit}(\pi_{ijt}) = X_{ijt}\beta + U_i + f(W_{t})
 \end{equation}
 \begin{equation}
-U_i \sim N(0, \sigma^2_U)
+U_i \sim N(0, \sigma^2_U)\;\;\;\text{ (Residual Time Component)}
 \end{equation}
 \begin{equation}
-W_{ij(t+1)} - W_{ij(t)} \sim N(0, \sigma^2_W)\;\;\;\text{ (RW1)}
+W_{t+1} - W_{t} \sim N(0, \sigma^2_W)\;\;\;\text{ (RW1 - Time Trend Component)}
 \end{equation}
 
-The fixed effects of this model contains are *visibility*, *types of road*, *traffic control* and *Precipitation*. Those covariantes used in the model are unrelated to the personel involved in the accidents, so factors such as condition of the drivers are not included.
+The fixed effects of this model contains are *visibility*, *types of road*, *traffic control* and *Precipitation*. Those covariates used in the model are unrelated to the personel involved in the accidents, so factors such as condition of the drivers are not included.
 
-- The covariante  *visibility* was binarized to either “Clear” or “Not Clear”, “Clear” was used as reference. 
-- For covariante *types of road*, "Major Arterial", "Major Arterial Ramp" and "Minor Arterial" were grouped into “Arterial”; "Expressway", "Expressway Ramp" were grouped into “expressway”; "Local", "Laneway" were grouped into “Local”, where “Local” was used as reference. 
-- For covariante *traffic control*, "School Guard", "Police Control", "Traffic Controller" were grouped into "Human Control", and since there is not fatal accident in “Human Control”, all records under “Human Control” were removed to avoid spiked estimate."Stop Sign", "Yield Sign", "Traffic Gate" were grouped into "Traffic Sign” and "Pedestrian Crossover", "Streetcar (Stop for)" were grouped into "Pedestrian Crossing". “No Traffic Control” was used as reference.
+- The covariate  *visibility* was binarized to either “Clear” or “Not Clear”, “Clear” was used as reference. 
+- For covariate *types of road*, "Major Arterial", "Major Arterial Ramp" and "Minor Arterial" were grouped into “Arterial”; "Expressway", "Expressway Ramp" were grouped into “expressway”; "Local", "Laneway" were grouped into “Local”, where “Local” was used as reference. 
+- For covariate *traffic control*, "School Guard", "Police Control", "Traffic Controller" were grouped into "Human Control", and since there is not fatal accident in “Human Control”, all records under “Human Control” were removed to avoid spiked estimate."Stop Sign", "Yield Sign", "Traffic Gate" were grouped into "Traffic Sign” and "Pedestrian Crossover", "Streetcar (Stop for)" were grouped into "Pedestrian Crossing". “No Traffic Control” was used as reference.
 
 
 
@@ -444,26 +444,6 @@ resTable1 <- exp(fitS$summary.fixed[, c("mean", "0.025quant",
 resTable2 <- Pmisc::priorPostSd(fitS)$summary[,
 c("mean", "0.025quant", "0.975quant")]
 restable <- rbind(resTable1,resTable2)
-
-knitr::kable(restable, digits=3, escape=F, format="latex", booktab=T,linesep = "", caption="Posterior mean and 2.5 and 97.5 percentiles for the odds ratio of deadly accident by model coefficients") %>% 
-  kable_styling(latex_options = "hold_position") 
-```
-
-Below are the observations from table of estimates:
-
-- The odds of having fatality are higher when driving on highway.
-- Having traffic signage and traffic light leads to a lower odds, compared to no control.
-- Accidents without pedestrian (vehicle to vehicle) involved has lower odds of having fatality
-- The odds of fatality are slightly lower when there is more precipitation. -2% odds of fatality with 1mm of precipitation increasing. It may be due to drivers slow down their speed when they have difficulty seeing clear ahead or knowing road is slippery.
-
-This time trend graph shows the odds of fatality rising until mid-2016 and then decreasing. This is consistent with press reports deeming 2015-2017 as bad years for Toronto in terms of fatality. The decrease post-2017 could be attributed to the Vision Zero municipal plan to address road fatalities.
-```{r echo=F,fig.pos='H', fig.align='center',fig.cap="\\label{fig:figs}Plot of time trend effect of Odds of Fatality for the City of Toronto"}
-# plotting
-matplot(
-as.numeric(fitS$summary.random$weeknum$ID),
-exp(fitS$summary.random$weeknum[,
-c('0.025quant','0.975quant', '0.5quant')]), xlab='2007 - 2017', lty=1, col=c('grey','grey','black'), type='l', xaxt="n", ylab='Odds of Fatal vs Non-Fatal Accident')
-axis(1, at=seq(0,600,52), labels=c("2007","2008","2009","2010","2011","2012","2013","2014","2015","2016","2017","2018"), pch=21)
 ```
 
 
@@ -479,9 +459,8 @@ fitS$priorPost$legend$x = "topleft"
 #do.call(legend, fitS$priorPost$legend)
 
 ```
-#### GAM model
-A semi-parametric temporal model is used to fit the total accident counts with months as factors, number of days from 2007 as non-parametric term and neighbourhoods as random effects. Toronto population is estimated by using linear function. (linear function is estimated by using population at 2,503,281 in 2006 and at 2,731,571 in 2016.) Offset term is log of population.
-
+#### Semi-Parametric Poisson Regression (GAM) Model
+A semi-parametric temporal model is used to fit the total accident counts with months as factors, number of days from 2007 as non-parametric term and neighbourhoods as random effects. The population of the City of Toronto is estimated with a linear growth function extrapolating the yearly growth rate in population from 2006 (est. 2'503,281) to 2016 (est. 2'731,571). This model includes an offset term corresponding to the logarithm of population.
 
 \begin{equation}
 Y_{i} \sim Poisson(O_{i}\lambda_{i})
@@ -489,7 +468,6 @@ Y_{i} \sim Poisson(O_{i}\lambda_{i})
 \begin{equation}
 log(\lambda_{i}) = X_{i}\beta + f(day) + f(\mu_{i})
 \end{equation}
-
 
 
 ```{r echo=F}
@@ -738,7 +716,32 @@ accidents_fit = lgcp(formula = ~ 1, data = accidents2, grid = 55, shape = 1, buf
 
 # Results
 
-Our model indicates that a one milimeter increment of total precipitation for any neighborhood in the timeframe in question leads to an increment of 1.2% in the odds of suffering a fatal accident.
+
+#### Bayesian Mixed-Effects Semi-parametric Logit Model
+
+Below are the resulting estimates of this model:
+
+```{r echo=F}
+knitr::kable(restable, digits=3, escape=F, format="latex", booktab=T,linesep = "", caption="Posterior mean and 2.5 and 97.5 percentiles for the odds ratio of deadly accident by model coefficients") %>% 
+  kable_styling(latex_options = "hold_position") 
+```
+
+- The odds of having fatality are higher when driving on highway.
+- Having traffic signage and traffic light leads to a lower odds, compared to no control.
+- Accidents without pedestrian (vehicle to vehicle) involved has lower odds of having fatality
+- The odds of fatality are slightly lower when there is more precipitation. -2% odds of fatality with 1mm of precipitation increasing. It may be due to drivers slow down their speed when they have difficulty seeing clear ahead or knowing road is slippery.
+
+This time trend graph shows the odds of fatality rising until mid-2016 and then decreasing. This is consistent with press reports deeming 2015-2017 as bad years for Toronto in terms of fatality. The decrease post-2017 could be attributed to the Vision Zero municipal plan to address road fatalities.
+```{r echo=F,fig.pos='H', fig.align='center',fig.cap="\\label{fig:figs}Plot of time trend effect of Odds of Fatality for the City of Toronto"}
+# plotting
+matplot(
+as.numeric(fitS$summary.random$weeknum$ID),
+exp(fitS$summary.random$weeknum[,
+c('0.025quant','0.975quant', '0.5quant')]), xlab='2007 - 2017', lty=1, col=c('grey','grey','black'), type='l', xaxt="n", ylab='Odds of Fatal vs Non-Fatal Accident')
+axis(1, at=seq(0,600,52), labels=c("2007","2008","2009","2010","2011","2012","2013","2014","2015","2016","2017","2018"), pch=21)
+```
+
+
 
 
 # Conclusions and Discussion
