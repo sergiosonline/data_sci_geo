@@ -4,7 +4,10 @@ subtitle: "STA2453 - Project II Final Report"
 author: "Sunwoo (Angela) Kang, Sergio E. Betancourt, Jing Li, and Jiahui (Eddy) Du"
 date: '2019-03-04'
 output:
-  pdf_document: default
+  pdf_document:
+    toc: true
+    toc_depth: 2
+    number_sections: true
 header-includes:
 - \usepackage{titling}
 - \usepackage{setspace}\singlespacing
@@ -27,6 +30,13 @@ library(htmltools);library(zoo);library(lubridate);library(plotly);
 knitr::opts_chunk$set(fig.pos = 'H');
 options(tinytex.verbose = TRUE)
 ```
+
+\pagebreak
+
+\newpage
+
+
+
 
 # Introduction
 
@@ -148,7 +158,7 @@ For our analysis we employed data from the [Toronto Police Service](http://data.
 
 ### Data Preparation
 
-The following table provides an overview of the merged data.
+The following table provides an overview of the merged data:
 
 ```{r echo = F}
 data.frame(`Accident Key` = c(5002235651, 5000995174, 5000995174, 1249781),
@@ -176,7 +186,7 @@ Since the data is spatial in nature, it was of foremost interest to be able to p
   2. Download the contents of the file [here](https://github.com/sergiosonline/data_sci_geo/tree/master/data/neighbourhoods_planning_areas_wgs84_SEB) and save to a local directory.
   
   3. Update the variable `file_loc` in the `global.R` script as seen below.
-```{r echo=F, fig.pos='H', fig.align='center', out.width='25%'}
+```{r echo=F, fig.pos='H', fig.align='center', out.width='45%'}
 ## Visualizing neighborhoods of Toronto for reference
 url9 <- "https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/reports/final/images/screenshot%20for%20app%20instructions.png"
 download.file(url = url9,
@@ -204,8 +214,7 @@ Firstly, the number of accidents did not appear to increase with year even thoug
 
 Any plots with smooth lines used Loess - the default in ggplot to avoid distracting the reader if the data was very noisy.
 
-
-```{r  eval=T, echo=F, fig.pos='H', fig.align='center', out.width=c('40%','40%'), fig.subcap=c('Accidents by Class', 'Total Number of Accidents'), fig.cap="\\label{fig:figs}'Loess-Smoothed plots of Total Accidents and Accidents by Class in the City of Toronto in the years 2007 - 2017'"}
+```{r  eval=T, echo=F, fig.pos='H', fig.align='center', out.width=c('40%','40%'), fig.subcap=c('Accidents by Class', 'Total Number of Accidents'), fig.cap="\\label{fig:figs}Loess-Smoothed plots of Total Accidents and Accidents by Class in the City of Toronto in the years 2007 - 2017", message=F, warning=F}
 accidents <- read.csv("https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/data/final/accidents.csv",header=T, stringsAsFactors = FALSE)
 
 p <- accidents %>%
@@ -236,28 +245,24 @@ The accidents also appear to be concentrated in downtown core which is likely du
 
 The types of vehicles that were involved in an accident also displayed differences in the proportion of fatalities recorded. All accidents in the dataset represent those that involved automobiles and therefore, as expected, when pedestrians or cyclists were involved as well, the proportion of fatalities was much higher. Accidents involving bicycles also revealed interesting spatial patterns. 
 
-```{r echo=F, fig.pos='H', fig.align='center', out.width='55%', message=F,fig.cap="\\label{fig:figs}'Pedestrian Deaths in the City of Toronto'"}
+```{r echo=F, fig.pos='H', fig.align='center', out.width=c('45%','45%'),fig.subcap=c('Pedestrians', 'Cyclists'), message=F,fig.cap="\\label{fig:figs}Pedestrian and Cyclist Deaths in the City of Toronto"}
 ## Visualizing neighborhoods of Toronto for reference
 url13 <- "https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/reports/final/images/all%20pedestrians.png"
 download.file(url = url13,
           destfile = "pedestrians.png",
           mode = 'wb')
 
-knitr::include_graphics(path="pedestrians.png")
-```  
-
-As expected, most of them were concentrated in downtown since there is more infrastructure in place for cyclists in this area of the city and because the shorter distances and traffic levels make it a more popular transportion method. We find, however, that the fatal accidents are more uniformly distributed around the city perhaps making the case that bicycle lanes are effective at preventing lethal accidents for cyclists.
-
-```{r echo=F, fig.pos='H', fig.align='center', out.width='55%', message=F,fig.cap="\\label{fig:figs'}Cyclist Deaths in the City of Toronto'"}
-## Visualizing neighborhoods of Toronto for reference
 url14 <- "https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/reports/final/images/fatal%20cyclists.png"
 
 download.file(url = url14,
           destfile = "cyclists.png",
           mode = 'wb')
 
-knitr::include_graphics(path="cyclists.png")
+knitr::include_graphics(path=c("pedestrians.png","cyclists.png"))
 ```  
+
+As expected, most of them were concentrated in downtown since there is more infrastructure in place for cyclists in this area of the city and because the shorter distances and traffic levels make it a more popular transportion method. We find, however, that the fatal accidents are more uniformly distributed around the city perhaps making the case that bicycle lanes are effective at preventing lethal accidents for cyclists.
+
 
 The road conditions, namely the visibility of the road and whether it had precipitated also affected the probability of an accident occurring. The following is a map of where the accidents occurred for the different road conditions. 
 
@@ -272,7 +277,7 @@ p %>% mutate(clear = visibility == "Clear") %>%
 
 Surprisingly, if it had precipitated the day of the accident, there were periods of time where it was less likely we were to find a fatal accident. This may be because bad weather deters people from going outside and driving. Note that due to data limitations, the type of precipitation was not distinguished.
 
-```{r  eval=T, echo=F, fig.pos='H', fig.align='center', out.width=c('40%','40%'), fig.subcap=c('Count', 'Proportion'), fig.cap="\\label{fig:figs}Loess-Smoothed plots of Accidents by Precipitation in the City of Toronto in the years 2007 - 2017"}
+```{r  eval=T, echo=F, fig.pos='H', fig.align='center', out.width=c('40%','40%'), fig.subcap=c('Count', 'Proportion'), fig.cap="\\label{fig:figs}Loess-Smoothed plots of Accidents by Precipitation in the City of Toronto in the years 2007 - 2017", warning=F, message=F}
 p %>%
   mutate(precipitated = if_else(tot_precip_mm > 0, "Precipitated", "Did not precipitate")) %>%
   group_by(monthyear, acc_class, precipitated) %>%
@@ -337,9 +342,19 @@ accidents %>%
   kable_styling(bootstrap_options = c("striped"))
 ```
 
+\pagebreak
+
+\newpage
+
 # Modeling
 
-We model our outcome of interest (fatal collision) using a generalized mixed effects model (to be expanded to spatial in the following iteration), clustered by neighborhood. We estimate the odds of experiencing a fatal accident with respect to experiencing a non-fatal one, accross neighborhoods in Toronto, controlling for each day's total precipitation and minimum temperature. We will continue exploring model complexity and structure for the next iteration.
+We fit and assess 3 models in our project:
+
+- **Meaningful temporal and fixed effects in accident fatality:** Bayesian Mixed-Effects Semi-parametric Logit Model
+
+- **Seasonality and Prediction:** Semi-Parametric Poisson Regression Model
+
+- **Spatial Intensity:** Log-Gaussian Cox Process Model (Work in Progress)
 
 ```{r echo=F}
 # Loading final monthly incident data, by neighborhood
@@ -362,7 +377,7 @@ freqmod1 <- glmer(as.factor(ACCLASS) ~ Days_since_start2 + Tot_precip + Min_temp
 ```
 
 ### Bayesian Mixed-Effects Semi-parametric Logit Model
-Mixed effects logistic regression is used to model binary outcome variables, in which the log odds of the outcomes are modeled as a linear combination of the predictor variables when data are clustered or there are both fixed and random effects. A mixed effect model is used to describe the binomial probability of an auto accident resulting to fatality. Each neighbourhood has its own random intercept and we account for the progression of time through a semi-parametric term.
+Mixed effects logistic regression is used to model binary outcome variables, in which the odds of the outcomes are modeled as a linear combination of the predictor variables when data are clustered (random effects). This mixed effect model is used to describe the binomial probability of an auto accident resulting to fatality, taking into account not just unobserved differences between neighborhoods, but also the evolution of these odds through time with the inclusion of semi-parametric terms.
 \begin{equation}
 Y_{ijt} \sim \text{bernoulli}(\pi_{ijt})
 \end{equation}
@@ -378,10 +393,9 @@ W_{t+1} - W_{t} \sim N(0, \sigma^2_W)\;\;\;\text{ (RW1 - Time Trend Component)}
 
 The fixed effects of this model contains are *visibility*, *types of road*, *traffic control* and *Precipitation*. Those covariates used in the model are unrelated to the personel involved in the accidents, so factors such as condition of the drivers are not included.
 
-- The covariate  *visibility* was binarized to either “Clear” or “Not Clear”, “Clear” was used as reference. 
-- For covariate *types of road*, "Major Arterial", "Major Arterial Ramp" and "Minor Arterial" were grouped into “Arterial”; "Expressway", "Expressway Ramp" were grouped into “expressway”; "Local", "Laneway" were grouped into “Local”, where “Local” was used as reference. 
-- For covariate *traffic control*, "School Guard", "Police Control", "Traffic Controller" were grouped into "Human Control", and since there is not fatal accident in “Human Control”, all records under “Human Control” were removed to avoid spiked estimate."Stop Sign", "Yield Sign", "Traffic Gate" were grouped into "Traffic Sign” and "Pedestrian Crossover", "Streetcar (Stop for)" were grouped into "Pedestrian Crossing". “No Traffic Control” was used as reference.
-
+- The covariate  **visibility** was binarized to either “Clear” or “Not Clear”, “Clear” was used as reference. 
+- For covariate **types of road**, "Major Arterial", "Major Arterial Ramp" and "Minor Arterial" were grouped into “Arterial”; "Expressway", "Expressway Ramp" were grouped into “expressway”; "Local", "Laneway" were grouped into “Local”, where “Local” was used as reference. 
+- For covariate **traffic control**, "School Guard", "Police Control", "Traffic Controller" were grouped into "Human Control", and since there is not fatal accident in “Human Control”, all records under “Human Control” were removed to avoid spiked estimate."Stop Sign", "Yield Sign", "Traffic Gate" were grouped into "Traffic Sign” and "Pedestrian Crossover", "Streetcar (Stop for)" were grouped into "Pedestrian Crossing". “No Traffic Control” was used as reference.
 
 
 ```{r echo=F}
@@ -455,8 +469,7 @@ restable <- rbind(resTable1,resTable2)
 ```
 
 
-
-```{r  eval=T, echo=F, fig.pos='H', fig.align='center', out.width=c('30%','30%','30%'), fig.subcap=c('SD of time trend', 'SD of time component','SD of neighborhood effect'), fig.cap="\\label{fig:figs}Plot of posteriors for distributions on random intercept (neighborhood) and random time components"}
+```{r  eval=T, echo=F, fig.pos='H', fig.align='center', out.width=c('30%','30%','30%'), fig.subcap=c('SD of time trend', 'SD of residual time variation','SD of neighborhood random effect'), fig.cap="\\label{fig:figs}Plot of posterior distributions on random intercept (neighborhood) and random time components, all showing meaningfulness"}
 par(mar = c(4,4,4,2) + 0.1);
 #par(mgp=c(2,1,0));
 
@@ -468,7 +481,7 @@ fitS$priorPost$legend$x = "topleft"
 
 ```
 ### Semi-Parametric Poisson Regression (GAM) Model
-A semi-parametric temporal model is used to fit the total accident counts with months as factors, number of days from 2007 as non-parametric term and neighbourhoods as random effects. The population of the City of Toronto is estimated with a linear growth function extrapolating the yearly growth rate in population from 2006 (est. 2'503,281) to 2016 (est. 2'731,571). This model includes an offset term corresponding to the logarithm of population.
+A semi-parametric Poisson temporal model is used to fit the total accident counts with months as factors, number of days from 2007 to 2017 as a non-parametric time term and neighbourhoods as random effects. The population of the City of Toronto is estimated with a linear growth function extrapolating the yearly growth rate in population from 2006 (est. 2'503,281) to 2016 (est. 2'731,571). This model includes an offset term corresponding to the logarithm of population, to account for observed growth in population.
 
 \begin{equation}
 Y_{i} \sim Poisson(O_{i}\lambda_{i})
@@ -552,8 +565,8 @@ accident_ts_gam = gam(value ~ monthf + offset(log_pop) + s(day_num) + s(hood_id,
 ```
 
 
-### LGPC Model
-A spatial model Log Gaussian Cox Process LGCP is used to fit the accident counts in 2017 with intercept only.
+### Log Gaussian-Cox Process Model
+A spatial model Log Gaussian-Cox Process (LGCP) is used to fit the accident counts in 2017 with intercept only.
 
 \begin{equation}
 Y_{ij} \sim Poisson(O_{i}\lambda(s_{i}))
@@ -565,65 +578,7 @@ Y_{ij} \sim Poisson(O_{i}\lambda(s_{i}))
 cov[U(s + h), U(s)] = \sigma^2\rho(h/\phi;v)
 \end{equation}
 
-The plot below shows where the accidents happened in 2017 in Toronto. Accidents are concentrated in downtown areas and also along the Yonge street.
 
-```{r echo=F, eval=F}
-# neighborhoods = rgdal::readOGR(dsn = "C:/Users/ThinkPad/Desktop/Eddy/DS", layer = "NEIGHBORHOODS_WGS84")
-# neighborhoods = rgdal::readOGR("C:/Users/ThinkPad/Desktop/Eddy/DS/NEIGHBORHOODS_WGS84.shp",layer="NEIGHBORHOODS_WGS84")
-
-# zoning = rgdal::readOGR("C:/Users/EDDY/Documents/UNIVERSITY/STA2453/Proj2/zoning/ZONING_ZONE_CATAGORIES_WGS84.shp",layer="ZONING_ZONE_CATAGORIES_WGS84")
-# traffic_signals <- read.csv(file="C:/Users/EDDY/Documents/UNIVERSITY/STA2453/Proj2/traffic_signals.csv", header=TRUE,sep=',')
- 
-accidents <- read.csv(file="https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/data/final/accidents.csv", header=TRUE)
-
-
-accidents$YEAR = substr(as.character(accidents$date),1,4)
-accidents$longitude = accidents$long
-accidents$latitude = accidents$lat
-
-
-#add new features
-#day/night; logdensity
-# accidents$day_night = as.factor(ifelse(accidents$Hour >21 | accidents$Hour <6, "Night", "Day")) #day time is 1
-# accidents$logdensity = log(accidents$density) #day time is 1
-
-#subset to 2017 for now
-accidents = subset(accidents, accidents$YEAR==2017)
-#####
-
-accidents_lonlat = as.matrix(cbind(accidents$longitude, accidents$latitude),nrow=nrow(accidents))
-
-accidents_spatial = SpatialPointsDataFrame(coords= accidents_lonlat, data = accidents, coords.nrs = numeric(0), CRS("+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0"),  bbox = NULL)
-
-# spRbind(accidents_spatial, zoning)
-
-accidents2 = spTransform(accidents_spatial, mapmisc::omerc(accidents_spatial, angle=-17))
-theMap = mapmisc::openmap(accidents2, maxTiles=4, fact=3)
-mapmisc::map.new(accidents2)
-plot(theMap, add=TRUE, maxpixels=10^7)
-plot(accidents2, col=mapmisc::col2html("black", 0.4), cex=0.6, add=TRUE)
-```
-
-The plot below is the expected value of the count (lambda). We could see that many accidents are expected in downtown area and along the Yonge street. More traffic control may be required. We could try human control since it is the safest type of control among all. 
-
-```{r echo=F, eval=F}
-#testing
-
-canada <- getData(name="GADM", country="CAN", level=2)
-trt_border = subset(canada, NAME_2=="Toronto")
-accidents_spatial_border = spTransform(trt_border, projection(accidents2))
-# plot(accidents_spatial)
-
-accidents_fit = lgcp(formula = ~ 1, data = accidents2, grid = 55, shape = 1, buffer = 2000, 
-                     prior = list(range = 6000, sd =0.5), border=accidents_spatial_border, 
-                                  control.inla = list(strategy='gaussian'), verbose=FALSE)
-
- mapmisc::map.new(accidents_spatial_border)
- plot(accidents_fit$raster[['predict.exp']]*10^6, add=TRUE)
- plot(accidents_spatial_border, add=TRUE)
-```
- 
- 
 
 # Results
 
@@ -723,7 +678,6 @@ plot_predict_hoodid(5)
 plot_predict_hoodid(122)
 ```
 
-
 ### Bayesian Mixed-Effects Semi-parametric Logit Model
 
 Below are the resulting estimates of this model:
@@ -739,7 +693,7 @@ knitr::kable(restable, digits=3, escape=F, format="latex", booktab=T,linesep = "
 - The odds of fatality are slightly lower when there is more precipitation. -2% odds of fatality with 1mm of precipitation increasing. It may be due to drivers slow down their speed when they have difficulty seeing clear ahead or knowing road is slippery.
 
 This time trend graph shows the odds of fatality rising until mid-2016 and then decreasing. This is consistent with press reports deeming 2015-2017 as bad years for Toronto in terms of fatality. The decrease post-2017 could be attributed to the Vision Zero municipal plan to address road fatalities.
-```{r echo=F,fig.pos='H', fig.align='center',fig.cap="\\label{fig:figs}Plot of time trend effect of Odds of Fatality for the City of Toronto"}
+```{r echo=F,fig.pos='H', fig.align='center',fig.cap="\\label{fig:figs}Plot of time trend effect of Odds of Fatality for the City of Toronto",out.width='65%'}
 # plotting
 matplot(
 as.numeric(fitS$summary.random$weeknum$ID),
@@ -748,7 +702,69 @@ c('0.025quant','0.975quant', '0.5quant')]), xlab='2007 - 2017', lty=1, col=c('gr
 axis(1, at=seq(0,600,52), labels=c("2007","2008","2009","2010","2011","2012","2013","2014","2015","2016","2017","2018"), pch=21)
 ```
 
+### Log Gaussian-Cox Process Model
 
+The plot below shows where the accidents happened in 2017 in Toronto. Accidents are concentrated in downtown areas and also along Yonge Street.
+
+```{r echo=F, eval=F,fig.pos='H', fig.align='center',out.width='80%'}
+# neighborhoods = rgdal::readOGR(dsn = "C:/Users/ThinkPad/Desktop/Eddy/DS", layer = "NEIGHBORHOODS_WGS84")
+# neighborhoods = rgdal::readOGR("C:/Users/ThinkPad/Desktop/Eddy/DS/NEIGHBORHOODS_WGS84.shp",layer="NEIGHBORHOODS_WGS84")
+
+# zoning = rgdal::readOGR("C:/Users/EDDY/Documents/UNIVERSITY/STA2453/Proj2/zoning/ZONING_ZONE_CATAGORIES_WGS84.shp",layer="ZONING_ZONE_CATAGORIES_WGS84")
+# traffic_signals <- read.csv(file="C:/Users/EDDY/Documents/UNIVERSITY/STA2453/Proj2/traffic_signals.csv", header=TRUE,sep=',')
+ 
+accidents <- read.csv(file="https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/data/final/accidents.csv", header=TRUE)
+
+
+accidents$YEAR = substr(as.character(accidents$date),1,4)
+accidents$longitude = accidents$long
+accidents$latitude = accidents$lat
+
+
+#add new features
+#day/night; logdensity
+# accidents$day_night = as.factor(ifelse(accidents$Hour >21 | accidents$Hour <6, "Night", "Day")) #day time is 1
+# accidents$logdensity = log(accidents$density) #day time is 1
+
+#subset to 2017 for now
+accidents = subset(accidents, accidents$YEAR==2017)
+#####
+
+accidents_lonlat = as.matrix(cbind(accidents$longitude, accidents$latitude),nrow=nrow(accidents))
+
+accidents_spatial = SpatialPointsDataFrame(coords= accidents_lonlat, data = accidents, coords.nrs = numeric(0), CRS("+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0"),  bbox = NULL)
+
+# spRbind(accidents_spatial, zoning)
+
+accidents2 = spTransform(accidents_spatial, mapmisc::omerc(accidents_spatial, angle=-17))
+theMap = mapmisc::openmap(accidents2, maxTiles=4, fact=3)
+mapmisc::map.new(accidents2)
+plot(theMap, add=TRUE, maxpixels=10^7)
+plot(accidents2, col=mapmisc::col2html("black", 0.4), cex=0.6, add=TRUE)
+```
+
+The plot below is the expected value of the count (lambda). We could see that many accidents are expected in downtown area and along the Yonge street. More traffic control may be required. We could try human control since it is the safest type of control among all. 
+
+```{r echo=F, eval=F,out.width=c('80%','80%')}
+#testing
+
+canada <- getData(name="GADM", country="CAN", level=2)
+trt_border = subset(canada, NAME_2=="Toronto")
+accidents_spatial_border = spTransform(trt_border, projection(accidents2))
+# plot(accidents_spatial)
+
+accidents_fit = lgcp(formula = ~ 1, data = accidents2, grid = 55, shape = 1, buffer = 2000, 
+                     prior = list(range = 6000, sd =0.5), border=accidents_spatial_border, 
+                                  control.inla = list(strategy='gaussian'), verbose=FALSE)
+
+ mapmisc::map.new(accidents_spatial_border)
+ plot(accidents_fit$raster[['predict.exp']]*10^6, add=TRUE)
+ plot(accidents_spatial_border, add=TRUE)
+```
+ 
+\pagebreak
+
+\newpage
 
 # Conclusions and Discussion
 
