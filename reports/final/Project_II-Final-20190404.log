@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2018) (preloaded format=pdflatex 2018.4.16)  5 APR 2019 11:20
+This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2018) (preloaded format=pdflatex 2018.10.21)  5 APR 2019 16:06
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1040,214 +1040,232 @@ ic file (type pdf)
 <use Project_II-Final-20190404_files/figure-latex/unnamed-chunk-22-1.pdf>
 Package pdftex.def Info: Project_II-Final-20190404_files/figure-latex/unnamed-c
 hunk-22-1.pdf  used on input line 658.
-(pdftex.def)             Requested size: 423.17024pt x 242.91321pt.
+(pdftex.def)             Requested size: 343.81699pt x 197.36191pt.
 [9 <./Project_II-Final-20190404_files/figure-latex/unnamed-chunk-19-1.pdf> <./P
 roject_II-Final-20190404_files/figure-latex/unnamed-chunk-20-1.pdf> <./Project_
-II-Final-20190404_files/figure-latex/unnamed-chunk-20-2.pdf>] [10 <./Project_II
--Final-20190404_files/figure-latex/unnamed-chunk-22-1.pdf>]
-Overfull \hbox (86.6041pt too wide) in paragraph at lines 713--773
+II-Final-20190404_files/figure-latex/unnamed-chunk-20-2.pdf>]
+<Project_II-Final-20190404_files/figure-latex/unnamed-chunk-23-1.pdf, id=296, 4
+69.755pt x 325.215pt>
+File: Project_II-Final-20190404_files/figure-latex/unnamed-chunk-23-1.pdf Graph
+ic file (type pdf)
+<use Project_II-Final-20190404_files/figure-latex/unnamed-chunk-23-1.pdf>
+Package pdftex.def Info: Project_II-Final-20190404_files/figure-latex/unnamed-c
+hunk-23-1.pdf  used on input line 672.
+(pdftex.def)             Requested size: 423.14833pt x 292.94884pt.
+[10 <./Project_II-Final-20190404_files/figure-latex/unnamed-chunk-22-1.pdf>]
+<Project_II-Final-20190404_files/figure-latex/unnamed-chunk-24-1.pdf, id=311, 4
+69.755pt x 325.215pt>
+File: Project_II-Final-20190404_files/figure-latex/unnamed-chunk-24-1.pdf Graph
+ic file (type pdf)
+<use Project_II-Final-20190404_files/figure-latex/unnamed-chunk-24-1.pdf>
+Package pdftex.def Info: Project_II-Final-20190404_files/figure-latex/unnamed-c
+hunk-24-1.pdf  used on input line 679.
+(pdftex.def)             Requested size: 423.14833pt x 292.94884pt.
+[11 <./Project_II-Final-20190404_files/figure-latex/unnamed-chunk-23-1.pdf> <./
+Project_II-Final-20190404_files/figure-latex/unnamed-chunk-24-1.pdf>]
+Overfull \hbox (86.6041pt too wide) in paragraph at lines 717--777
  [][] 
  []
 
-[11] [12]
-<toronto-hoods.png, id=319, 650.43pt x 380.42125pt>
+[12] [13]
+<toronto-hoods.png, id=344, 650.43pt x 380.42125pt>
 File: toronto-hoods.png Graphic file (type png)
 <use toronto-hoods.png>
-Package pdftex.def Info: toronto-hoods.png  used on input line 784.
+Package pdftex.def Info: toronto-hoods.png  used on input line 788.
 (pdftex.def)             Requested size: 502.5pt x 293.90045pt.
-[13 <./toronto-hoods.png>]
-<all-years1.png, id=328, 892.2936pt x 512.1534pt>
+[14 <./toronto-hoods.png>]
+<all-years1.png, id=352, 892.2936pt x 512.1534pt>
 File: all-years1.png Graphic file (type png)
 <use all-years1.png>
-Package pdftex.def Info: all-years1.png  used on input line 802.
+Package pdftex.def Info: all-years1.png  used on input line 806.
 (pdftex.def)             Requested size: 343.79959pt x 197.33205pt.
-<all-years2.png, id=329, 892.7754pt x 512.1534pt>
+<all-years2.png, id=353, 892.7754pt x 512.1534pt>
 File: all-years2.png Graphic file (type png)
 <use all-years2.png>
-Package pdftex.def Info: all-years2.png  used on input line 804.
+Package pdftex.def Info: all-years2.png  used on input line 808.
 (pdftex.def)             Requested size: 343.80815pt x 197.23045pt.
-<all-years3.png, id=330, 892.7754pt x 512.1534pt>
+<all-years3.png, id=354, 892.7754pt x 512.1534pt>
 File: all-years3.png Graphic file (type png)
 <use all-years3.png>
-Package pdftex.def Info: all-years3.png  used on input line 806.
+Package pdftex.def Info: all-years3.png  used on input line 810.
 (pdftex.def)             Requested size: 343.80815pt x 197.23045pt.
-[14 <./all-years1.png> <./all-years2.png> <./all-years3.png>]
+[15 <./all-years1.png> <./all-years2.png> <./all-years3.png>]
 
-Package xcolor Warning: Incompatible color definition on input line 814.
+Package xcolor Warning: Incompatible color definition on input line 818.
 
 LaTeX Font Info:    Font shape `T1/lmtt/bx/n' in size <10> not available
-(Font)              Font shape `T1/lmtt/b/n' tried instead on input line 816.
-LaTeX Font Info:    Try loading font information for TS1+lmtt on input line 826
+(Font)              Font shape `T1/lmtt/b/n' tried instead on input line 820.
+LaTeX Font Info:    Try loading font information for TS1+lmtt on input line 830
 .
 (/usr/local/texlive/2018/texmf-dist/tex/latex/lm/ts1lmtt.fd
 File: ts1lmtt.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
 
-Package xcolor Warning: Incompatible color definition on input line 1364.
+Package xcolor Warning: Incompatible color definition on input line 1368.
 
 
-Package xcolor Warning: Incompatible color definition on input line 1364.
+Package xcolor Warning: Incompatible color definition on input line 1368.
 
 
-Package xcolor Warning: Incompatible color definition on input line 1364.
-
-[15]
-
-Package xcolor Warning: Incompatible color definition on input line 1364.
-
-
-Package xcolor Warning: Incompatible color definition on input line 1364.
-
-
-Underfull \vbox (badness 10000) detected at line 1364
- []
-
-
-Underfull \vbox (badness 10000) detected at line 1364
- []
-
-
-Package xcolor Warning: Incompatible color definition on input line 1364.
+Package xcolor Warning: Incompatible color definition on input line 1368.
 
 [16]
 
-Package xcolor Warning: Incompatible color definition on input line 1364.
+Package xcolor Warning: Incompatible color definition on input line 1368.
 
 
-Package xcolor Warning: Incompatible color definition on input line 1364.
+Package xcolor Warning: Incompatible color definition on input line 1368.
 
 
-Underfull \vbox (badness 10000) detected at line 1364
+Underfull \vbox (badness 10000) detected at line 1368
  []
 
 
-Underfull \vbox (badness 10000) detected at line 1364
+Underfull \vbox (badness 10000) detected at line 1368
  []
 
 
-Package xcolor Warning: Incompatible color definition on input line 1364.
+Package xcolor Warning: Incompatible color definition on input line 1368.
 
 [17]
 
-Package xcolor Warning: Incompatible color definition on input line 1364.
+Package xcolor Warning: Incompatible color definition on input line 1368.
 
 
-Package xcolor Warning: Incompatible color definition on input line 1364.
+Package xcolor Warning: Incompatible color definition on input line 1368.
 
 
-Underfull \vbox (badness 10000) detected at line 1364
+Underfull \vbox (badness 10000) detected at line 1368
  []
 
 
-Underfull \vbox (badness 10000) detected at line 1364
+Underfull \vbox (badness 10000) detected at line 1368
  []
 
 
-Package xcolor Warning: Incompatible color definition on input line 1364.
+Package xcolor Warning: Incompatible color definition on input line 1368.
 
 [18]
 
-Package xcolor Warning: Incompatible color definition on input line 1364.
+Package xcolor Warning: Incompatible color definition on input line 1368.
 
 
-Package xcolor Warning: Incompatible color definition on input line 1364.
+Package xcolor Warning: Incompatible color definition on input line 1368.
 
 
-Underfull \vbox (badness 10000) detected at line 1364
+Underfull \vbox (badness 10000) detected at line 1368
  []
 
 
-Underfull \vbox (badness 10000) detected at line 1364
+Underfull \vbox (badness 10000) detected at line 1368
  []
 
 
-Package xcolor Warning: Incompatible color definition on input line 1364.
+Package xcolor Warning: Incompatible color definition on input line 1368.
 
 [19]
 
-Package xcolor Warning: Incompatible color definition on input line 1364.
+Package xcolor Warning: Incompatible color definition on input line 1368.
 
 
-Package xcolor Warning: Incompatible color definition on input line 1364.
+Package xcolor Warning: Incompatible color definition on input line 1368.
 
 
-Underfull \vbox (badness 10000) detected at line 1364
+Underfull \vbox (badness 10000) detected at line 1368
  []
 
 
-Underfull \vbox (badness 10000) detected at line 1364
+Underfull \vbox (badness 10000) detected at line 1368
  []
 
 
-Package xcolor Warning: Incompatible color definition on input line 1364.
+Package xcolor Warning: Incompatible color definition on input line 1368.
 
 [20]
 
-Package xcolor Warning: Incompatible color definition on input line 1364.
+Package xcolor Warning: Incompatible color definition on input line 1368.
 
 
-Package xcolor Warning: Incompatible color definition on input line 1364.
+Package xcolor Warning: Incompatible color definition on input line 1368.
 
 
-Underfull \vbox (badness 10000) detected at line 1364
+Underfull \vbox (badness 10000) detected at line 1368
  []
 
 
-Underfull \vbox (badness 10000) detected at line 1364
+Underfull \vbox (badness 10000) detected at line 1368
  []
 
 
-Package xcolor Warning: Incompatible color definition on input line 1364.
+Package xcolor Warning: Incompatible color definition on input line 1368.
 
 [21]
 
-Package xcolor Warning: Incompatible color definition on input line 1364.
+Package xcolor Warning: Incompatible color definition on input line 1368.
 
 
-Package xcolor Warning: Incompatible color definition on input line 1364.
+Package xcolor Warning: Incompatible color definition on input line 1368.
 
 
-Underfull \vbox (badness 10000) detected at line 1364
+Underfull \vbox (badness 10000) detected at line 1368
  []
 
 
-Underfull \vbox (badness 10000) detected at line 1364
+Underfull \vbox (badness 10000) detected at line 1368
  []
 
 
-Package xcolor Warning: Incompatible color definition on input line 1364.
+Package xcolor Warning: Incompatible color definition on input line 1368.
 
 [22]
 
-Package xcolor Warning: Incompatible color definition on input line 1364.
+Package xcolor Warning: Incompatible color definition on input line 1368.
 
 
-Package xcolor Warning: Incompatible color definition on input line 1364.
+Package xcolor Warning: Incompatible color definition on input line 1368.
 
 
-Underfull \vbox (badness 10000) detected at line 1364
+Underfull \vbox (badness 10000) detected at line 1368
  []
 
 
-Underfull \vbox (badness 10000) detected at line 1364
+Underfull \vbox (badness 10000) detected at line 1368
  []
 
 
-Package xcolor Warning: Incompatible color definition on input line 1364.
+Package xcolor Warning: Incompatible color definition on input line 1368.
 
 [23]
 
-Package xcolor Warning: Incompatible color definition on input line 1364.
+Package xcolor Warning: Incompatible color definition on input line 1368.
 
 
-Package xcolor Warning: Incompatible color definition on input line 1364.
+Package xcolor Warning: Incompatible color definition on input line 1368.
 
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 1367.
+
+Underfull \vbox (badness 10000) detected at line 1368
+ []
+
+
+Underfull \vbox (badness 10000) detected at line 1368
+ []
+
+
+Package xcolor Warning: Incompatible color definition on input line 1368.
+
 [24]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 1367.
+
+Package xcolor Warning: Incompatible color definition on input line 1368.
+
+
+Package xcolor Warning: Incompatible color definition on input line 1368.
+
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 1371.
+[25]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 1371.
 (./Project_II-Final-20190404.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 1367.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 1367.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 1371.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 1371.
 
 Package rerunfilecheck Info: File `Project_II-Final-20190404.out' has not chang
 ed.
@@ -1255,13 +1273,13 @@ ed.
 
 LaTeX Warning: There were multiply-defined labels.
 
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 1367.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 1371.
  ) 
 Here is how much of TeX's memory you used:
- 15905 strings out of 492649
- 240120 string characters out of 6129622
- 485085 words of memory out of 5000000
- 19360 multiletter control sequences out of 15000+600000
+ 15914 strings out of 492649
+ 240757 string characters out of 6129621
+ 484164 words of memory out of 5000000
+ 19368 multiletter control sequences out of 15000+600000
  57671 words of font info for 88 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  44i,10n,51p,1352b,443s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -1283,10 +1301,10 @@ al/texlive/2018/texmf-dist/fonts/type1/public/lm/lmri12.pfb></usr/local/texlive
 f-dist/fonts/type1/public/lm/lmtk10.pfb></usr/local/texlive/2018/texmf-dist/fon
 ts/type1/public/lm/lmtt10.pfb></usr/local/texlive/2018/texmf-dist/fonts/type1/p
 ublic/lm/lmtti10.pfb>
-Output written on Project_II-Final-20190404.pdf (24 pages, 6456424 bytes).
+Output written on Project_II-Final-20190404.pdf (25 pages, 6933923 bytes).
 PDF statistics:
- 461 PDF objects out of 1000 (max. 8388607)
- 356 compressed objects within 4 object streams
- 84 named destinations out of 1000 (max. 500000)
- 12471 words of extra memory for PDF output out of 14400 (max. 10000000)
+ 487 PDF objects out of 1000 (max. 8388607)
+ 371 compressed objects within 4 object streams
+ 85 named destinations out of 1000 (max. 500000)
+ 12481 words of extra memory for PDF output out of 14400 (max. 10000000)
 
