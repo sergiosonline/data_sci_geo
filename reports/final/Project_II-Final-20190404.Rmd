@@ -680,7 +680,7 @@ matplot( accident_ts_gam_pred_rr, log = "y", xaxt = "n", xlab = "Months", type =
 axis(1, at = 1:11, labels = c("Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"))
 ```
 
-Below are plot of number of accidents happend in Toronto and the predictions of accidents in neighbour 5 and 122 from GAM. In gereral they capture a trend that the number of accidents are descreasing over years.
+Below are plots of number of accidents happend per month in Toronto and the predictions of accidents in neighbour 5 and 122 from GAM. In gereral they capture a trend that the monthly number of accidents are descreasing over years.
 
 ```{r echo = F,fig.pos='H', fig.align='center', out.width='65%', message=F}
 accidents_ts_y = accidents4 %>% group_by( year,month) %>% dplyr::summarize(value_perd=n())
