@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2018) (preloaded format=pdflatex 2018.10.21)  5 APR 2019 16:06
+This is pdfTeX, Version 3.14159265-2.6-1.40.19 (TeX Live 2018) (preloaded format=pdflatex 2018.4.16)  7 APR 2019 17:59
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -714,6 +714,12 @@ LaTeX Warning: Label `fig:figs' multiply defined.
 
 LaTeX Warning: Label `fig:figs' multiply defined.
 
+
+LaTeX Warning: Label `fig:figs' multiply defined.
+
+
+LaTeX Warning: Label `fig:figs' multiply defined.
+
 )
 \openout1 = `Project_II-Final-20190404.aux'.
 
@@ -839,448 +845,413 @@ e
 Package caption Info: Begin \AtBeginDocument code.
 Package caption Info: subfig package v1.3 is loaded.
 Package caption Info: End \AtBeginDocument code.
-(./Project_II-Final-20190404.toc)
+(./Project_II-Final-20190404.toc
+LaTeX Font Info:    Try loading font information for OT1+lmr on input line 3.
+(/usr/local/texlive/2018/texmf-dist/tex/latex/lm/ot1lmr.fd
+File: ot1lmr.fd 2009/10/30 v1.6 Font defs for Latin Modern
+)
+LaTeX Font Info:    Try loading font information for OML+lmm on input line 3.
+(/usr/local/texlive/2018/texmf-dist/tex/latex/lm/omllmm.fd
+File: omllmm.fd 2009/10/30 v1.6 Font defs for Latin Modern
+)
+LaTeX Font Info:    Try loading font information for OMS+lmsy on input line 3.
+(/usr/local/texlive/2018/texmf-dist/tex/latex/lm/omslmsy.fd
+File: omslmsy.fd 2009/10/30 v1.6 Font defs for Latin Modern
+)
+LaTeX Font Info:    Try loading font information for OMX+lmex on input line 3.
+(/usr/local/texlive/2018/texmf-dist/tex/latex/lm/omxlmex.fd
+File: omxlmex.fd 2009/10/30 v1.6 Font defs for Latin Modern
+)
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <10> on input line 3.
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <7> on input line 3.
+LaTeX Font Info:    External font `lmex10' loaded for size
+(Font)              <5> on input line 3.
+LaTeX Font Info:    Try loading font information for U+msa on input line 3.
+(/usr/local/texlive/2018/texmf-dist/tex/latex/amsfonts/umsa.fd
+File: umsa.fd 2013/01/14 v3.01 AMS symbols A
+) (/usr/local/texlive/2018/texmf-dist/tex/latex/microtype/mt-msa.cfg
+File: mt-msa.cfg 2006/02/04 v1.1 microtype config. file: AMS symbols (a) (RS)
+)
+LaTeX Font Info:    Try loading font information for U+msb on input line 3.
+(/usr/local/texlive/2018/texmf-dist/tex/latex/amsfonts/umsb.fd
+File: umsb.fd 2013/01/14 v3.01 AMS symbols B
+) (/usr/local/texlive/2018/texmf-dist/tex/latex/microtype/mt-msb.cfg
+File: mt-msb.cfg 2005/06/01 v1.0 microtype config. file: AMS symbols (b) (RS)
+))
 \tf@toc=\write5
 \openout5 = `Project_II-Final-20190404.toc'.
 
 [1
 
 {/usr/local/texlive/2018/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
-LaTeX Font Info:    Try loading font information for OT1+lmr on input line 173.
-
-(/usr/local/texlive/2018/texmf-dist/tex/latex/lm/ot1lmr.fd
-File: ot1lmr.fd 2009/10/30 v1.6 Font defs for Latin Modern
-)
-LaTeX Font Info:    Try loading font information for OML+lmm on input line 173.
-
-(/usr/local/texlive/2018/texmf-dist/tex/latex/lm/omllmm.fd
-File: omllmm.fd 2009/10/30 v1.6 Font defs for Latin Modern
-)
-LaTeX Font Info:    Try loading font information for OMS+lmsy on input line 173
-.
-(/usr/local/texlive/2018/texmf-dist/tex/latex/lm/omslmsy.fd
-File: omslmsy.fd 2009/10/30 v1.6 Font defs for Latin Modern
-)
-LaTeX Font Info:    Try loading font information for OMX+lmex on input line 173
-.
-(/usr/local/texlive/2018/texmf-dist/tex/latex/lm/omxlmex.fd
-File: omxlmex.fd 2009/10/30 v1.6 Font defs for Latin Modern
-)
-LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <10> on input line 173.
-LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <7> on input line 173.
-LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <5> on input line 173.
-LaTeX Font Info:    Try loading font information for U+msa on input line 173.
-(/usr/local/texlive/2018/texmf-dist/tex/latex/amsfonts/umsa.fd
-File: umsa.fd 2013/01/14 v3.01 AMS symbols A
-) (/usr/local/texlive/2018/texmf-dist/tex/latex/microtype/mt-msa.cfg
-File: mt-msa.cfg 2006/02/04 v1.1 microtype config. file: AMS symbols (a) (RS)
-)
-LaTeX Font Info:    Try loading font information for U+msb on input line 173.
-(/usr/local/texlive/2018/texmf-dist/tex/latex/amsfonts/umsb.fd
-File: umsb.fd 2013/01/14 v3.01 AMS symbols B
-) (/usr/local/texlive/2018/texmf-dist/tex/latex/microtype/mt-msb.cfg
-File: mt-msb.cfg 2005/06/01 v1.0 microtype config. file: AMS symbols (b) (RS)
-)
-<Project_II-Final-20190404_files/figure-latex/unnamed-chunk-2-1.pdf, id=62, 462
-.72874pt x 287.0725pt>
+<Project_II-Final-20190404_files/figure-latex/unnamed-chunk-2-1.pdf, id=112, 46
+2.72874pt x 287.0725pt>
 File: Project_II-Final-20190404_files/figure-latex/unnamed-chunk-2-1.pdf Graphi
 c file (type pdf)
 <use Project_II-Final-20190404_files/figure-latex/unnamed-chunk-2-1.pdf>
 Package pdftex.def Info: Project_II-Final-20190404_files/figure-latex/unnamed-c
-hunk-2-1.pdf  used on input line 178.
+hunk-2-1.pdf  used on input line 179.
 (pdftex.def)             Requested size: 396.70335pt x 246.11096pt.
 [2 <./Project_II-Final-20190404_files/figure-latex/unnamed-chunk-2-1.pdf>]
-LaTeX Font Info:    Try loading font information for T1+lmtt on input line 255.
+LaTeX Font Info:    Try loading font information for T1+lmtt on input line 256.
 
 (/usr/local/texlive/2018/texmf-dist/tex/latex/lm/t1lmtt.fd
 File: t1lmtt.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
-<app-instructions.png, id=92, 476.5002pt x 238.491pt>
+<app-instructions.png, id=139, 476.5002pt x 238.491pt>
 File: app-instructions.png Graphic file (type png)
 <use app-instructions.png>
-Package pdftex.def Info: app-instructions.png  used on input line 273.
+Package pdftex.def Info: app-instructions.png  used on input line 274.
 (pdftex.def)             Requested size: 238.02411pt x 119.13239pt.
-<general-app.png, id=94, 719.68875pt x 542.025pt>
+<general-app.png, id=141, 719.68875pt x 542.025pt>
 File: general-app.png Graphic file (type png)
 <use general-app.png>
-Package pdftex.def Info: general-app.png  used on input line 283.
-(pdftex.def)             Requested size: 238.01414pt x 179.2575pt.
+Package pdftex.def Info: general-app.png  used on input line 284.
+(pdftex.def)             Requested size: 264.4687pt x 199.18144pt.
 [3 <./app-instructions.png> <./general-app.png>]
-<Project_II-Final-20190404_files/figure-latex/unnamed-chunk-6-1.pdf, id=108, 45
+<Project_II-Final-20190404_files/figure-latex/unnamed-chunk-6-1.pdf, id=154, 45
 7.71pt x 313.17pt>
 File: Project_II-Final-20190404_files/figure-latex/unnamed-chunk-6-1.pdf Graphi
 c file (type pdf)
 <use Project_II-Final-20190404_files/figure-latex/unnamed-chunk-6-1.pdf>
 Package pdftex.def Info: Project_II-Final-20190404_files/figure-latex/unnamed-c
-hunk-6-1.pdf  used on input line 309.
+hunk-6-1.pdf  used on input line 310.
 (pdftex.def)             Requested size: 211.56883pt x 144.75761pt.
-<Project_II-Final-20190404_files/figure-latex/unnamed-chunk-6-2.pdf, id=109, 46
+<Project_II-Final-20190404_files/figure-latex/unnamed-chunk-6-2.pdf, id=155, 46
 3.7325pt x 313.17pt>
 File: Project_II-Final-20190404_files/figure-latex/unnamed-chunk-6-2.pdf Graphi
 c file (type pdf)
 <use Project_II-Final-20190404_files/figure-latex/unnamed-chunk-6-2.pdf>
 Package pdftex.def Info: Project_II-Final-20190404_files/figure-latex/unnamed-c
-hunk-6-2.pdf  used on input line 309.
+hunk-6-2.pdf  used on input line 310.
 (pdftex.def)             Requested size: 211.57176pt x 142.87962pt.
-<pedestrians.png, id=110, 509.65407pt x 298.11375pt>
+<pedestrians.png, id=156, 509.65407pt x 298.11375pt>
 File: pedestrians.png Graphic file (type png)
 <use pedestrians.png>
-Package pdftex.def Info: pedestrians.png  used on input line 332.
+Package pdftex.def Info: pedestrians.png  used on input line 333.
 (pdftex.def)             Requested size: 238.02098pt x 139.22646pt.
-<cyclists.png, id=111, 509.65407pt x 298.11375pt>
+<cyclists.png, id=157, 509.65407pt x 298.11375pt>
 File: cyclists.png Graphic file (type png)
 <use cyclists.png>
-Package pdftex.def Info: cyclists.png  used on input line 332.
+Package pdftex.def Info: cyclists.png  used on input line 333.
 (pdftex.def)             Requested size: 238.02098pt x 139.22646pt.
 [4 <./Project_II-Final-20190404_files/figure-latex/unnamed-chunk-6-1.pdf> <./Pr
 oject_II-Final-20190404_files/figure-latex/unnamed-chunk-6-2.pdf> <./pedestrian
 s.png> <./cyclists.png>]
-<Project_II-Final-20190404_files/figure-latex/unnamed-chunk-8-1.pdf, id=147, 45
+<Project_II-Final-20190404_files/figure-latex/unnamed-chunk-8-1.pdf, id=194, 45
 7.71pt x 313.17pt>
 File: Project_II-Final-20190404_files/figure-latex/unnamed-chunk-8-1.pdf Graphi
 c file (type pdf)
 <use Project_II-Final-20190404_files/figure-latex/unnamed-chunk-8-1.pdf>
 Package pdftex.def Info: Project_II-Final-20190404_files/figure-latex/unnamed-c
-hunk-8-1.pdf  used on input line 353.
+hunk-8-1.pdf  used on input line 354.
 (pdftex.def)             Requested size: 290.92897pt x 199.05666pt.
-<Project_II-Final-20190404_files/figure-latex/unnamed-chunk-9-1.pdf, id=148, 45
+<Project_II-Final-20190404_files/figure-latex/unnamed-chunk-9-1.pdf, id=195, 45
 7.71pt x 307.1475pt>
 File: Project_II-Final-20190404_files/figure-latex/unnamed-chunk-9-1.pdf Graphi
 c file (type pdf)
 <use Project_II-Final-20190404_files/figure-latex/unnamed-chunk-9-1.pdf>
 Package pdftex.def Info: Project_II-Final-20190404_files/figure-latex/unnamed-c
-hunk-9-1.pdf  used on input line 368.
+hunk-9-1.pdf  used on input line 369.
 (pdftex.def)             Requested size: 211.56883pt x 141.97382pt.
-<Project_II-Final-20190404_files/figure-latex/unnamed-chunk-9-2.pdf, id=149, 45
+<Project_II-Final-20190404_files/figure-latex/unnamed-chunk-9-2.pdf, id=196, 45
 7.71pt x 313.17pt>
 File: Project_II-Final-20190404_files/figure-latex/unnamed-chunk-9-2.pdf Graphi
 c file (type pdf)
 <use Project_II-Final-20190404_files/figure-latex/unnamed-chunk-9-2.pdf>
 Package pdftex.def Info: Project_II-Final-20190404_files/figure-latex/unnamed-c
-hunk-9-2.pdf  used on input line 368.
+hunk-9-2.pdf  used on input line 369.
 (pdftex.def)             Requested size: 211.56883pt x 144.75761pt.
 [5 <./Project_II-Final-20190404_files/figure-latex/unnamed-chunk-8-1.pdf> <./Pr
 oject_II-Final-20190404_files/figure-latex/unnamed-chunk-9-1.pdf> <./Project_II
 -Final-20190404_files/figure-latex/unnamed-chunk-9-2.pdf>] [6]
-LaTeX Font Info:    Try loading font information for TS1+lmr on input line 457.
+LaTeX Font Info:    Try loading font information for TS1+lmr on input line 458.
 
 (/usr/local/texlive/2018/texmf-dist/tex/latex/lm/ts1lmr.fd
 File: ts1lmr.fd 2009/10/30 v1.6 Font defs for Latin Modern
-)
-<Project_II-Final-20190404_files/figure-latex/unnamed-chunk-14-1.pdf, id=199, 4
-36.63126pt x 262.9825pt>
-File: Project_II-Final-20190404_files/figure-latex/unnamed-chunk-14-1.pdf Graph
+) [7]
+<Project_II-Final-20190404_files/figure-latex/unnamed-chunk-16-1.pdf, id=264, 4
+40.64626pt x 252.945pt>
+File: Project_II-Final-20190404_files/figure-latex/unnamed-chunk-16-1.pdf Graph
 ic file (type pdf)
-<use Project_II-Final-20190404_files/figure-latex/unnamed-chunk-14-1.pdf>
+<use Project_II-Final-20190404_files/figure-latex/unnamed-chunk-16-1.pdf>
 Package pdftex.def Info: Project_II-Final-20190404_files/figure-latex/unnamed-c
-hunk-14-1.pdf  used on input line 519.
-(pdftex.def)             Requested size: 158.67952pt x 95.57248pt.
-<Project_II-Final-20190404_files/figure-latex/unnamed-chunk-14-2.pdf, id=200, 4
+hunk-16-1.pdf  used on input line 607.
+(pdftex.def)             Requested size: 343.81699pt x 197.36191pt.
+[8 <./Project_II-Final-20190404_files/figure-latex/unnamed-chunk-16-1.pdf>]
+<Project_II-Final-20190404_files/figure-latex/unnamed-chunk-17-1.pdf, id=280, 4
 36.63126pt x 262.9825pt>
-File: Project_II-Final-20190404_files/figure-latex/unnamed-chunk-14-2.pdf Graph
+File: Project_II-Final-20190404_files/figure-latex/unnamed-chunk-17-1.pdf Graph
 ic file (type pdf)
-<use Project_II-Final-20190404_files/figure-latex/unnamed-chunk-14-2.pdf>
+<use Project_II-Final-20190404_files/figure-latex/unnamed-chunk-17-1.pdf>
 Package pdftex.def Info: Project_II-Final-20190404_files/figure-latex/unnamed-c
-hunk-14-2.pdf  used on input line 519.
+hunk-17-1.pdf  used on input line 625.
 (pdftex.def)             Requested size: 158.67952pt x 95.57248pt.
-<Project_II-Final-20190404_files/figure-latex/unnamed-chunk-14-3.pdf, id=201, 4
+<Project_II-Final-20190404_files/figure-latex/unnamed-chunk-17-2.pdf, id=281, 4
+36.63126pt x 262.9825pt>
+File: Project_II-Final-20190404_files/figure-latex/unnamed-chunk-17-2.pdf Graph
+ic file (type pdf)
+<use Project_II-Final-20190404_files/figure-latex/unnamed-chunk-17-2.pdf>
+Package pdftex.def Info: Project_II-Final-20190404_files/figure-latex/unnamed-c
+hunk-17-2.pdf  used on input line 625.
+(pdftex.def)             Requested size: 158.67952pt x 95.57248pt.
+<Project_II-Final-20190404_files/figure-latex/unnamed-chunk-17-3.pdf, id=282, 4
 43.6575pt x 262.9825pt>
-File: Project_II-Final-20190404_files/figure-latex/unnamed-chunk-14-3.pdf Graph
+File: Project_II-Final-20190404_files/figure-latex/unnamed-chunk-17-3.pdf Graph
 ic file (type pdf)
-<use Project_II-Final-20190404_files/figure-latex/unnamed-chunk-14-3.pdf>
+<use Project_II-Final-20190404_files/figure-latex/unnamed-chunk-17-3.pdf>
 Package pdftex.def Info: Project_II-Final-20190404_files/figure-latex/unnamed-c
-hunk-14-3.pdf  used on input line 519.
+hunk-17-3.pdf  used on input line 625.
 (pdftex.def)             Requested size: 158.68082pt x 94.05966pt.
-[7 <./Project_II-Final-20190404_files/figure-latex/unnamed-chunk-14-1.pdf> <./P
-roject_II-Final-20190404_files/figure-latex/unnamed-chunk-14-2.pdf> <./Project_
-II-Final-20190404_files/figure-latex/unnamed-chunk-14-3.pdf>]
-<Project_II-Final-20190404_files/figure-latex/unnamed-chunk-18-1.pdf, id=245, 4
+<Project_II-Final-20190404_files/figure-latex/unnamed-chunk-20-1.pdf, id=283, 4
 34.62375pt x 248.93pt>
-File: Project_II-Final-20190404_files/figure-latex/unnamed-chunk-18-1.pdf Graph
-ic file (type pdf)
-<use Project_II-Final-20190404_files/figure-latex/unnamed-chunk-18-1.pdf>
-Package pdftex.def Info: Project_II-Final-20190404_files/figure-latex/unnamed-c
-hunk-18-1.pdf  used on input line 590.
-(pdftex.def)             Requested size: 343.82648pt x 196.92601pt.
-[8 <./Project_II-Final-20190404_files/figure-latex/unnamed-chunk-18-1.pdf>]
-<Project_II-Final-20190404_files/figure-latex/unnamed-chunk-19-1.pdf, id=265, 4
-41.65pt x 248.93pt>
-File: Project_II-Final-20190404_files/figure-latex/unnamed-chunk-19-1.pdf Graph
-ic file (type pdf)
-<use Project_II-Final-20190404_files/figure-latex/unnamed-chunk-19-1.pdf>
-Package pdftex.def Info: Project_II-Final-20190404_files/figure-latex/unnamed-c
-hunk-19-1.pdf  used on input line 597.
-(pdftex.def)             Requested size: 343.81844pt x 193.78857pt.
-<Project_II-Final-20190404_files/figure-latex/unnamed-chunk-20-1.pdf, id=266, 4
-40.64626pt x 248.93pt>
 File: Project_II-Final-20190404_files/figure-latex/unnamed-chunk-20-1.pdf Graph
 ic file (type pdf)
 <use Project_II-Final-20190404_files/figure-latex/unnamed-chunk-20-1.pdf>
 Package pdftex.def Info: Project_II-Final-20190404_files/figure-latex/unnamed-c
-hunk-20-1.pdf  used on input line 599.
-(pdftex.def)             Requested size: 264.47719pt x 149.40852pt.
-<Project_II-Final-20190404_files/figure-latex/unnamed-chunk-20-2.pdf, id=267, 4
-40.64626pt x 255.95625pt>
-File: Project_II-Final-20190404_files/figure-latex/unnamed-chunk-20-2.pdf Graph
+hunk-20-1.pdf  used on input line 666.
+(pdftex.def)             Requested size: 343.82648pt x 196.92601pt.
+[9 <./Project_II-Final-20190404_files/figure-latex/unnamed-chunk-17-1.pdf> <./P
+roject_II-Final-20190404_files/figure-latex/unnamed-chunk-17-2.pdf> <./Project_
+II-Final-20190404_files/figure-latex/unnamed-chunk-17-3.pdf>]
+<Project_II-Final-20190404_files/figure-latex/unnamed-chunk-21-1.pdf, id=315, 4
+41.65pt x 248.93pt>
+File: Project_II-Final-20190404_files/figure-latex/unnamed-chunk-21-1.pdf Graph
 ic file (type pdf)
-<use Project_II-Final-20190404_files/figure-latex/unnamed-chunk-20-2.pdf>
+<use Project_II-Final-20190404_files/figure-latex/unnamed-chunk-21-1.pdf>
 Package pdftex.def Info: Project_II-Final-20190404_files/figure-latex/unnamed-c
-hunk-20-2.pdf  used on input line 601.
-(pdftex.def)             Requested size: 264.47719pt x 153.6257pt.
-
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
-<Project_II-Final-20190404_files/figure-latex/unnamed-chunk-22-1.pdf, id=268, 4
-40.64626pt x 252.945pt>
+hunk-21-1.pdf  used on input line 678.
+(pdftex.def)             Requested size: 343.81844pt x 193.78857pt.
+<Project_II-Final-20190404_files/figure-latex/unnamed-chunk-22-1.pdf, id=316, 4
+40.64626pt x 248.93pt>
 File: Project_II-Final-20190404_files/figure-latex/unnamed-chunk-22-1.pdf Graph
 ic file (type pdf)
 <use Project_II-Final-20190404_files/figure-latex/unnamed-chunk-22-1.pdf>
 Package pdftex.def Info: Project_II-Final-20190404_files/figure-latex/unnamed-c
-hunk-22-1.pdf  used on input line 658.
-(pdftex.def)             Requested size: 343.81699pt x 197.36191pt.
-[9 <./Project_II-Final-20190404_files/figure-latex/unnamed-chunk-19-1.pdf> <./P
-roject_II-Final-20190404_files/figure-latex/unnamed-chunk-20-1.pdf> <./Project_
-II-Final-20190404_files/figure-latex/unnamed-chunk-20-2.pdf>]
-<Project_II-Final-20190404_files/figure-latex/unnamed-chunk-23-1.pdf, id=296, 4
-69.755pt x 325.215pt>
-File: Project_II-Final-20190404_files/figure-latex/unnamed-chunk-23-1.pdf Graph
+hunk-22-1.pdf  used on input line 682.
+(pdftex.def)             Requested size: 238.0194pt x 134.46198pt.
+<Project_II-Final-20190404_files/figure-latex/unnamed-chunk-22-2.pdf, id=317, 4
+40.64626pt x 255.95625pt>
+File: Project_II-Final-20190404_files/figure-latex/unnamed-chunk-22-2.pdf Graph
 ic file (type pdf)
-<use Project_II-Final-20190404_files/figure-latex/unnamed-chunk-23-1.pdf>
+<use Project_II-Final-20190404_files/figure-latex/unnamed-chunk-22-2.pdf>
 Package pdftex.def Info: Project_II-Final-20190404_files/figure-latex/unnamed-c
-hunk-23-1.pdf  used on input line 672.
-(pdftex.def)             Requested size: 423.14833pt x 292.94884pt.
-[10 <./Project_II-Final-20190404_files/figure-latex/unnamed-chunk-22-1.pdf>]
-<Project_II-Final-20190404_files/figure-latex/unnamed-chunk-24-1.pdf, id=311, 4
-69.755pt x 325.215pt>
-File: Project_II-Final-20190404_files/figure-latex/unnamed-chunk-24-1.pdf Graph
-ic file (type pdf)
-<use Project_II-Final-20190404_files/figure-latex/unnamed-chunk-24-1.pdf>
-Package pdftex.def Info: Project_II-Final-20190404_files/figure-latex/unnamed-c
-hunk-24-1.pdf  used on input line 679.
-(pdftex.def)             Requested size: 423.14833pt x 292.94884pt.
-[11 <./Project_II-Final-20190404_files/figure-latex/unnamed-chunk-23-1.pdf> <./
-Project_II-Final-20190404_files/figure-latex/unnamed-chunk-24-1.pdf>]
-Overfull \hbox (86.6041pt too wide) in paragraph at lines 717--777
+hunk-22-2.pdf  used on input line 682.
+(pdftex.def)             Requested size: 238.0194pt x 138.25726pt.
+[10 <./Project_II-Final-20190404_files/figure-latex/unnamed-chunk-20-1.pdf> <./
+Project_II-Final-20190404_files/figure-latex/unnamed-chunk-21-1.pdf> <./Project
+_II-Final-20190404_files/figure-latex/unnamed-chunk-22-1.pdf> <./Project_II-Fin
+al-20190404_files/figure-latex/unnamed-chunk-22-2.pdf>] [11]
+Overfull \hbox (86.6041pt too wide) in paragraph at lines 734--794
  [][] 
  []
 
 [12] [13]
-<toronto-hoods.png, id=344, 650.43pt x 380.42125pt>
+<toronto-hoods.png, id=368, 650.43pt x 380.42125pt>
 File: toronto-hoods.png Graphic file (type png)
 <use toronto-hoods.png>
-Package pdftex.def Info: toronto-hoods.png  used on input line 788.
+Package pdftex.def Info: toronto-hoods.png  used on input line 808.
 (pdftex.def)             Requested size: 502.5pt x 293.90045pt.
 [14 <./toronto-hoods.png>]
-<all-years1.png, id=352, 892.2936pt x 512.1534pt>
-File: all-years1.png Graphic file (type png)
-<use all-years1.png>
-Package pdftex.def Info: all-years1.png  used on input line 806.
-(pdftex.def)             Requested size: 343.79959pt x 197.33205pt.
-<all-years2.png, id=353, 892.7754pt x 512.1534pt>
-File: all-years2.png Graphic file (type png)
-<use all-years2.png>
-Package pdftex.def Info: all-years2.png  used on input line 808.
-(pdftex.def)             Requested size: 343.80815pt x 197.23045pt.
-<all-years3.png, id=354, 892.7754pt x 512.1534pt>
+<all-years3.png, id=377, 892.7754pt x 512.1534pt>
 File: all-years3.png Graphic file (type png)
 <use all-years3.png>
-Package pdftex.def Info: all-years3.png  used on input line 810.
-(pdftex.def)             Requested size: 343.80815pt x 197.23045pt.
-[15 <./all-years1.png> <./all-years2.png> <./all-years3.png>]
+Package pdftex.def Info: all-years3.png  used on input line 830.
+(pdftex.def)             Requested size: 476.04309pt x 273.08893pt.
+[15 <./all-years3.png>]
 
-Package xcolor Warning: Incompatible color definition on input line 818.
+Package xcolor Warning: Incompatible color definition on input line 838.
 
 LaTeX Font Info:    Font shape `T1/lmtt/bx/n' in size <10> not available
-(Font)              Font shape `T1/lmtt/b/n' tried instead on input line 820.
-LaTeX Font Info:    Try loading font information for TS1+lmtt on input line 830
+(Font)              Font shape `T1/lmtt/b/n' tried instead on input line 840.
+LaTeX Font Info:    Try loading font information for TS1+lmtt on input line 850
 .
 (/usr/local/texlive/2018/texmf-dist/tex/latex/lm/ts1lmtt.fd
 File: ts1lmtt.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
 
-Package xcolor Warning: Incompatible color definition on input line 1368.
+Package xcolor Warning: Incompatible color definition on input line 1374.
 
 
-Package xcolor Warning: Incompatible color definition on input line 1368.
+Package xcolor Warning: Incompatible color definition on input line 1374.
 
 
-Package xcolor Warning: Incompatible color definition on input line 1368.
+Package xcolor Warning: Incompatible color definition on input line 1374.
 
 [16]
 
-Package xcolor Warning: Incompatible color definition on input line 1368.
+Package xcolor Warning: Incompatible color definition on input line 1374.
 
 
-Package xcolor Warning: Incompatible color definition on input line 1368.
+Package xcolor Warning: Incompatible color definition on input line 1374.
 
 
-Underfull \vbox (badness 10000) detected at line 1368
+Underfull \vbox (badness 10000) detected at line 1374
  []
 
 
-Underfull \vbox (badness 10000) detected at line 1368
+Underfull \vbox (badness 10000) detected at line 1374
  []
 
 
-Package xcolor Warning: Incompatible color definition on input line 1368.
+Package xcolor Warning: Incompatible color definition on input line 1374.
 
 [17]
 
-Package xcolor Warning: Incompatible color definition on input line 1368.
+Package xcolor Warning: Incompatible color definition on input line 1374.
 
 
-Package xcolor Warning: Incompatible color definition on input line 1368.
+Package xcolor Warning: Incompatible color definition on input line 1374.
 
 
-Underfull \vbox (badness 10000) detected at line 1368
+Underfull \vbox (badness 10000) detected at line 1374
  []
 
 
-Underfull \vbox (badness 10000) detected at line 1368
+Underfull \vbox (badness 10000) detected at line 1374
  []
 
 
-Package xcolor Warning: Incompatible color definition on input line 1368.
+Package xcolor Warning: Incompatible color definition on input line 1374.
 
 [18]
 
-Package xcolor Warning: Incompatible color definition on input line 1368.
+Package xcolor Warning: Incompatible color definition on input line 1374.
 
 
-Package xcolor Warning: Incompatible color definition on input line 1368.
+Package xcolor Warning: Incompatible color definition on input line 1374.
 
 
-Underfull \vbox (badness 10000) detected at line 1368
+Underfull \vbox (badness 10000) detected at line 1374
  []
 
 
-Underfull \vbox (badness 10000) detected at line 1368
+Underfull \vbox (badness 10000) detected at line 1374
  []
 
 
-Package xcolor Warning: Incompatible color definition on input line 1368.
+Package xcolor Warning: Incompatible color definition on input line 1374.
 
 [19]
 
-Package xcolor Warning: Incompatible color definition on input line 1368.
+Package xcolor Warning: Incompatible color definition on input line 1374.
 
 
-Package xcolor Warning: Incompatible color definition on input line 1368.
+Package xcolor Warning: Incompatible color definition on input line 1374.
 
 
-Underfull \vbox (badness 10000) detected at line 1368
+Underfull \vbox (badness 10000) detected at line 1374
  []
 
 
-Underfull \vbox (badness 10000) detected at line 1368
+Underfull \vbox (badness 10000) detected at line 1374
  []
 
 
-Package xcolor Warning: Incompatible color definition on input line 1368.
+Package xcolor Warning: Incompatible color definition on input line 1374.
 
 [20]
 
-Package xcolor Warning: Incompatible color definition on input line 1368.
+Package xcolor Warning: Incompatible color definition on input line 1374.
 
 
-Package xcolor Warning: Incompatible color definition on input line 1368.
+Package xcolor Warning: Incompatible color definition on input line 1374.
 
 
-Underfull \vbox (badness 10000) detected at line 1368
+Underfull \vbox (badness 10000) detected at line 1374
  []
 
 
-Underfull \vbox (badness 10000) detected at line 1368
+Underfull \vbox (badness 10000) detected at line 1374
  []
 
 
-Package xcolor Warning: Incompatible color definition on input line 1368.
+Package xcolor Warning: Incompatible color definition on input line 1374.
 
 [21]
 
-Package xcolor Warning: Incompatible color definition on input line 1368.
+Package xcolor Warning: Incompatible color definition on input line 1374.
 
 
-Package xcolor Warning: Incompatible color definition on input line 1368.
+Package xcolor Warning: Incompatible color definition on input line 1374.
 
 
-Underfull \vbox (badness 10000) detected at line 1368
+Underfull \vbox (badness 10000) detected at line 1374
  []
 
 
-Underfull \vbox (badness 10000) detected at line 1368
+Underfull \vbox (badness 10000) detected at line 1374
  []
 
 
-Package xcolor Warning: Incompatible color definition on input line 1368.
+Package xcolor Warning: Incompatible color definition on input line 1374.
 
 [22]
 
-Package xcolor Warning: Incompatible color definition on input line 1368.
+Package xcolor Warning: Incompatible color definition on input line 1374.
 
 
-Package xcolor Warning: Incompatible color definition on input line 1368.
+Package xcolor Warning: Incompatible color definition on input line 1374.
 
 
-Underfull \vbox (badness 10000) detected at line 1368
+Underfull \vbox (badness 10000) detected at line 1374
  []
 
 
-Underfull \vbox (badness 10000) detected at line 1368
+Underfull \vbox (badness 10000) detected at line 1374
  []
 
 
-Package xcolor Warning: Incompatible color definition on input line 1368.
+Package xcolor Warning: Incompatible color definition on input line 1374.
 
 [23]
 
-Package xcolor Warning: Incompatible color definition on input line 1368.
+Package xcolor Warning: Incompatible color definition on input line 1374.
 
 
-Package xcolor Warning: Incompatible color definition on input line 1368.
+Package xcolor Warning: Incompatible color definition on input line 1374.
 
 
-Underfull \vbox (badness 10000) detected at line 1368
+Underfull \vbox (badness 10000) detected at line 1374
  []
 
 
-Underfull \vbox (badness 10000) detected at line 1368
+Underfull \vbox (badness 10000) detected at line 1374
  []
 
 
-Package xcolor Warning: Incompatible color definition on input line 1368.
+Package xcolor Warning: Incompatible color definition on input line 1374.
 
 [24]
 
-Package xcolor Warning: Incompatible color definition on input line 1368.
+Package xcolor Warning: Incompatible color definition on input line 1374.
 
 
-Package xcolor Warning: Incompatible color definition on input line 1368.
+Package xcolor Warning: Incompatible color definition on input line 1374.
 
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 1371.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 1377.
 [25]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 1371.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 1377.
 (./Project_II-Final-20190404.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 1371.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 1371.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 1377.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 1377.
 
 Package rerunfilecheck Info: File `Project_II-Final-20190404.out' has not chang
 ed.
-(rerunfilecheck)             Checksum: E6FE1FE28DCFB9F2338405A2C20712EC;1518.
+(rerunfilecheck)             Checksum: 258AA6D988FFEB16ECA0DF881246DE50;3831.
 
 LaTeX Warning: There were multiply-defined labels.
 
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 1371.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 1377.
  ) 
 Here is how much of TeX's memory you used:
- 15914 strings out of 492649
- 240757 string characters out of 6129621
- 484164 words of memory out of 5000000
- 19368 multiletter control sequences out of 15000+600000
- 57671 words of font info for 88 fonts, out of 8000000 for 9000
+ 15921 strings out of 492649
+ 240348 string characters out of 6129622
+ 482189 words of memory out of 5000000
+ 19371 multiletter control sequences out of 15000+600000
+ 60669 words of font info for 89 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  44i,10n,51p,1352b,443s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/local/texlive/2018/texmf-dist/fonts/enc/dvips/lm/lm-ts1.enc}{/usr/local
@@ -1301,10 +1272,10 @@ al/texlive/2018/texmf-dist/fonts/type1/public/lm/lmri12.pfb></usr/local/texlive
 f-dist/fonts/type1/public/lm/lmtk10.pfb></usr/local/texlive/2018/texmf-dist/fon
 ts/type1/public/lm/lmtt10.pfb></usr/local/texlive/2018/texmf-dist/fonts/type1/p
 ublic/lm/lmtti10.pfb>
-Output written on Project_II-Final-20190404.pdf (25 pages, 6933923 bytes).
+Output written on Project_II-Final-20190404.pdf (25 pages, 4158342 bytes).
 PDF statistics:
- 487 PDF objects out of 1000 (max. 8388607)
- 371 compressed objects within 4 object streams
- 85 named destinations out of 1000 (max. 500000)
- 12481 words of extra memory for PDF output out of 14400 (max. 10000000)
+ 509 PDF objects out of 1000 (max. 8388607)
+ 406 compressed objects within 5 object streams
+ 89 named destinations out of 1000 (max. 500000)
+ 12541 words of extra memory for PDF output out of 14400 (max. 10000000)
 
