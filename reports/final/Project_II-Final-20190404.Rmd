@@ -44,7 +44,7 @@ Road traffic safety is a crucial component of urban planning and development. No
 
 # Methods
 
-We define the City of Toronto as per the these guidelines (https://www.toronto.ca/city-government/data-research-maps/neighbourhoods-communities/neighbourhood-profiles/). Below are the neighborhood limits and the official 2016 population census estimates:
+We define the city as per the guidelines set by the [City of Toronto](https://www.toronto.ca/city-government/data-research-maps/neighbourhoods-communities/neighbourhood-profiles/). Below are the neighborhood limits and the official 2016 population census estimates:
 
 ```{r echo=FALSE, eval=F}
 # Loading polygon and population data from the City of Toronto
@@ -81,7 +81,7 @@ neighborhoods <- read_sf(dsn = "~/Documents/Github/data_sci_geo/data/neighbourho
 ```
 
 
-```{r echo=F, fig.pos='H', fig.align='center', out.width='75%', fig.cap="\\label{fig:figs}'Population by neighborhood of the City of Toronto in the census year 2016'", warning=F, message=F}
+```{r echo=F, fig.pos='H', fig.align='center', out.width='75%', fig.cap="\\label{fig:figs}Population by neighborhood of the City of Toronto in the census year 2016", warning=F, message=F}
 ###ALTERNATIVE VISUALIZATION
 neighborhoods = rgdal::readOGR(dsn = "~/Documents/Github/data_sci_geo/data/neighbourhoods_planning_areas_wgs84_SEB/", layer = "NEIGHBORHOODS_WGS84",verbose=F)
 accidents <- read.csv("https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/data/accidents.csv",header=T, stringsAsFactors = FALSE)
@@ -149,12 +149,12 @@ p1
 
 The analysis focuses on answering two main questions:
 
-1. Given a collision occurred which areas in Toronto are the most deadly, controlling for other factors?
+1. Given a collision occurred, which areas in Toronto are the most deadly, controlling for other factors?
 2. Which factors are related to the collision safety of neighbourhoods?
 
 ## Data Collection
 
-For our analysis we employed data from the [Toronto Police Service](http://data.torontopolice.on.ca), the [City of Toronto](https://www.toronto.ca/city-government/data-research-maps), and [Environment Canada](http://climate.weather.gc.ca/historical_data/search_historic_data_e.html). Each of these datasets contains different levels of granularity and information, and were therefore combined to obtain the following variables of interest outlined in **Appendix: Dataset Variables and Definitions**.
+For our analysis we employed data from the [Toronto Police Service](http://data.torontopolice.on.ca), the [City of Toronto](https://www.toronto.ca/city-government/data-research-maps), and [Environment Canada](http://climate.weather.gc.ca/historical_data/search_historic_data_e.html). Each of these datasets contain different levels of granularity and information, and were therefore combined to obtain the following variables of interest outlined in **Appendix: Dataset Variables and Definitions**.
 
 ## Data Preparation
 
@@ -171,15 +171,15 @@ data.frame(`Accident Key` = c(5002235651, 5000995174, 5000995174, 1249781),
   kable_styling(bootstrap_options = c("striped"))
 ```
 
-Traffic incident information provided by Toronto Police served as a base for the data used for this analysis. There are 3,902 unique accidents in this dataset. Each of the 11,360 entries represent a party involved in a traffic collision event. Other features such as the location of the collision (intersection, neighborhood, ward), road condition (visibility, road precipitation), driver action (e.g. speeding, involved alcohol), and types of vehicles (e.g. automobile, pedestrian, cyclist) involved were also used.
+Traffic incident information provided by Toronto Police served as a base for the data used for this analysis. There are 3,902 unique accidents in this dataset. Each of the 11,360 entries represent a party involved in a traffic collision event. Other features such as the location of the collision (intersection, neighborhood, ward), road condition (visibility and road precipitation), driver action (e.g. speeding, involved alcohol), and types of vehicles (e.g. automobile, pedestrian, cyclist) involved were also used.
 
-Population counts for 2011 and 2016 are available through the national census for each neighborhood. The populations for the dates not provided by the census were extrapolated using a linear growth model. 
+Population counts for 2011 and 2016 are available through the national census for each neighborhood. The populations for dates not provided by the census were extrapolated using a linear growth model. 
 
 Historical weather data collected from the station in [University of Toronto](https://goo.gl/maps/g8KZF6SWUw82) was also merged based on the day the accident occurred.
 
 ## Exploratory Analysis
 
-Since the data is spatial in nature, it was of foremost interest to be able to plot the accidents on a map. In order to interact with the visualization and filter data by features of interest a Shiny application was created. The following are instructions on downloading and using the application. Because the function `rgdal::readOGR` requires a file path, calibrations must be made on your device to use the application.
+Since the data is spatial in nature, it was of foremost interest to be able to plot the accidents on a map. In order to filter data by features of interest and interact with points of interest, a Shiny application was created. The following are instructions on downloading and using the application. Because the function `rgdal::readOGR` requires a file path, calibrations must be made on your device to use the application.
 
   1. Download `global.R`, `ui.R`, and `server.R` from [here](https://github.com/sergiosonline/data_sci_geo/tree/master/reports/interactive%20app/accidents_map)
   
@@ -208,9 +208,9 @@ download.file(url = url10,
 knitr::include_graphics(path="general-app.png")
 ```  
 
-Using this application for our exploratory analysis allowed us to uncover some interesting trends quite quickly. Another advantage was that the application was one way to check whether a feature was reasonable to include into our models. Moreover, because it is simple to add inputs and functionality we could customize it to meet our needs dynamically.
+Using this application for our exploratory analysis allowed us to uncover some interesting trends quite quickly. Another advantage was that it provided a way to check whether a feature was reasonable to include into our models. Moreover, because it is relatively simple to add inputs and functionality, we were able to customize it to meet our needs dynamically.
 
-Firstly, the number of accidents did not appear to increase with year even though the population of Toronto grew by a considerable amount from 2007 to 2017. While it's great news for Torontonians, this could be a result of many factors. It would be favorable to assume that the number of accidents decreased due to the efforts of the City to improve road safety, it is equally likely for it to have been because the Toronto Police were less rigorous with their data keeping, or that people involved in accidents were less likely to report it and get the police involved. In addition, while the total number of accidents have been going down, the number of fatal accidents have remained stable, causing the proportion of fatal accidents to actually increase by year.
+Firstly, the number of accidents did not appear to increase with year even though the population of Toronto grew by a considerable amount from 2007 to 2017. While it's great news for Torontonians, this could be a result of many factors. While it would be favorable to assume that the number of accidents decreased due to the efforts of the City to improve road safety, it is equally likely to have been because the Toronto Police were less rigorous with their data keeping, or that people involved in accidents were less likely to report it and get the police involved. In addition, while the total number of accidents have been going down, the number of fatal accidents have remained stable, causing the proportion of fatal accidents to actually increase by year.
 
 Any plots with smooth lines used Loess - the default in ggplot to avoid distracting the reader if the data was very noisy.
 
@@ -243,7 +243,7 @@ p %>% group_by(monthyear) %>%
 
 The accidents also appear to be concentrated in downtown core which is likely due to the high population density. However, it is worthy to note that fatal accidents do not appear to be concentrated in downtown. This could be due to the lower speed limits, and shorter intersections which do not allow cars to accelerate as much as freeways or even arterial roads.
 
-The types of vehicles that were involved in an accident also displayed differences in the proportion of fatalities recorded. All accidents in the dataset represent those that involved automobiles and therefore, as expected, when pedestrians or cyclists were involved as well, the proportion of fatalities was much higher. Accidents involving bicycles also revealed interesting spatial patterns. 
+The types of vehicles that were involved in an accident also displayed differences in the proportion of fatalities recorded. All accidents in the dataset represent those that involved automobiles and therefore, as expected, when pedestrians or cyclists were also involved, the proportion of fatalities was much higher. Accidents involving bicycles also revealed interesting spatial patterns. 
 
 ```{r echo=F, fig.pos='H', fig.align='center', out.width=c('45%','45%'),fig.subcap=c('Pedestrians', 'Cyclists'), message=F,fig.cap="\\label{fig:figs}Pedestrian and Cyclist Deaths in the City of Toronto"}
 ## Visualizing neighborhoods of Toronto for reference
@@ -275,7 +275,7 @@ p %>% mutate(clear = visibility == "Clear") %>%
   labs(color = "Clear") + theme_minimal() 
 ```
 
-Surprisingly, if it had precipitated the day of the accident, there were periods of time where it was less likely we were to find a fatal accident. This may be because bad weather deters people from going outside and driving. Note that due to data limitations, the type of precipitation was not distinguished.
+Surprisingly, if it had precipitated the day of the accident, there were periods of time where it was less likely to find a fatal accident. This may be because bad weather deters people from going outside and driving. Note that due to data limitations, the type of precipitation was not distinguished.
 
 ```{r  eval=T, echo=F, fig.pos='H', fig.align='center', out.width=c('40%','40%'), fig.subcap=c('Count', 'Proportion'), fig.cap="\\label{fig:figs}Loess-Smoothed plots of Accidents by Precipitation in the City of Toronto in the years 2007 - 2017", warning=F, message=F}
 p %>%
@@ -295,7 +295,7 @@ p %>%
   labs(color = "Accident Class") + theme_minimal()
 ```
 
-By summing up counts from 2007 to 2017, West Humber-Clairville appeared to be the deadliest intersection followed by South Parkdale, then Wexford/Maryvale. Thankfully, the fatalities appeared to be quite low compared to the total number of collisions reported by the Toronto Police.
+By summing up counts from 2007 to 2017, Don Valley Village appeared to be the deadliest intersection followed by South Parkdale, then West Humber-Clairville. Thankfully, the fatalities appeared to be quite low compared to the total number of collisions reported by the Toronto Police.
 
 ```{r echo = F}
 accidents <- read.csv("https://raw.githubusercontent.com/sergiosonline/data_sci_geo/master/data/final/accidents.csv", check.names = F)
@@ -306,13 +306,14 @@ accidents %>% group_by(accident_key) %>%
   group_by(hood_name) %>%
   dplyr::summarize(`Total Fatalities` = sum(injury == "Fatal", na.rm = T),
             `Total Collisions` = n()) %>%
+  rename(Neighborhood = hood_name) %>%
   arrange(desc(`Total Fatalities`)) %>%
   head() %>%
   kable()%>%
   kable_styling(bootstrap_options = c("striped"))
 ```
 
-West Humber-Clairville, and Wexford/Maryvale appear again as a dangerous neighborhood even when focussing on pedestrian or cyclist fatalities.
+The rankings for deadliest neighborhoods change when looking at accidents that involved pedestrians or cyclists. Keeping in mind the counts are over all 11 years, the total number of fatal accidents involving pedestrians and cyclists are extremely low and therefore a ranking of deadliest neigborhoods for these accidents are not explored further.
 
 ```{r echo = F}
 accidents %>% 
@@ -323,6 +324,7 @@ accidents %>%
   group_by(hood_name) %>%
   dplyr::summarize(`Total Pedestrian Fatalities` = sum(injury == "Fatal", na.rm = T),
             `Total Collisions with Pedestrians` = n()) %>%
+  rename(Neighborhood = hood_name) %>%
   arrange(desc(`Total Pedestrian Fatalities`)) %>%
   head() %>%
   kable()%>%
@@ -336,6 +338,7 @@ accidents %>%
   group_by(hood_name) %>%
   dplyr::summarize(`Total Cyclist Fatalities` = sum(injury == "Fatal", na.rm = T),
             `Total Collisions with Cyclists` = n()) %>%
+  rename(Neighborhood = hood_name) %>%
   arrange(desc(`Total Cyclist Fatalities`)) %>%
   head() %>%
   kable()%>%
@@ -377,7 +380,7 @@ freqmod1 <- glmer(as.factor(ACCLASS) ~ Days_since_start2 + Tot_precip + Min_temp
 ```
 
 ## Bayesian Mixed-Effects Semi-parametric Logit Model
-Mixed effects logistic regression is used to model binary outcome variables, in which the odds of the outcomes are modeled as a linear combination of the predictor variables when data are clustered (random effects). This mixed effect model is used to describe the binomial probability of an auto accident resulting to fatality, taking into account not just unobserved differences between neighborhoods, but also the evolution of these odds through time with the inclusion of semi-parametric terms.
+Mixed effects logistic regression is used to model binary outcome variables in which the odds of the outcomes are modelled as a linear combination of the predictor variables when data are clustered (random effects). This mixed effect model is used to describe the binomial probability of an auto accident resulting in a fatality. It takes into account not just unobserved differences between neighborhoods, but also the evolution of these odds through time with the inclusion of semi-parametric terms.
 \begin{equation}
 Y_{ijt} \sim \text{bernoulli}(\pi_{ijt})
 \end{equation}
@@ -391,11 +394,11 @@ U_i \sim N(0, \sigma^2_U)\;\;\;\text{ (Residual Time Component)}
 W_{t+1} - W_{t} \sim N(0, \sigma^2_W)\;\;\;\text{ (RW1 - Time Trend Component)}
 \end{equation}
 
-The fixed effects of this model contains are *visibility*, *types of road*, *traffic control* and *Precipitation*. Those covariates used in the model are unrelated to the personel involved in the accidents, so factors such as condition of the drivers are not included.
+The fixed effects of this model are *visibility*, *types of road*, *traffic control* and *Precipitation*. The covariates used in the model are unrelated to the personel involved in the accidents, so factors such as condition of the drivers are not included.
 
 - The covariate  **visibility** was binarized to either “Clear” or “Not Clear”, “Clear” was used as reference. 
 - For covariate **types of road**, "Major Arterial", "Major Arterial Ramp" and "Minor Arterial" were grouped into “Arterial”; "Expressway", "Expressway Ramp" were grouped into “expressway”; "Local", "Laneway" were grouped into “Local”, where “Local” was used as reference. 
-- For covariate **traffic control**, "School Guard", "Police Control", "Traffic Controller" were grouped into "Human Control", and since there is not fatal accident in “Human Control”, all records under “Human Control” were removed to avoid spiked estimate."Stop Sign", "Yield Sign", "Traffic Gate" were grouped into "Traffic Sign” and "Pedestrian Crossover", "Streetcar (Stop for)" were grouped into "Pedestrian Crossing". “No Traffic Control” was used as reference.
+- For covariate **traffic control**, "School Guard", "Police Control", "Traffic Controller" were grouped into "Human Control", and since there are no fatal accidents for “Human Control”, all records under “Human Control” were removed to avoid a spiked estimate."Stop Sign", "Yield Sign", "Traffic Gate" were grouped into "Traffic Sign” and "Pedestrian Crossover", "Streetcar (Stop for)" were grouped into "Pedestrian Crossing". “No Traffic Control” was used as reference.
 
 
 ```{r echo=F}
@@ -555,7 +558,7 @@ accident_ts_gam = gam(value ~ monthf + offset(log_pop) + s(day_num) + s(hood_id,
 
 
 ## Log Gaussian-Cox Process Model
-A spatial model Log Gaussian-Cox Process (LGCP) is used to fit the accident counts in 2017 with intercept only.
+A spatial model Log Gaussian-Cox Process (LGCP) was considered to fit the accident counts in 2017 with intercept only.
 
 \begin{equation}
 Y_{ij} \sim Poisson(O_{i}\lambda(s_{i}))
@@ -580,12 +583,12 @@ knitr::kable(restable, digits=3, escape=F, format="latex", booktab=T,linesep = "
   kable_styling(latex_options = "hold_position") 
 ```
 
-- The odds of having fatality are higher when driving on highway.
+- The odds of having fatality are higher when driving on the highway.
 - Having traffic signage and traffic light leads to a lower odds, compared to no control.
-- Accidents without pedestrian (vehicle to vehicle) involved has lower odds of having fatality
-- The odds of fatality are slightly lower when there is more precipitation. -2% odds of fatality with 1mm of precipitation increasing. It may be due to drivers slow down their speed when they have difficulty seeing clear ahead or knowing road is slippery.
+- Accidents without pedestrian (vehicle to vehicle) involved have lower odds of having a fatality
+- The odds of fatality are slightly lower when there is more precipitation. -2% odds of fatality with 1mm of precipitation increasing. This may be due to drivers slowing down when they have difficulty seeing ahead or when knowing road is slippery.
 
-The time trend graph below shows the odds of fatality rising until mid-2016 and then decreasing. This is consistent with press reports deeming 2015-2017 as bad years for Toronto in terms of fatality. The decrease post-2017 could be attributed to the Vision Zero municipal plan to address road fatalities.
+The time trend graph below shows the odds of fatality rising until mid-2016 and then decreasing. This is consistent with press reports deeming 2015-2017 as bad years for Toronto in terms of fatality. The decrease post-2017 could be attributed to the [Vision Zero](https://www.toronto.ca/services-payments/streets-parking-transportation/road-safety/vision-zero/vision-zero-plan-overview/) municipal plan to address road fatalities.
 ```{r echo=F,fig.pos='H', fig.align='center',fig.cap="\\label{fig:figs}Plot of time trend effect of Odds of Fatality for the City of Toronto",out.width='65%'}
 # plotting
 matplot(
@@ -594,7 +597,7 @@ exp(fitS$summary.random$weeknum[,
 c('0.025quant','0.975quant', '0.5quant')]), xlab='2007 - 2017', lty=1, col=c('grey','grey','black'), type='l', xaxt="n", ylab='Odds of Fatal vs Non-Fatal Accident')
 axis(1, at=seq(0,600,52), labels=c("2007","2008","2009","2010","2011","2012","2013","2014","2015","2016","2017","2018"), pch=21)
 ```
-The below plots of posterior distributions for the parameters of this model indicate, namely plot (b) on the residual time variation, indicate that there are still temporal factors affecting our estimation which were not controlled for in the model. This makes sense given the arguably little information about road structure and policy that we added as model covariates. It is also important to note that this model does not model correlation in space, which we hypothesize is very important for the task at hand.
+The below plots of posterior distributions for the parameters of this model indicate, namely plot (b) on the residual time variation, that there are still temporal factors affecting our estimation which were not controlled for in the model. This makes sense given the arguably little information about road structure and policy that we added as model covariates. It is also important to note that this model does not model correlation in space, which we hypothesize is very important for the task at hand.
 ```{r  eval=T, echo=F, fig.pos='H', fig.align='center', out.width=c('30%','30%','30%'), fig.subcap=c('SD of time trend', 'SD of residual time variation','SD of neighborhood random effect'), fig.cap="\\label{fig:figs}Plot of posterior distributions on random intercept (neighborhood) and random time components, showing different degrees of influence on the data"}
 par(mar = c(4,4,4,2) + 0.1);
 #par(mgp=c(2,1,0));
@@ -670,7 +673,7 @@ matlines(pred_hood$date, pred_hood[, c("lowerexp", "upperexp", "fitexp")], lty =
 # axis(1, at = 1:11, labels = c("Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"))
 ```
 
-From the table above we may notice summer has higher amount of accidents in general. It may because there are more drivers and more racing cars in the summer. Also drivers are more cautious when driving in snow days. A rate ratio plot below show this same pattern.
+From the table above we notice summer has a higher number of accidents in general. This may be because there are more drivers on the road and perhaps more cars racing illegally. It may also be due to the caution drivers put in their driving in the winter especially when roads are icy or snowy. A rate ratio plot below show this same pattern.
 
 ```{r echo = F,fig.pos='H', fig.align='center', out.width='65%', message=F,fig.cap="\\label{fig:figs}Estimated seasonality of accidents"}
 #plot rr by month
@@ -680,7 +683,7 @@ matplot( accident_ts_gam_pred_rr, log = "y", xaxt = "n", xlab = "Months", type =
 axis(1, at = 1:11, labels = c("Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"))
 ```
 
-Below are plots of number of accidents happend per month in Toronto and the predictions of accidents in neighbour 5 and 122 from GAM. In gereral they capture a trend that the monthly number of accidents are descreasing over years.
+Below are plots of the number of accidents that occurred per month in Toronto and the predictions of accidents in neighbourhood 5 (Elms-Old Rexdale) and 122 (Birchcliffe-Cliffside) from GAM. In gereral they capture a trend that the monthly number of accidents are descreasing by year.
 
 ```{r echo = F,fig.pos='H', fig.align='center', out.width='65%', message=F}
 accidents_ts_y = accidents4 %>% group_by( year,month) %>% dplyr::summarize(value_perd=n())
@@ -705,7 +708,7 @@ plot_predict_hoodid(122)
 
 ## Log Gaussian-Cox Process Spatial Model
 
-The plots below correspond to the observed and expected accident counts ($\lambda$) in Toronto in the year 2017, as estimated by our model. We could see that many accidents are expected in downtown area and along the Yonge street. More traffic control may be required, perhaps in the shape of better signage or human control. 
+The plots below correspond to the observed and expected accident counts ($\lambda$) in Toronto in the year 2017 as estimated by our model. We could see that many accidents are expected in downtown area and along Yonge street. More traffic control may be required, perhaps in the shape of better signage or human control. 
 
 ```{r echo=F, eval=F,fig.pos='H',fig.align='center',out.width=c('45%','45%'),fig.subcap=c('Observed', 'Estimated'),fig.cap="\\label{fig:figs}Observed and estimated accident counts in Toronto in the year 2017"}
 # neighborhoods = rgdal::readOGR(dsn = "C:/Users/ThinkPad/Desktop/Eddy/DS", layer = "NEIGHBORHOODS_WGS84")
